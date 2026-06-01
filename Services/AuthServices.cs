@@ -19,5 +19,11 @@ namespace haru.market.Services
 
             return await FirebaseAuth.DefaultInstance.CreateUserAsync(args);
         }
+
+        // us 03 for login persistence
+        public async Task<string> CreateSessionTokenAsync(string uid)
+        {
+            return await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync(uid);
+            }
+        }
     }
-}
