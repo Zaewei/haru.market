@@ -1,0 +1,32 @@
+@model haru.market.Models.RegisterViewModel
+
+<div class="container" style="padding: 50px;">
+    <h2>Test Registration Page</h2>
+    
+    <form asp-action="Register" method="post">
+        <div asp-validation-summary="All" style="color:red;"></div>
+
+        <div>
+            <label>Username:</label><br />
+            <input asp-for="Username" /><br /><br />
+        </div>
+        <div>
+            <label>Email:</label><br />
+            <input asp-for="Email" /><br /><br />
+        </div>
+        <div>
+            <label>Delivery Address:</label><br />
+            <input asp-for="DeliveryAddress" /><br /><br />
+        </div>
+        <div>
+            <label>Contact Details:</label><br />
+            <input asp-for="ContactDetails" /><br /><br />
+        </div>
+        <div>
+            <label>Password:</label><br />
+            <input asp-for="Password" type="password" /><br /><br />
+        </div>
+
+        <button type="submit">Submit Test Registration</button>
+    </form>
+</div>
