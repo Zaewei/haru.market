@@ -6,12 +6,16 @@ var builder = WebApplication.CreateBuilder(args);
 // this is the firebase admin sdk 
 if (FirebaseApp.DefaultInstance == null)
 {
-    // json file name for firebase service account key
     string keyPath = "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json";
     
+    string jsonContent = System.IO.File.ReadAllText(keyPath);
+    var credential = ServiceAccountCredential.FromServiceAccountData(
+        new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(jsonContent))
+    ).ToGoogleCredential();
+
     builder.Services.AddSingleton(FirebaseApp.Create(new AppOptions()
     {
-        Credential = GoogleCredential.FromFile(keyPath)
+        Credential = credential
     }));
 }
 

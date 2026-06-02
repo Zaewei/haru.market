@@ -10,20 +10,20 @@ namespace haru.market.Services
 
         public ProductService()
         {
-            // points to the key file for firebase admin auth, very neat
             string keyPath = "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json";
 
-            // loads the service account credentials from the file path for authentication
-            GoogleCredential credential = GoogleCredential.FromFile(keyPath);
+            string jsonContent = System.IO.File.ReadAllText(keyPath);
+            var credential = ServiceAccountCredential.FromServiceAccountData(
+                new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(jsonContent))
+            ).ToGoogleCredential();
 
-            // initializes the firebase db connection using the project id and the loaded credentials
             _firestoreDb = new FirestoreDbBuilder
             {
                 ProjectId = "haru-market",
                 Credential = credential
             }.Build();
         }
-
+        
         public async Task<string> AddProductAsync(ProductViewModel product)
         {
             CollectionReference collection = _firestoreDb.Collection("products");
