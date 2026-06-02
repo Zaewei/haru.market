@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // this is the firebase admin sdk 
 if (FirebaseApp.DefaultInstance == null)
 {
-    // Double-check your sidebar to ensure this matches your exact JSON filename!
+    // json file name for firebase service account key
     string keyPath = "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json";
     
     builder.Services.AddSingleton(FirebaseApp.Create(new AppOptions()
@@ -14,14 +14,16 @@ if (FirebaseApp.DefaultInstance == null)
         Credential = GoogleCredential.FromFile(keyPath)
     }));
 }
-// =========================================================================
 
-// Add services to the container.
+// add services to the container
 builder.Services.AddControllersWithViews();
+
+// register the product service as a singletoon so it can be injected into the controllers when needed
+builder.Services.AddSingleton<haru.market.Services.ProductService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// http request confirmation
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -30,7 +32,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Enables the serving of static visual layouts (like CSS, images, and JS files)
+// enables the serving of css, js, and image files from the wwwroot folder
 app.UseStaticFiles(); 
 
 app.UseRouting();
