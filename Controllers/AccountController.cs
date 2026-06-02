@@ -38,6 +38,7 @@ namespace haru.market.Controllers
         }
 
         // us 03 customer login
+    
         [HttpGet]
         public IActionResult Login()
         {
@@ -47,7 +48,6 @@ namespace haru.market.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            // if form validation fails, stop instantly
             if (!ModelState.IsValid) 
             {
                 return View(model); 
@@ -55,12 +55,21 @@ namespace haru.market.Controllers
 
             try
             {
-                // redirect to home as placeholder for successful login
-                return RedirectToAction("Index", "Home");
+                // using the unique uid from firebase to create a session token
+                string mockUid = "J3ZInHktIaS3Lpphm9YUK89RBwU2"; 
+                
+                string sessionToken = await _authService.CreateSessionTokenAsync(mockUid);
+                
+                if (model.RememberMe)
+                {
+                    // browser cookies for remember me
+                }
+
+                // printing of success token
+                return Content($"Success! Secure Session Token Generated: {sessionToken.Substring(0, 15)}...");
             }
             catch (Exception ex)
             {
-                // if it breaks show error message on form
                 ModelState.AddModelError(string.Empty, $"Login failed: {ex.Message}");
                 return View(model);
             }
