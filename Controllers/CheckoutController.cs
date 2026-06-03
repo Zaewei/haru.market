@@ -58,14 +58,21 @@ namespace haru.market.Controllers
                 return View("Index", model);
             }
 
-            // gets the order details from the form and inputs it into firestore
-            string orderToken = await _orderService.CreateOrderAsync(model);
+            try
+            {
+                // process checkout in real time with inv sync and order registration in firestore
+                string orderToken = await _orderService.CreateOrderAsync(model);
 
-            // sends the invoice
-            _orderService.DispatchInvoiceBackground(orderToken, model);
+                // background invoice after successful inventory sync and order creation
+                _orderService.DispatchInvoiceBackground(orderToken, model);
 
-            // return user confirmation
-            return Content($"Fulfillment Success! US-09 Captured logistics data. Order Document ID registered: {orderToken}. US-10: Automated Invoice has been securely dispatched to {model.CustomerEmail}!");
+                return Content($"Fulfillment Success! US-09 Captured logistics data. Order Document ID registered: {orderToken}. US-10: Automated Invoice has been securely dispatched to {model.CustomerEmail}! US-11: Stock counts synced.");
+            }
+            catch (System.Exception ex)
+            {
+                // catches any exceptions thrown during the transaction
+                return Content($"Checkout Aborted by Transaction Protection: {ex.Message}");
+            }
         }
     }
 }

@@ -31,32 +31,68 @@ namespace haru.market.Services
         }
 
         // register complete order details to firestore and return the doc id as order fulfillment token
+        // this is us 09 and 011
         public async Task<string> CreateOrderAsync(OrderPlacementViewModel orderData)
         {
-            CollectionReference ordersCollection = _firestoreDb.Collection("orders");
-
-            // calculate totals based on the items
-            double totalAmount = orderData.Items.Sum(item => (double)item.Price * item.Quantity);
-
-            var firestoreOrderObject = new Dictionary<string, object>
+            // entire checkout process 
+            string generatedOrderId = await _firestoreDb.RunTransactionAsync(async transaction =>
             {
-                { "customerName", orderData.CustomerName },
-                { "shippingAddress", orderData.ShippingAddress },
-                { "customerEmail", orderData.CustomerEmail },
-                { "totalAmount", totalAmount },
-                { "createdAt", Timestamp.FromDateTime(DateTime.UtcNow) },
-                { "items", orderData.Items.Select(i => new Dictionary<string, object>
-                    {
-                        { "productId", i.ProductId },
-                        { "productName", i.ProductName },
-                        { "price", Convert.ToDouble(i.Price) },
-                        { "quantity", i.Quantity }
-                    }).ToList() 
-                }
-            };
+                double totalAmount = 0;
 
-            DocumentReference docRef = await ordersCollection.AddAsync(firestoreOrderObject);
-            return docRef.Id; // returns the order fulfilment token
+                // verify stock for each item in order and update inventory counts
+                foreach (var item in orderData.Items)
+                {
+                    DocumentReference productRef = _firestoreDb.Collection("products").Document(item.ProductId);
+                    DocumentSnapshot productSnapshot = await transaction.GetSnapshotAsync(productRef);
+
+                    if (!productSnapshot.Exists)
+                    {
+                        throw new Exception($"Product '{item.ProductName}' no longer exists in our market catalog repository.");
+                    }
+
+                    // reads the current stock quantity for the item from the db
+                    long currentStock = productSnapshot.GetValue<long>("stockQuantity");
+                    
+                    if (currentStock < item.Quantity)
+                    {
+                        // stops the entire order if stock is insufficient for any item
+                        throw new Exception($"Insufficient stock quantity available for {item.ProductName}. Current stock: {currentStock} units.");
+                    }
+
+                    // calculates the updated stock count after the purchase
+                    long updatedStockCount = currentStock - item.Quantity;
+                    
+                    // updates the stock quantity in the database for each item
+                    transaction.Update(productRef, "stockQuantity", updatedStockCount);
+
+                    // total amount for oder
+                    totalAmount += (double)item.Price * item.Quantity;
+                }
+
+                // if inventory checks pass then proceeed to create the order document
+                CollectionReference ordersCollection = _firestoreDb.Collection("orders");
+                var firestoreOrderObject = new Dictionary<string, object>
+                {
+                    { "customerName", orderData.CustomerName },
+                    { "shippingAddress", orderData.ShippingAddress },
+                    { "customerEmail", orderData.CustomerEmail },
+                    { "totalAmount", totalAmount },
+                    { "createdAt", Timestamp.FromDateTime(DateTime.UtcNow) },
+                    { "items", orderData.Items.Select(i => new Dictionary<string, object>
+                        {
+                            { "productId", i.ProductId },
+                            { "productName", i.ProductName },
+                            { "price", Convert.ToDouble(i.Price) },
+                            { "quantity", i.Quantity }
+                        }).ToList() 
+                    }
+                };
+
+                DocumentReference newOrderRef = await ordersCollection.AddAsync(firestoreOrderObject);
+                return newOrderRef.Id; // commit the transaction and updates to the database, then returns the order document id
+            });
+
+            return generatedOrderId;
         }
 
         // this is the invoice for us 10

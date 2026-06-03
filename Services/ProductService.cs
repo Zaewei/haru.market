@@ -62,6 +62,9 @@ namespace haru.market.Services
                     // maps the data to the product view model and adds it to the list with basic checks for any missing fields
                     productsList.Add(new ProductViewModel
                     {
+
+                        Id = document.Id,
+
                         Name = data.ContainsKey("name") ? data["name"].ToString()! : "Unknown Product",
                         Description = data.ContainsKey("description") ? data["description"].ToString()! : "",
                         Price = data.ContainsKey("price") ? Convert.ToDecimal(data["price"]) : 0.00m,
