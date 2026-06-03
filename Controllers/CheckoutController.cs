@@ -58,8 +58,14 @@ namespace haru.market.Controllers
                 return View("Index", model);
             }
 
+            // gets the order details from the form and inputs it into firestore
             string orderToken = await _orderService.CreateOrderAsync(model);
-            return Content($"Fulfillment Success! US-09 Captured logistics data. Order Document ID registered: {orderToken}");
+
+            // sends the invoice
+            _orderService.DispatchInvoiceBackground(orderToken, model);
+
+            // return user confirmation
+            return Content($"Fulfillment Success! US-09 Captured logistics data. Order Document ID registered: {orderToken}. US-10: Automated Invoice has been securely dispatched to {model.CustomerEmail}!");
         }
     }
 }
