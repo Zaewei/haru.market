@@ -4,6 +4,8 @@ namespace haru.market.Models
 {
     public class ProductViewModel
     {
+        public string? Id { get; set; }
+
         [Required(ErrorMessage = "Product name is required.")]
         [StringLength(100, ErrorMessage = "Product name cannot exceed 100 characters.")]
         public string Name { get; set; } = string.Empty;
