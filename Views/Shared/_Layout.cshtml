@@ -6,47 +6,51 @@
     <title>@ViewData["Title"] - haru.market</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/homepage.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/haru.market.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap" rel="stylesheet">
+    
 </head>
 <body>
     <header>
         <nav class="">
             <div class="TopNav">
-                <div class="Logo navbox">
-                        <img src="~/images/Black_logo.png"  alt="Logo">                
+                <div class="Logo ">
+                        <img src="~/images/Layout/Black_logo.png"  alt="Logo">                
                 </div>
-                <div class="Brand navbox"><a href="#">HARU</a></div>
-                <div class="TopMenu navbox">
+                <div class="Brand "><a href="/Home/Index">HARU</a></div>
+                <div class="TopMenu">
                     <ul>
-                        <li class="TopMenu_search"><a href="#"><img src="~/images/Search-icon.png"  alt="Logo"></a></li>
-                        <li class="TopMenu_user"><a href="#"><img src="~/images/User-icon.png"  alt="Logo"></a></li>
-                        <li class="TopMenu_heart"><a href="#"><img src="~/images/Heart-icon.png"  alt="Logo"></a></li>
-                        <li class="TopMenu_bag"><a href="#"><img src="~/images/Bag-icon.png"  alt="Logo"></a></li> 
+                        <li class="TopMenu_search"><a href="#"><img src="~/images/Layout/Search-icon.png"  alt="Logo"></a></li>
+                        <li class="TopMenu_user"><a href="#"><img src="~/images/Layout/User-icon.png"  alt="Logo"></a></li>
+                        <li class="TopMenu_heart"><a href="#"><img src="~/images/Layout/Heart-icon.png"  alt="Logo"></a></li>
+                        <li class="TopMenu_bag"><a href="#"><img src="~/images/Layout/Bag-icon.png"  alt="Logo"></a></li> 
                     </ul>
 
                 </div>
             </div>
             <div class="BottomNav">
                 <ul>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">Shop</a></li>
-                    <li><a href="#">Lookbook</a></li>   
+                    <li><a href="/Home/Index">Home</a></li>
+                    <li><a href="/Home/Shop">Shop</a></li>
+                    <li><a href="/Home/Lookbook">Lookbook</a></li>   
                 </ul>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div>
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - haru.market - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
+    <footer class=" footer text-muted">
+        <div class="footer_container">
+            <img src="~/images/Layout/Footer.png"  alt="Logo">
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
