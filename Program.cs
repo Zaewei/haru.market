@@ -25,8 +25,11 @@ builder.Services.AddControllersWithViews();
 // register the product service as a singletoon so it can be injected into the controllers when needed
 builder.Services.AddSingleton<haru.market.Services.ProductService>();
 
-builder.Services.AddSingleton<haru.market.Services.OrderService>(); // order processing
+// order processing
+builder.Services.AddSingleton<haru.market.Services.OrderService>();
 
+// lookbook service
+builder.Services.AddSingleton<haru.market.Services.LookbookService>();
 var app = builder.Build();
 
 // http request confirmation

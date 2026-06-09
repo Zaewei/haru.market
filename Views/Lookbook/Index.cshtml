@@ -1,0 +1,51 @@
+@model IEnumerable<haru.market.Models.LookbookViewModel>
+@{
+    var newLookbook = new haru.market.Models.LookbookViewModel();
+}
+
+<div class="container" style="max-width: 900px; padding: 40px 20px;">
+    <h2 style="font-weight: 700; margin-bottom: 5px;">US-12: Themed Lookbook Management Interface</h2>
+    <p style="color: #666; margin-bottom: 35px;">Deploy aesthetic high-fidelity media campaigns to the Firestore cloud repository.</p>
+    
+    <div style="background: #fdfdfd; padding: 30px; border: 1px solid #eaeaea; border-radius: 6px; margin-bottom: 40px;">
+        <h4 style="margin-bottom: 20px; font-weight: 600;">Campaign Upload Stream Form</h4>
+        
+        <form asp-action="UploadLookbook" method="post">
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-weight:600; margin-bottom:5px;">Campaign Theme Title</label>
+                <input name="ThemeTitle" value="@newLookbook.ThemeTitle" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" placeholder="e.g., Summer Minimalism Drop" />
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-weight:600; margin-bottom:5px;">Campaign Narrative Description</label>
+                <textarea name="Description" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Describe the style narrative/story line..."></textarea>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="display:block; font-weight:600; margin-bottom:5px;">High-Fidelity Media Attachment Asset (Image URL)</label>
+                <input name="MediaUrl" value="@newLookbook.MediaUrl" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;" placeholder="http://googleusercontent.com/..." />
+            </div>
+
+            <button type="submit" style="background: #000; color: white; padding: 12px 24px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                Confirm & Publish Collection
+            </button>
+        </form>
+    </div>
+
+    <hr style="border:0; border-top: 1px solid #eee; margin-bottom: 40px;" />
+    
+    <h3 style="font-weight: 700; margin-bottom: 20px;">Live Active Lookbooks (Pulled from Firestore)</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
+        @foreach (var campaign in Model)
+        {
+            <div style="border: 1px solid #eee; border-radius: 6px; overflow: hidden; background: #fff;">
+                <img src="@campaign.MediaUrl" alt="@campaign.ThemeTitle" style="width: 100%; height: 200px; object-fit: cover;" onerror="this.src='https://placehold.co/600x400?text=Asset+Rendering';" />
+                <div style="padding: 15px;">
+                    <h5 style="font-weight: bold; margin-bottom: 5px; font-size: 16px;">@campaign.ThemeTitle</h5>
+                    <p style="color: #666; font-size: 14px; line-height: 1.4; margin-bottom: 10px;">@campaign.Description</p>
+                    <small style="color: #999; font-family: monospace; display: block;">ID: @campaign.Id</small>
+                </div>
+            </div>
+        }
+    </div>
+</div>

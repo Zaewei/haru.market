@@ -135,7 +135,7 @@ namespace haru.market.Services
                     
                     File.WriteAllText(fullStoragePath, invoiceBuilder.ToString());
 
-                    // testing mailkit to send an actual email, very
+                    // testing mailkit to send an actual email, very neat
                     var email = new MimeMessage();
                     email.From.Add(new MailboxAddress("haru.market Support", "support@haru.market"));
                     email.To.Add(new MailboxAddress(orderData.CustomerName, orderData.CustomerEmail));
