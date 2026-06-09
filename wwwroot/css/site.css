@@ -29,3 +29,120 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+
+nav {
+  background-color: #F8CBD5;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 15.5vh;
+}
+
+.TopNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  width: 100%;
+  height: 10vh;
+}
+
+.Logo {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.Logo img {
+    width: 7vh;
+    height: auto;
+    margin-left: 1rem;
+}
+
+.Brand {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Brand a {
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+  text-decoration: none;
+  color: #0f0f0f;
+  font-size: 2.5rem;
+}
+
+.TopMenu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 5vh;
+}
+
+.TopMenu ul {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.TopMenu li a {
+  font-family: 'Times New Roman', serif;
+  text-decoration: none;
+  color: #0f0f0f;
+  font-size: 1.2rem;
+}
+
+.TopMenu_search img {
+  width: 3.5vh;
+  height: auto;
+}
+
+.TopMenu_user img {
+  width: 4vh;
+  height: auto;
+}
+
+.TopMenu_heart img {
+  width: 4vh;
+  height: auto;
+}
+
+.TopMenu_bag img {
+  width: 5vh;
+  height: auto;
+}
+
+.BottomNav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 5vh;
+}
+
+.BottomNav ul {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.BottomNav li a {
+  font-family: 'Times New Roman', serif;
+  text-decoration: none;
+  color: #0f0f0f;
+  font-size: 1.2rem;
+}
+
+.navbox {
+  width: 20%;
+  height: 100%;
+}
