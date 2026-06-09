@@ -30,6 +30,7 @@ builder.Services.AddSingleton<haru.market.Services.OrderService>();
 
 // lookbook service
 builder.Services.AddSingleton<haru.market.Services.LookbookService>();
+
 var app = builder.Build();
 
 // http request confirmation

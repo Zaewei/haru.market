@@ -5,7 +5,7 @@ namespace haru.market.Models
 {
     public class LookbookViewModel
     {
-        public string? Id { get; set; } // Firestore Document ID tracking reference
+        public string? Id { get; set; } // document id from firestore
 
         [Required(ErrorMessage = "Campaign theme title is required.")]
         [StringLength(100, ErrorMessage = "Campaign title cannot exceed 100 characters.")]
