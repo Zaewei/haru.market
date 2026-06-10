@@ -1,5 +1,13 @@
 
 
+.BottomNav li a {
+  font-family: 'Times New Roman', serif;
+  text-decoration: none;
+  color: #0f0f0f;
+  font-size: 1rem;
+}
+
+
 .LookbookSection {
     position: relative;
     width: 100%;
@@ -41,19 +49,19 @@
 }
 
 @keyframes horizontalSlide {
-    0%, 16.67% { /* First slide visible for 5 seconds */
+    0%, 16.67% { 
         transform: translateX(0);
     }
-    20.83%, 37.5% { /* Second slide visible for 5 seconds */
+    20.83%, 37.5% { 
         transform: translateX(-25%);
     }
-    41.67%, 58.33% { /* Third slide visible for 5 seconds */
+    41.67%, 58.33% { 
         transform: translateX(-50%);
     }
-    62.5%, 79.17% { /* Fourth slide visible for 5 seconds */
+    62.5%, 79.17% { 
         transform: translateX(-75%);
     }
-    83.33%, 100% { /* Loop back to first slide */
+    83.33%, 100% { 
         transform: translateX(0);
     }
 }
@@ -89,7 +97,6 @@
     padding-top: 5vh;
     gap: 20px;
     width: 100%;
-    background-color: #F8F6EE;
 }
 
 .FeaturedSection_container h2{
@@ -109,9 +116,24 @@
     min-height:50vh;
     width: 75%;
     scroll-snap-type: x mandatory;
-    scrollbar-width: none;
 }
 
+.FeaturedItem_Container::-webkit-scrollbar {
+    height: 0;
+}
+
+.FeaturedItem_Container:hover::-webkit-scrollbar {
+    height: 8px;
+}
+
+.FeaturedItem_Container:hover::-webkit-scrollbar-thumb {
+    background: #ee5677;
+    border-radius: 4px;
+}
+
+.FeaturedItem_Container:hover::-webkit-scrollbar-track {
+    margin-top: 2px;
+}
 
 .FeaturedItem_card {
     min-width: 40vh;

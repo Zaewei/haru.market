@@ -3,8 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - haru.market</title>
+    <title>@ViewData["Title"] - Haru.Market</title>
     <script type="importmap"></script>
+    <link rel="icon" type="image/png" href="~/images/Layout/Site_Ico.ico" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/Site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/haru.market.styles.css" asp-append-version="true" />
@@ -35,9 +36,26 @@
             </div>
             <div class="BottomNav">
                 <ul>
-                    <li><a href="/Home/Index">Home</a></li>
-                    <li><a href="/Home/Shop">Shop</a></li>
-                    <li><a href="/Home/Lookbook">Lookbook</a></li>   
+                        <li>
+                            <a href="/Home/Index"
+                            class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
+                                Home
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/Home/Shop"
+                            class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Shop" ? "active" : "")">
+                                Shop
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/Home/Lookbook"
+                            class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Lookbook" ? "active" : "")">
+                                Lookbook
+                            </a>
+                        </li>    
                 </ul>
             </div>
         </nav>
@@ -50,7 +68,9 @@
 
     <footer class=" footer text-muted">
         <div class="footer_container">
-            <img src="~/images/Layout/Footer.png"  alt="Logo">
+            
+        </div>
+
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
