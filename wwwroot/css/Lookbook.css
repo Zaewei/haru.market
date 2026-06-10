@@ -1,4 +1,148 @@
-body {
-    padding: 0;
-    margin: 0;
+
+.LookbookSection {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    position: relative;
+}
+
+.LookBookPreview_container {
+    display: flex;
+    width: 400%; 
+    height: 100vh;
+    transition: transform 0.5s ease;
+    animation: horizontalSlide 24s infinite;
+}
+
+.slide {
+    flex: 0 0 25%; 
+    height: 100%;
+    width: 100%;
+    background-position: center;
+    background-size: cover;
+    
+}
+
+.slide:nth-child(1) {
+    background-image: url('/images/Home/Home1.jpg');
+}
+
+.slide:nth-child(2) {
+    background-image: url('/images/Home/Home2.jpg');
+}
+
+.slide:nth-child(3) {
+    background-image: url('/images/Home/Home3.jpg');
+}
+
+.slide:nth-child(4) {
+    background-image: url('/images/Home/Home4.jpg');
+}
+
+@keyframes horizontalSlide {
+    0%, 16.67% { 
+        transform: translateX(0);
+    }
+    20.83%, 37.5% { 
+        transform: translateX(-25%);
+    }
+    41.67%, 58.33% { 
+        transform: translateX(-50%);
+    }
+    62.5%, 79.17% { 
+        transform: translateX(-75%);
+    }
+    83.33%, 100% { 
+        transform: translateX(0);
+    }
+}
+
+.LookbookSets_Container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 20vh 15vh 20vh 15vh;
+
+}
+
+.Sets_Container {
+    width: 100%;
+    height: 60vh;
+    padding: 0 15vh 10vh 15vh;
+    border-bottom: 1.5px solid black;
+
+}
+
+.Item_Container {
+    display:flex;
+    width:100%;
+    height: 100%;
+}
+
+.Side_Image {
+    direction: rtl;
+    display: flex;
+    flex-direction: column;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    width: 40%;
+    height: 100%;
+
+}
+
+.Side_Image::-webkit-scrollbar {
+    height: 0;
+    width: 5px;
+    margin-right: 10px;
+}
+
+.Side_Image:hover::-webkit-scrollbar {
+    height: 5px;
+    width: 5px;
+}
+
+.Side_Image:hover::-webkit-scrollbar-thumb {
+    background: #ee5677;
+    border-radius: 4px;
+}
+
+.Side_Image:hover::-webkit-scrollbar-track {
+    margin-top: 2px;
+}
+
+
+.FeaturedImage_Card {
+    direction: ltr;
+    width: 100%;
+    height: 20vh;
+    margin-bottom:10%;
+    flex-shrink: 0; 
+    background: #EEEEEE;
+}
+
+.Main_Image {
+    flex-grow: 1;
+    width:100%;
+    height: 100%;
+    margin: 0 2%;
+    background: #EEEEEE;
+}
+
+.Main_Image img {
+    width:100%;
+    height: 100%;
+}
+
+.About_Text {
+    display: flex;
+    flex-direction: column;
+    width:70%;
+    height: 100%;
+}
+
+.About_Text_Button {
+
 }
