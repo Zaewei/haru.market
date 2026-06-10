@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HARU Admin</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/homepage.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/haru.market.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/admin-base.css" asp-append-version="true" />
+</head>
+<body>
+
+    <header>
+        <nav>
+            <div class="TopNav">
+
+                <!-- LEFT: hamburger + logo together in one navbox -->
+                <div class="admin-left-nav navbox">
+                    <button class="hamburger-btn"
+                            id="hamburgerBtn"
+                            aria-label="Toggle navigation"
+                            aria-expanded="false"
+                            aria-controls="adminSidebar">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <img src="~/images/Black_logo.png" alt="Logo" class="admin-logo" />
+                </div>
+
+                <!-- CENTER: HARU brand -->
+                <div class="Brand navbox">
+                    <a href="#">HARU</a>
+                    <span class="AdminBadge">Admin Panel</span>
+                </div>
+
+                <!-- RIGHT: icons -->
+                <div class="TopMenu navbox">
+                    <ul>
+                        <li class="TopMenu_search"><a href="#"><img src="~/images/Search-icon.png" alt="Search" /></a></li>
+                        <li class="TopMenu_user"><a href="#"><img src="~/images/User-icon.png" alt="User" /></a></li>
+                    </ul>
+                </div>
+
+            </div>
+            <div class="BottomNav">
+                <ul>
+                    <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li><a asp-controller="Product" asp-action="Index">Shop</a></li>
+                    <li><a asp-controller="Lookbook" asp-action="Index">Lookbook</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="admin-body">
+
+        <aside class="admin-sidebar" id="adminSidebar">
+
+            <span class="sidebar-label">Main</span>
+            <a class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")"
+               asp-controller="Admin" asp-action="Dashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Dashboard
+            </a>
+
+            <span class="sidebar-label">Manage</span>
+            <a class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Lookbooks" ? "active" : "")"
+               asp-controller="Admin" asp-action="Lookbooks">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Lookbooks
+            </a>
+            <a class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ProductManagement" ? "active" : "")"
+               asp-controller="Admin" asp-action="ProductManagement">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                Product Management
+            </a>
+            <a class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Orders" ? "active" : "")"
+               asp-controller="Admin" asp-action="Orders">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Orders
+            </a>
+            <a class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Users" ? "active" : "")"
+               asp-controller="Admin" asp-action="Users">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Users
+            </a>
+
+            <hr class="sidebar-divider" />
+
+            <div class="sidebar-logout">
+                <a class="sidebar-link" asp-controller="Account" asp-action="Logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Logout
+                </a>
+            </div>
+
+        </aside>
+
+        <div class="admin-content">
+            <main role="main">
+                @RenderBody()
+            </main>
+        </div>
+
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
