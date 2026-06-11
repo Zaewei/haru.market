@@ -1,5 +1,6 @@
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Firestore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,12 +18,23 @@ if (FirebaseApp.DefaultInstance == null)
     {
         Credential = credential
     }));
+
+    builder.Services.AddSingleton(provider =>
+    {
+        var firestoreBuilder = new FirestoreDbBuilder
+        {
+            ProjectId = "haru-market",
+            Credential = credential
+        };
+
+        return firestoreBuilder.Build();
+    });
 }
 
 // add services to the container
 builder.Services.AddControllersWithViews();
 
-// register the product service as a singletoon so it can be injected into the controllers when needed
+// register the product service as a singleton so it can be injected into the controllers when needed
 builder.Services.AddSingleton<haru.market.Services.ProductService>();
 
 // order processing
@@ -30,6 +42,9 @@ builder.Services.AddSingleton<haru.market.Services.OrderService>();
 
 // lookbook service
 builder.Services.AddSingleton<haru.market.Services.LookbookService>();
+
+// auth service
+builder.Services.AddSingleton<haru.market.Services.AuthService>();
 
 var app = builder.Build();
 
