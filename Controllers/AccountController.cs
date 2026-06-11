@@ -61,7 +61,10 @@ namespace haru.market.Controllers
             try
             {
                 // using the unique uid from firebase to create a session token
-                string mockUid = "J3ZInHktIaS3Lpphm9YUK89RBwU2"; 
+                string mockUid = "J3ZInHktIaS3Lpphm9YUK89RBwU2";
+
+                // store the uid in the session to maintain user authentication state across requests
+                HttpContext.Session.SetString("UserUid", mockUid);
                 
                 string sessionToken = await _authService.CreateSessionTokenAsync(mockUid);
                 
