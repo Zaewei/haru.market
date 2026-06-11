@@ -8,7 +8,12 @@ namespace haru.market.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly AuthService _authService = new AuthService();
+        private readonly AuthService _authService;
+
+        public AccountController(AuthService authService)
+        {
+            _authService = authService;
+        }
 
         // us 01 customer registration
         [HttpGet]
