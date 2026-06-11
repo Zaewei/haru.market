@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using haru.market.Models;
 using haru.market.Services;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace haru.market.Controllers
 {
@@ -36,6 +37,45 @@ namespace haru.market.Controllers
             // publish to repository and get the generated document id
             await _lookbookService.AddLookbookAsync(model);
             return RedirectToAction(nameof(Index));
+        }
+
+        // US-15 save lookbook to wishlist
+        [HttpPost]
+        public async Task<IActionResult> SaveToWishlist(string lookbookId)
+        {
+            string? uid = HttpContext.Session.GetString("UserUid");
+
+            if (string.IsNullOrEmpty(uid))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var lookbook = await _lookbookService.GetLookbookAsync(lookbookId);
+
+            if (lookbook == null)
+            {
+                return NotFound();
+            }
+
+            await _lookbookService.SaveToWishlistAsync(uid, lookbook);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // wishlist page
+        [HttpGet]
+        public async Task<IActionResult> Wishlist()
+        {
+            string? uid = HttpContext.Session.GetString("UserUid");
+
+            if (string.IsNullOrEmpty(uid))
+            {
+                return RedirectToAction("Login","Account");
+            }
+
+            var wishlist = await _lookbookService.GetWishlistAsync(uid);
+
+            return View(wishlist);
         }
     }
 }
