@@ -41,6 +41,13 @@
             <div style="border: 1px solid #eee; border-radius: 6px; overflow: hidden; background: #fff;">
                 <img src="@campaign.MediaUrl" alt="@campaign.ThemeTitle" style="width: 100%; height: 200px; object-fit: cover;" onerror="this.src='https://placehold.co/600x400?text=Asset+Rendering';" />
                 <div style="padding: 15px;">
+                    // testing - form to save the lookbook campaign to the user's wishlist
+                    <form asp-action="SaveToWishlist"; method="post">
+                        <input type="hidden"; name="lookbookId"; value="@campaign.Id" />
+                        <button type="submit"; style="border:none;background:none;font-size:24px;">
+                            ❤️
+                        </button>
+                    </form>
                     <h5 style="font-weight: bold; margin-bottom: 5px; font-size: 16px;">@campaign.ThemeTitle</h5>
                     <p style="color: #666; font-size: 14px; line-height: 1.4; margin-bottom: 10px;">@campaign.Description</p>
                     <small style="color: #999; font-family: monospace; display: block;">ID: @campaign.Id</small>
