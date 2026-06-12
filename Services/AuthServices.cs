@@ -4,6 +4,9 @@ using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Cloud.Firestore;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 
 namespace haru.market.Services
 {
@@ -50,6 +53,38 @@ namespace haru.market.Services
         public AuthService(FirestoreDb firestoreDb)
         {
             _firestoreDb = firestoreDb;
+        }
+
+        // test login with firebase auth REST API
+        public async Task<string?> LoginUserAsync(string email, string password)
+        {
+            string apiKey = "AIzaSyA9djCxGd4Xg0QJKCm_VIPfYvytg5-CjOQ";
+
+            using var client = new HttpClient();
+
+            var requestBody = new
+            {
+                email,
+                password,
+                returnSecureToken = true
+            };
+
+            var json = JsonSerializer.Serialize(requestBody);
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync($"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={apiKey}", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            string responseJson = await response.Content.ReadAsStringAsync();
+
+            using JsonDocument doc = JsonDocument.Parse(responseJson);
+
+            return doc.RootElement.GetProperty("localId").GetString();
         }
     }
 }
