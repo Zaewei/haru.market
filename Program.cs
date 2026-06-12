@@ -34,6 +34,15 @@ if (FirebaseApp.DefaultInstance == null)
 // add services to the container
 builder.Services.AddControllersWithViews();
 
+// add session support for storing user authentication state and data
+builder.Services.AddDistributedMemoryCache();
+
+// configure session options, such as the idle timeout duration
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+
 // register the product service as a singleton so it can be injected into the controllers when needed
 builder.Services.AddSingleton<haru.market.Services.ProductService>();
 
@@ -61,6 +70,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles(); 
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthorization();
 
