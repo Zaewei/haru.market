@@ -6,15 +6,22 @@
     <title>@ViewData["Title"] - Haru.Market</title>
     <script type="importmap"></script>
     <link rel="icon" type="image/png" href="~/images/Layout/Site_Ico.ico" />
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Site.css" asp-append-version="true" />
+
+    <link rel="stylesheet" href="~/css/costumer_page/Site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/costumer_page/Layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/costumer_page/popup/PopupBase.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/costumer_page/popup/Search.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/costumer_page/popup/Favorites.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/costumer_page/popup/User.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/costumer_page/popup/Cart.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/haru.market.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&family=Piazzolla:opsz,wght@8..30,100..900&display=swap" rel="stylesheet">    
 </head>
 <body>
     <header>
@@ -26,12 +33,11 @@
                 <div class="Brand "><a href="/Home/Index">HARU</a></div>
                 <div class="TopMenu">
                     <ul>
-                        <li class="TopMenu_search"><a href="#"><img src="~/images/Layout/Search-icon.png"  alt="Logo"></a></li>
-                        <li class="TopMenu_user"><a href="#"><img src="~/images/Layout/User-icon.png"  alt="Logo"></a></li>
-                        <li class="TopMenu_heart"><a href="#"><img src="~/images/Layout/Heart-icon.png"  alt="Logo"></a></li>
-                        <li class="TopMenu_bag"><a href="#"><img src="~/images/Layout/Bag-icon.png"  alt="Logo"></a></li> 
+                        <li class="TopMenu_search"><a href="#" id="searchBtn"><img src="~/images/Layout/Search-icon.png"  alt="Logo"></a></li>
+                        <li class="TopMenu_user"><a href="#" id="userBtn"><img src="~/images/Layout/User-icon.png"  alt="Logo"></a></li>
+                        <li class="TopMenu_heart"><a href="#" id="heartBtn"><img src="~/images/Layout/Heart-icon.png"  alt="Logo"></a></li>
+                        <li class="TopMenu_bag"><a href="#" id="bagBtn"><img src="~/images/Layout/Bag-icon.png"  alt="Logo"></a></li> 
                     </ul>
-
                 </div>
             </div>
             <div class="BottomNav">
@@ -72,6 +78,10 @@
         </div>
 
     </footer>
+    <partial name="Popups/_Search_Popup_Page" />
+    <partial name="Popups/_Favorites_Popup_Page" />
+    <partial name="Popups/_User_Popup_Page" />
+    <partial name="Popups/_Cart_Popup_Page" />
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
