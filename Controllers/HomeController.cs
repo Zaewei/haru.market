@@ -1,24 +1,52 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using haru.market.Models;
+using haru.market.Services;
+using System.Dynamic;
+using System.Threading.Tasks;
 
 namespace haru.market.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly ProductService _productService;
+    private readonly LookbookService _lookbookService;
+
+    // firestore service
+    public HomeController(ProductService productService, LookbookService lookbookService)
     {
-        return View();
+        _productService = productService;
+        _lookbookService = lookbookService;
     }
 
-    public IActionResult Shop()
+    // gets home/index
+    public async Task<IActionResult> Index()
     {
-        return View();
+        // pull active data from firestore
+        var activeProducts = await _productService.GetAllProductsAsync();
+        var activeLookbooks = await _lookbookService.GetAllLookbooksAsync();
+
+        // renders the view with the data
+        dynamic homeViewModel = new ExpandoObject();
+        homeViewModel.Products = activeProducts;
+        homeViewModel.Lookbooks = activeLookbooks;
+
+        return View(homeViewModel);
     }
 
-    public IActionResult Lookbook()
+    // gets home/shop
+    public async Task<IActionResult> Shop()
     {
-        return View();
+        // pulls the inventory from firestore
+        var activeProducts = await _productService.GetAllProductsAsync();
+        return View(activeProducts);
+    }
+
+    // gets home/lookbook
+    public async Task<IActionResult> Lookbook()
+    {
+        var activeLookbooks = await _lookbookService.GetAllLookbooksAsync();
+        return View(activeLookbooks);
     }
     public IActionResult Privacy()
     {

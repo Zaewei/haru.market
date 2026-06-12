@@ -1,3 +1,4 @@
+@model IEnumerable<haru.market.Models.ProductViewModel>
 @{
     ViewData["Title"] = "Shop";
 }
@@ -9,54 +10,52 @@
 <section class="ShopSection">
     <div class="Filter_Container">
         <div class="Filter_Button">
-            <img src="~/images/Shop/Filter-icon.png" >
+            <img src="~/images/Shop/Filter-icon.png" />
             <span>Filter & Sort</span>
         </div>
     </div>
+    
     <div class="Product_Container">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var product in Model)
+            {
+                <div class="Product_Card">
+                    <div class="Product_Image">
+                        <img src="@product.ImageUrl" alt="@product.Name" onerror="this.src='https://placehold.co/300?text=Product+Image';" />
+                    </div>
 
-        <div class="Product_Card">
-            <div class="Product_Image">
-                <img src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
-            </div>
-
-            <div class="Product_ColorSeletor">
-                <div class="color-dot active">
-                    <img src="/images/Shop/MyDarling/Icon/Black.png"></Img>
+                    <div class="Product_ColorSeletor">
+                        <div class="color-dot active">
+                            <img src="/images/Shop/MyDarling/Icon/Black.png" />
+                        </div>
+                        <div class="color-dot active">
+                            <img src="/images/Shop/MyDarling/Icon/White.png" />
+                        </div>
+                    </div>
+                    
+                    <h3>@product.Name</h3>
+                    <p>₱@product.Price</p>
                 </div>
-                <div class="color-dot active">
-                    <img src="/images/Shop/MyDarling/Icon/White.png"></Img>
+            }
+        }
+        else
+        {
+            <div class="Product_Card">
+                <div class="Product_Image">
+                    <img src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
                 </div>
-
+                <div class="Product_ColorSeletor">
+                    <div class="color-dot active">
+                        <img src="/images/Shop/MyDarling/Icon/Black.png" />
+                    </div>
+                    <div class="color-dot active">
+                        <img src="/images/Shop/MyDarling/Icon/White.png" />
+                    </div>
+                </div>
+                <h3>My Darling</h3>
+                <p>₱999</p>
             </div>
-            <h3>My Darling</h3>
-            <p>₱999</p>
-            
-        </div>
-
-        <div class="Product_Card">
-            <img src="..." />
-            <h3>Product Name</h3>
-            <p>₱999</p>
-        </div>
-        
-        <div class="Product_Card">
-            <img src="..." />
-            <h3>Product Name</h3>
-            <p>₱999</p>
-        </div>
-
-        <div class="Product_Card">
-            <img src="..." />
-            <h3>Product Name</h3>
-            <p>₱999</p>
-        </div>
-
-        <div class="Product_Card">
-            <img src="..." />
-            <h3>Product Name</h3>
-            <p>₱999</p>
-        </div>
-
+        }
     </div> 
 </section>

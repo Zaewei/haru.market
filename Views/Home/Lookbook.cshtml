@@ -1,47 +1,89 @@
+@using System.Text.Encodings.Web
+
+@model IEnumerable<haru.market.Models.LookbookViewModel>
 @{
     ViewData["Title"] = "Lookbook";
+    var campaignsList = Model?.ToList() ?? new List<haru.market.Models.LookbookViewModel>();
+    var initialCampaign = campaignsList.FirstOrDefault();
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/Lookbook.css" />
 }
 
-
 <section class="LookbookSection">
-
+    @* preview container *@
     <div class="LookBookPreview_container">
-        <div class="slide"></div>
-        <div class="slide"></div>
-        <div class="slide"></div>
-        <div class="slide"></div>
+        @foreach (var campaign in campaignsList)
+        {
+            <div class="slide" style="background-image: url('@campaign.MediaUrl'); background-size: cover; background-position: center;"></div>
+        }
     </div>
 
     <div class="LookbookSets_Container">
+        @if (campaignsList.Any() && initialCampaign != null)
+        {
+            <div class="Sets_Container" style="margin-bottom: 30px;">
+                <div class="Item_Container">
+                    
+                    @* side navigation *@
+                    <div class="Side_Image" style="display: flex; flex-direction: column; gap: 10px;">
+                        @for (int i = 0; i < campaignsList.Count; i++)
+                        {
+                            var camp = campaignsList[i];
+                            <div class="FeaturedImage_Card @(i == 0 ? "active" : "")" 
+                                 style="background-image: url('@camp.MediaUrl'); background-size: cover; background-position: center; width: 80px; height: 80px; cursor: pointer; border: 2px solid @(i == 0 ? "#000" : "transparent"); border-radius: 4px;"
+                                 onclick="switchCampaign(this, '@camp.MediaUrl', '@JavaScriptEncoder.Default.Encode(camp.ThemeTitle)', '@JavaScriptEncoder.Default.Encode(camp.Description)')">
+                            </div>
+                        }
+                    </div>
+                    
+                    @* main text cennter *@
+                    <div class="Main_Image" style="background-color: #f4f4f4; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px; min-height: 500px; max-height: 650px;">
+                        <img id="mainLookbookImage" src="@initialCampaign.MediaUrl" alt="@initialCampaign.ThemeTitle" style="width: 100%; height: 100%; object-fit: cover;" />
+                    </div>
+                    
+                    @* dynamic text block *@
+                    <div class="About_Text">
+                        <h2 id="mainLookbookTitle">@initialCampaign.ThemeTitle</h2>
+                        <p id="mainLookbookDescription">@initialCampaign.Description</p>
+                        <a href="/Home/Shop" style="text-decoration: none;">
+                            <div class="About_Text_Button">View in shop</div>
+                        </a>
+                    </div>
 
-        <div class="Sets_Container">
-            <div class="Item_Container">
-                <div class="Side_Image">
-                    <div class="FeaturedImage_Card"></div>
-                    <div class="FeaturedImage_Card"></div>
-                    <div class="FeaturedImage_Card"></div>
-                    <div class="FeaturedImage_Card"></div>
-                </div>
-                <div class="Main_Image">
-                    <img />
-                </div>
-                <div class="About_Text">
-                    <h2>Main Title</h2>
-
-                    <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Saepe, incidunt iste officiis optio dolorem, sit quam aperiam laborum explicabo perspiciatis dolor provident natus quaerat necessitatibus impedit excepturi, tempora ducimus minima?</p>
-
-                    <div class="About_Text_Button">View in shop</div>
                 </div>
             </div>
-        </div>
-
-        <div class="Sets_Container">
-
-        </div>
-
+        }
+        else
+        {
+            <div class="Sets_Container">
+                <div class="Item_Container">
+                    <div class="Main_Image">
+                        <img src="https://placehold.co/600x800?text=No+Active+Campaigns" />
+                    </div>
+                    <div class="About_Text">
+                        <h2>No Active Campaigns</h2>
+                        <p>Please publish a collection theme via the administrator control panel module pipeline.</p>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 </section>
+
+@* ui switch *@
+<script>
+    function switchCampaign(thumbnailElement, mediaUrl, title, description) {
+        document.getElementById('mainLookbookImage').src = mediaUrl;
+        document.getElementById('mainLookbookTitle').innerText = title;
+        document.getElementById('mainLookbookDescription').innerText = description;
+        
+        const thumbnails = document.querySelectorAll('.FeaturedImage_Card');
+        thumbnails.forEach(t => {
+            t.style.borderColor = 'transparent';
+        });
+        
+        thumbnailElement.style.borderColor = '#000';
+    }
+</script>

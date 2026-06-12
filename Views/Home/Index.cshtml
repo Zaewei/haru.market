@@ -1,4 +1,5 @@
-﻿@{
+﻿@using haru.market.Models
+@{
     ViewData["Title"] = "Home";
 }
 
@@ -6,28 +7,47 @@
     <link rel="stylesheet" href="~/css/Index.css" />
 }
 
-
 <section class="LookbookSection">
     <div class="LookBookSection_container">
-        <div class="slide"></div>
-        <div class="slide"></div>
-        <div class="slide"></div>
-        <div class="slide"></div>
+        @if (ViewData.Model.Lookbooks != null)
+        {
+            foreach (var lookbook in (IEnumerable<LookbookViewModel>)ViewData.Model.Lookbooks)
+            {
+                <div class="slide" style="background-image: url('@lookbook.MediaUrl'); background-size: cover; background-position: center;" title="@lookbook.ThemeTitle"></div>
+            }
+        }
     </div>
 
     <div class="LookBookSection_text">
         <h2><a href="/Home/Lookbook">Explore Lookbook</a></h2>
     </div>
 </section>
+
 <section class="FeaturedSection">
     <div class="FeaturedSection_container text-center">
         <h2>FEATURED</h2>
+    
         <div class="FeaturedItem_Container">
-            <div class="FeaturedItem_card">1</div>
-            <div class="FeaturedItem_card">2</div>
-            <div class="FeaturedItem_card">3</div>
-            <div class="FeaturedItem_card">4</div>
-            <div class="FeaturedItem_card">5</div>
+            @if (ViewData.Model.Products != null)
+            {
+                var featuredProducts = ((IEnumerable<ProductViewModel>)ViewData.Model.Products).Take(5);
+                foreach (var product in featuredProducts)
+                {
+                    <div class="FeaturedItem_card" style="cursor: pointer; background: #fff; border: 1px solid #eee; padding: 10px; display: inline-block; width: 150px; margin: 5px;">
+                        <img src="@product.ImageUrl" style="width: 100%; height: 120px; object-fit: cover;" onerror="this.src='https://placehold.co/150?text=Product';" />
+                        <h6 style="margin-top: 10px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@product.Name</h6>
+                        <p style="color: #666; font-size: 13px; margin: 0;">₱@product.Price</p>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="FeaturedItem_card">1</div>
+                <div class="FeaturedItem_card">2</div>
+                <div class="FeaturedItem_card">3</div>
+                <div class="FeaturedItem_card">4</div>
+                <div class="FeaturedItem_card">5</div>
+            }
         </div>
 
         <a href="/Home/Shop"><div class="Shop_Button d-flex justify-content-center align-items-center"><h2>View Shop</h2></div></a>
@@ -37,3 +57,4 @@
         </div>
         
     </div>
+</section>
