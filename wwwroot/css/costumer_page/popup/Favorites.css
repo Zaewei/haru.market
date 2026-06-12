@@ -1,0 +1,7 @@
+.Favorites_Layout_Window {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 85%;
+    height: 85%;
+}
