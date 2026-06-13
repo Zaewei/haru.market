@@ -1,0 +1,398 @@
+/* ── Page header ── */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+.admin-content * {
+    font-weight: bold;
+}
+.pm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.4rem;
+}
+.pm-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 500;
+    color: #2a2a2a;
+}
+
+/* ── Page title (matches Orders "Orders" h1) ── */
+.page-header {
+    margin-bottom: 1.4rem;
+}
+.page-header h1 {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2a2a2a;
+}
+
+/* ── Add Product button ── */
+.btn-create {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #c96a7f;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-family: 'Times New Roman', serif;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.18s;
+    text-decoration: none;
+}
+.btn-create svg { stroke: #fff; flex-shrink: 0; }
+.btn-create:hover { background-color: #b55a6e; color: #fff; }
+
+/* ── Table wrapper ── */
+.pm-table-card {
+    background: #fff;
+    border: 1px solid #f0d6db;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    padding: 0 !important;
+}
+
+/* ── Table ── */
+.pm-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.pm-table thead tr {
+    background: #fde8ed;
+}
+.pm-table th {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #c96a7f;
+    text-align: left;
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid #f0d6db;
+    white-space: nowrap;
+}
+.pm-table td {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.85rem;
+    color: #3a3a3a;
+    padding: 1.6rem 0.9rem;
+    border-bottom: none;
+    vertical-align: middle !important;
+}
+.pm-table tbody tr { border-bottom: 1px solid #f0d6db; }
+.pm-table tbody tr:last-child { border-bottom: none; }
+.pm-table tbody tr:hover { background: #fffafb; }
+
+/* ── Product thumbnail ── */
+.pm-thumb-wrap { display: flex; align-items: center; }
+.pm-thumb {
+    width: 90px;
+    height: 90px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #f0d6db;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.pm-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+.pm-thumb-placeholder {
+    width: 90px;
+    height: 90px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-family: 'Times New Roman', serif;
+}
+
+/* ── Name & meta ── */
+.pm-name {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.88rem;
+    color: #2a2a2a;
+    font-weight: 600;
+}
+.pm-meta {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.85rem;
+    color: #3a3a3a;
+}
+.pm-price {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.88rem;
+    color: #c96a7f;
+    font-weight: 700;
+}
+
+/* ── Action buttons ── */
+.pm-actions {
+    white-space: nowrap;
+}
+.pm-actions .btn-edit,
+.pm-actions .btn-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+}
+td.pm-actions {
+    vertical-align: middle !important;
+    text-align: left;
+}
+.btn-edit {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.78rem;
+    color: #2a2a2a;
+    background: none;
+    border: 1px solid #e8c4cc;
+    border-radius: 6px;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-edit:hover { background: #fde8ed; border-color: #c96a7f; }
+.btn-delete {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.78rem;
+    color: #c62828;
+    background: none;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 4px 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.btn-delete:hover { background: #fdecea; }
+
+/* ── Pagination ── */
+.pm-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.8rem 0 1rem;
+    flex-wrap: wrap;
+}
+.pm-page-btn,
+.pm-page-num {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.82rem;
+    color: #5a5a5a;
+    background: #fff;
+    border: 1px solid #e8c4cc;
+    border-radius: 6px;
+    padding: 5px 13px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.pm-page-btn:hover,
+.pm-page-num:hover  { background: #fde8ed; border-color: #c96a7f; color: #c96a7f; }
+.pm-page-num.active {
+    background: #c96a7f !important;
+    border-color: #c96a7f !important;
+    color: #fff !important;
+}
+
+/* ══════════════════════════════════════════
+   MODAL SYSTEM
+══════════════════════════════════════════ */
+.pm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42, 22, 28, 0.45);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.pm-modal {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #f0d6db;
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 40px rgba(201,106,127,0.18);
+    animation: pmModalIn 0.22s ease;
+}
+.pm-modal-sm { max-width: 400px; }
+
+@keyframes pmModalIn {
+    from { opacity: 0; transform: translateY(-14px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+}
+
+.pm-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.4rem 0.85rem;
+    border-bottom: 1px solid #f0d6db;
+    flex-shrink: 0;
+}
+.pm-modal-header h2 {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #2a2a2a;
+    margin: 0;
+}
+.pm-modal-close {
+    background: none;
+    border: none;
+    color: #b8929f;
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+    transition: color 0.15s;
+    display: flex;
+    align-items: center;
+}
+.pm-modal-close svg { stroke: currentColor; }
+.pm-modal-close:hover { color: #c96a7f; }
+
+.pm-modal-body {
+    padding: 1.2rem 1.4rem;
+    overflow-y: auto;
+    flex: 1;
+}
+.pm-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    padding: 0.85rem 1.4rem 1.1rem;
+    border-top: 1px solid #f0d6db;
+    flex-shrink: 0;
+}
+
+/* ── Form elements ── */
+.pm-form-group { margin-bottom: 1.1rem; }
+.pm-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+.form-label {
+    display: block;
+    font-family: 'Times New Roman', serif;
+    font-size: 0.82rem;
+    color: #5a5a5a;
+    margin-bottom: 0.35rem;
+}
+.form-input {
+    width: 100%;
+    border: 1px solid #e8c4cc;
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-family: 'Times New Roman', serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff;
+    color: #2a2a2a;
+}
+.form-input:focus { border-color: #c96a7f; box-shadow: 0 0 0 3px rgba(201,106,127,0.12); }
+
+/* ── Image upload ── */
+.pm-image-upload-area {
+    border: 2px dashed #e8c4cc;
+    border-radius: 10px;
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.2s;
+    position: relative;
+}
+.pm-image-upload-area:hover { border-color: #c96a7f; }
+.pm-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: #b8929f;
+    font-family: 'Times New Roman', serif;
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+.pm-upload-hint { font-size: 0.72rem; color: #c9adb2; }
+.pm-preview-img {
+    width: 100%;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+.pm-image-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* ── Delete confirm text ── */
+.pm-delete-msg {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.92rem;
+    color: #3a3a3a;
+    line-height: 1.6;
+}
+
+/* ── Cancel button ── */
+.pm-btn-cancel {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.85rem;
+    color: #5a5a5a;
+    background: #fff;
+    border: 1px solid #e8c4cc;
+    border-radius: 6px;
+    padding: 7px 18px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.pm-btn-cancel:hover { background: #fdf6f8; }
+
+.pm-btn-confirm-delete {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff !important;
+    background: #c62828 !important;
+    border: none !important;
+    border-radius: 6px;
+    padding: 7px 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+.pm-btn-confirm-delete:hover { background: #a31515 !important; }
+
+/* ── Responsive Layout ── */
+@media (max-width: 700px) {
+    .pm-form-row { grid-template-columns: 1fr; }
+    .pm-modal { max-width: 100%; border-radius: 12px 12px 0 0; }
+    .pm-modal-overlay { align-items: flex-end; padding: 0; }
+    .pm-table th:nth-child(3),
+    .pm-table td:nth-child(3),
+    .pm-table th:nth-child(4),
+    .pm-table td:nth-child(4) { display: none; }
+}
