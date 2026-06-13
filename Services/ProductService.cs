@@ -8,20 +8,9 @@ namespace haru.market.Services
     {
         private readonly FirestoreDb _firestoreDb;
 
-        public ProductService()
+        public ProductService(FirestoreDb firestoreDb)
         {
-            string keyPath = "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json";
-
-            string jsonContent = System.IO.File.ReadAllText(keyPath);
-            var credential = ServiceAccountCredential.FromServiceAccountData(
-                new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(jsonContent))
-            ).ToGoogleCredential();
-
-            _firestoreDb = new FirestoreDbBuilder
-            {
-                ProjectId = "haru-market",
-                Credential = credential
-            }.Build();
+            _firestoreDb = firestoreDb;
         }
         
         public async Task<string> AddProductAsync(ProductViewModel product)
@@ -62,9 +51,7 @@ namespace haru.market.Services
                     // maps the data to the product view model and adds it to the list with basic checks for any missing fields
                     productsList.Add(new ProductViewModel
                     {
-
                         Id = document.Id,
-
                         Name = data.ContainsKey("name") ? data["name"].ToString()! : "Unknown Product",
                         Description = data.ContainsKey("description") ? data["description"].ToString()! : "",
                         Price = data.ContainsKey("price") ? Convert.ToDecimal(data["price"]) : 0.00m,
@@ -97,6 +84,31 @@ namespace haru.market.Services
             }
 
             return "Customer";
+        }
+
+        // 🚀 ADDED: Dynamic lookup to find a user's account email via their Full Name input
+        public async Task<string?> GetEmailByFullNameAsync(string fullName)
+        {
+            try
+            {
+                Query query = _firestoreDb.Collection("users").WhereEqualTo("fullname", fullName).Limit(1);
+                QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+                if (snapshot.Documents.Count > 0)
+                {
+                    DocumentSnapshot userDoc = snapshot.Documents[0];
+                    if (userDoc.ContainsField("email"))
+                    {
+                        return userDoc.GetValue<string>("email");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error finding email by name tracking: {ex.Message}");
+            }
+
+            return null;
         }
     }
 }

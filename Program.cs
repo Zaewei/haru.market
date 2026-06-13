@@ -4,30 +4,28 @@ using Google.Cloud.Firestore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// this is the firebase admin sdk 
+// 🚀 FORCE ENVIROMENT AUTHENTICATION IMMEDIATELY
+string keyPath = "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json";
+string fullPath = Path.Combine(Directory.GetCurrentDirectory(), keyPath);
+Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", fullPath);
+
+// Initialize Firebase Admin SDK using the newly set environment variable
 if (FirebaseApp.DefaultInstance == null)
 {
-    string keyPath = "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json";
-    
-    string jsonContent = System.IO.File.ReadAllText(keyPath);
-    var credential = ServiceAccountCredential.FromServiceAccountData(
-        new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(jsonContent))
-    ).ToGoogleCredential();
-
     builder.Services.AddSingleton(FirebaseApp.Create(new AppOptions()
     {
-        Credential = credential
+        Credential = GoogleCredential.GetApplicationDefault() // Automatically pulls from environment variable
     }));
 
+    // Register FirestoreDb using the exact same verified credential path
     builder.Services.AddSingleton(provider =>
     {
         var firestoreBuilder = new FirestoreDbBuilder
         {
-            ProjectId = "haru-market",
-            Credential = credential
+            ProjectId = "haru-market" // Make sure this matches your Firebase Project ID exactly
         };
 
-        return firestoreBuilder.Build();
+        return firestoreBuilder.Build(); // Automatically reads GOOGLE_APPLICATION_CREDENTIALS
     });
 }
 
