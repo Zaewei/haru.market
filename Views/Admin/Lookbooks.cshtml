@@ -1,5 +1,344 @@
+@model IEnumerable<haru.market.Models.LookbookViewModel>
 @{
     ViewData["Title"] = "Lookbooks";
+    var lookbookList = Model?.ToList() ?? new List<haru.market.Models.LookbookViewModel>();
+    var featured = lookbookList.FirstOrDefault();
+    var rest = lookbookList.Skip(1).ToList();
 }
 
 <link rel="stylesheet" href="~/css/admin/lookbooks.css" asp-append-version="true" />
+
+<div class="lb-page">
+
+    <!-- ═══════════════════════════════════════
+                    ROW 1 
+    ══════════════════════════════════════════ -->
+    <div class="lb-header">
+        <h2 class="lb-title">Lookbooks</h2>
+        <div class="lb-header-actions">
+            <a href="/Home/Lookbook" target="_blank" class="lb-btn-outline" id="previewBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Preview
+            </a>
+            <button class="lb-btn-primary" id="updateLookbookBtn">Update Lookbook</button>
+        </div>
+    </div>
+
+    <!-- Cover image section -->
+    <div class="lb-cover-section">
+        <div class="lb-cover-area" id="coverArea">
+            @if (featured != null && !string.IsNullOrEmpty(featured.MediaUrl))
+            {
+                <img src="@featured.MediaUrl" alt="Cover" class="lb-cover-img" id="coverImg" />
+            }
+            else
+            {
+                <div class="lb-cover-placeholder" id="coverPlaceholder">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c9a0ac" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>No cover image set</span>
+                </div>
+            }
+        </div>
+        <div class="lb-cover-bar">
+            <button class="lb-btn-outline lb-sm" id="changeCoverBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Change Cover
+            </button>
+            <input type="file" id="coverFileInput" accept="image/*" style="display:none" />
+            <button class="lb-btn-remove" id="removeCoverBtn">
+                Remove
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+                    ROW 2  
+    ══════════════════════════════════════════ -->
+    @if (featured != null)
+    {
+        <div class="lb-featured-section">
+            <div class="lb-featured-layout">
+
+                <!-- Left: 3 stacked thumbnails -->
+                <div class="lb-thumb-strip" id="thumbStrip">
+                    @{
+                        var imgs = new[] {
+                            featured.MediaUrl,
+                            featured.MediaUrl,
+                            featured.MediaUrl
+                        };
+                    }
+                    @for (int t = 0; t < 3; t++)
+                    {
+                        <div class="lb-thumb @(t == 0 ? "active" : "")" data-src="@imgs[t]">
+                            @if (!string.IsNullOrEmpty(imgs[t]))
+                            {
+                                <img src="@imgs[t]" alt="thumb @(t+1)" />
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- Centre: large main viewer -->
+                <div class="lb-main-viewer" id="mainViewer">
+                    @if (!string.IsNullOrEmpty(featured.MediaUrl))
+                    {
+                        <img src="@featured.MediaUrl" alt="@featured.ThemeTitle" id="mainViewerImg" />
+                    }
+                    else
+                    {
+                        <div class="lb-viewer-empty">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c9a0ac" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </div>
+                    }
+                </div>
+
+                <!-- Right: title, description, buttons -->
+                <div class="lb-featured-info">
+                    <div class="lb-featured-info-top">
+                        <h3 id="featuredTitle">@featured.ThemeTitle</h3>
+                        <p id="featuredDesc">@featured.Description</p>
+                    </div>
+                    <div class="lb-featured-info-actions">
+                        <button class="lb-btn-outline lb-sm" data-id="@featured.Id" data-action="edit-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Edit Text
+                        </button>
+                        <button class="lb-btn-primary lb-sm" data-id="@featured.Id" data-action="manage-media">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            Manage Media
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <hr class="lb-divider" />
+    }
+
+    <!-- ═══════════════════════════════════════
+                     ROW 3 
+    ══════════════════════════════════════════ -->
+    <div class="lb-drafts-section">
+
+        @foreach (var lb in lookbookList)
+        {
+            <div class="lb-draft-card" id="lb-item-@lb.Id">
+
+                <!-- Left: 3 stacked thumbs -->
+                <div class="lb-draft-thumbs">
+                    <div class="lb-draft-thumb">
+                        @if (!string.IsNullOrEmpty(lb.MediaUrl))
+                        { <img src="@lb.MediaUrl" alt="" /> }
+                    </div>
+                    <div class="lb-draft-thumb">
+                        @if (!string.IsNullOrEmpty(lb.MediaUrl))
+                        { <img src="@lb.MediaUrl" alt="" /> }
+                    </div>
+                    <div class="lb-draft-thumb">
+                        @if (!string.IsNullOrEmpty(lb.MediaUrl))
+                        { <img src="@lb.MediaUrl" alt="" /> }
+                    </div>
+                </div>
+
+                <!-- Centre: main large image -->
+                <div class="lb-draft-main-img">
+                    @if (!string.IsNullOrEmpty(lb.MediaUrl))
+                    {
+                        <img src="@lb.MediaUrl" alt="@lb.ThemeTitle" />
+                    }
+                    else
+                    {
+                        <div class="lb-draft-main-empty"></div>
+                    }
+                </div>
+
+                <!-- Right: title, badge, buttons -->
+                <div class="lb-draft-info">
+                    <div class="lb-draft-name-row">
+                        <span class="lb-draft-name lb-list-name">@lb.ThemeTitle</span>
+                        <span class="lb-badge-draft">Draft</span>
+                    </div>
+                    <div class="lb-draft-actions">
+                        <button class="lb-btn-outline lb-xs" data-id="@lb.Id" data-action="edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Edit
+                        </button>
+                        <button class="lb-btn-danger lb-xs" data-id="@lb.Id" data-action="delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                            Delete
+                        </button>
+                        <button class="lb-btn-primary lb-xs" data-id="@lb.Id" data-action="manage-media">Manage Media</button>
+                        <button class="lb-btn-publish lb-xs" data-id="@lb.Id" data-action="publish">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            Publish
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        }
+
+        <!-- ── New Lookbook Creation Card ── -->
+        <div class="lb-create-card" id="lbCreateCard">
+
+            <!-- Left: 3 empty thumb slots with upload triggers -->
+            <div class="lb-draft-thumbs">
+                <div class="lb-draft-thumb lb-thumb-upload" data-slot="0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a0ac" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+                <div class="lb-draft-thumb lb-thumb-upload" data-slot="1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a0ac" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+                <div class="lb-draft-thumb lb-thumb-upload" data-slot="2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a0ac" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+            </div>
+
+            <!-- Centre: large empty slot (4th image) -->
+            <div class="lb-draft-main-img lb-draft-main-upload" id="createMainSlot" data-slot="3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a0ac" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span>Click to add photo</span>
+            </div>
+
+            <!-- Right: title, description, publish -->
+            <div class="lb-draft-info">
+                <div class="lb-create-fields">
+                    <!-- Title placeholder strip -->
+                    <div class="lb-create-title-row">
+                        <input type="text" class="lb-create-input lb-create-title-input" id="newLbTitle" placeholder="Lookbook Title" />
+                        <span class="lb-badge-draft">Draft</span>
+                    </div>
+                    <!-- Description lines as a textarea -->
+                    <div class="lb-create-desc-wrap">
+                        <textarea class="lb-create-input lb-create-desc-input" id="newLbDesc" rows="3" placeholder="Add a description…"></textarea>
+                    </div>
+                </div>
+                <div class="lb-draft-actions lb-create-actions">
+                    <button class="lb-btn-outline lb-xs" id="cancelCreateBtn">Cancel</button>
+                    <button class="lb-btn-primary lb-xs" id="saveCreateBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        Publish
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hidden file inputs for 4 image slots -->
+            <input type="file" class="lb-slot-file" id="slotFile0" accept="image/*" style="display:none" />
+            <input type="file" class="lb-slot-file" id="slotFile1" accept="image/*" style="display:none" />
+            <input type="file" class="lb-slot-file" id="slotFile2" accept="image/*" style="display:none" />
+            <input type="file" class="lb-slot-file" id="slotFile3" accept="image/*" style="display:none" />
+        </div>
+
+        <!-- Create New Lookbook trigger button (shown when card is hidden) -->
+        <div class="lb-create-row" id="createRowTrigger">
+            <button class="lb-btn-create" id="createLookbookBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Create New Lookbook
+            </button>
+        </div>
+
+    </div><!-- end lb-drafts-section -->
+
+</div><!-- end lb-page -->
+
+
+<!-- ═══ Edit Text Modal ═══ -->
+<div class="lb-modal-overlay" id="editTextModal">
+    <div class="lb-modal">
+        <div class="lb-modal-header">
+            <h5>Edit Lookbook Text</h5>
+            <button class="lb-modal-close" id="closeEditTextModal">&times;</button>
+        </div>
+        <div class="lb-modal-body">
+            <input type="hidden" id="editTextId" />
+            <div class="lb-field">
+                <label>Lookbook Title</label>
+                <input type="text" id="editTextTitle" placeholder="e.g., Everything Starts Anew" />
+            </div>
+            <div class="lb-field">
+                <label>Description</label>
+                <textarea id="editTextDesc" rows="4" placeholder="Describe this lookbook's style narrative…"></textarea>
+            </div>
+        </div>
+        <div class="lb-modal-footer">
+            <button class="lb-btn-outline" id="cancelEditText">Cancel</button>
+            <button class="lb-btn-primary" id="saveEditText">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Manage Media Modal ═══ -->
+<div class="lb-modal-overlay" id="manageMediaModal">
+    <div class="lb-modal lb-modal-wide">
+        <div class="lb-modal-header">
+            <h5>Manage Media</h5>
+            <button class="lb-modal-close" id="closeManageMedia">&times;</button>
+        </div>
+        <div class="lb-modal-body">
+            <p class="lb-modal-hint">Click a slot to replace the image. Up to 4 images per lookbook.</p>
+            <div class="lb-media-grid" id="mediaGrid">
+                <!-- slots injected by JS -->
+            </div>
+            <input type="file" id="mediaFileInput" accept="image/*" style="display:none" />
+        </div>
+        <div class="lb-modal-footer">
+            <button class="lb-btn-outline" id="cancelManageMedia">Cancel</button>
+            <button class="lb-btn-primary" id="saveManageMedia">Save Media</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Delete Confirm Modal ═══ -->
+<div class="lb-modal-overlay" id="deleteModal">
+    <div class="lb-modal lb-modal-sm">
+        <div class="lb-modal-header">
+            <h5>Delete Lookbook</h5>
+            <button class="lb-modal-close" id="closeDeleteModal">&times;</button>
+        </div>
+        <div class="lb-modal-body">
+            <p>Are you sure you want to delete this lookbook? This cannot be undone.</p>
+        </div>
+        <div class="lb-modal-footer">
+            <button class="lb-btn-outline" id="cancelDelete">Cancel</button>
+            <form asp-controller="Lookbook" asp-action="DeleteLookbook" method="post" id="deleteForm" style="display:inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="deleteId" />
+                <button type="submit" class="lb-btn-danger-solid">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Create / Quick Save Modal ═══ -->
+<div class="lb-modal-overlay" id="lbModal">
+    <div class="lb-modal">
+        <div class="lb-modal-header">
+            <h5 id="modalTitle">Create New Lookbook</h5>
+            <button class="lb-modal-close" id="closeModal">&times;</button>
+        </div>
+        <div class="lb-modal-body">
+            <form asp-controller="Lookbook" asp-action="UploadLookbook" method="post" id="lookbookForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" id="lbId" />
+                <div class="lb-field">
+                    <label>Lookbook Title</label>
+                    <input type="text" name="ThemeTitle" id="lbTitle" placeholder="e.g., Everything Starts Anew" required />
+                </div>
+                <div class="lb-field">
+                    <label>Description</label>
+                    <textarea name="Description" id="lbDesc" rows="3" placeholder="Describe this lookbook's style narrative…"></textarea>
+                </div>
+                <div class="lb-field">
+                    <label>Media URL</label>
+                    <input type="url" name="MediaUrl" id="lbMedia" placeholder="https://…" />
+                </div>
+                <div class="lb-modal-footer">
+                    <button type="button" class="lb-btn-outline" id="cancelModal">Cancel</button>
+                    <button type="submit" class="lb-btn-primary">Save Lookbook</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
