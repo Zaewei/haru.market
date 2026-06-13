@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { margin-bottom: 0 !important; overflow-x: hidden; }
 
-/* ── Nav size  ── */
+/* ── Nav size overrides (keeps site.css untouched) ── */
 nav { height: 90px !important; min-height: 90px !important; }
 .TopNav { height: 56px !important; min-height: 56px !important; display: flex !important; align-items: center !important; width: 100% !important; }
 .BottomNav { height: 34px !important; }
@@ -18,10 +20,10 @@ nav { height: 90px !important; min-height: 90px !important; }
 }
 
 /* ── Admin Panel badge ── */
-.Brand { flex-direction: column !important; gap: 2px !important; }
+.Brand { flex-direction: column !important; gap: 2px !important; align-items: center !important; justify-content: center !important; text-align: center !important; padding-top: 14px !important; }
 .AdminBadge {
     display: inline-block;
-    font-family: 'Times New Roman', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 0.6rem;
     color: #c96a7f;
     background-color: transparent;
@@ -48,7 +50,7 @@ nav { height: 90px !important; min-height: 90px !important; }
     object-fit: contain;
 }
 
-/* ── Hamburgir button ── */
+/* ── Hamburger button ── */
 .hamburger-btn {
     background: none;
     border: none;
@@ -71,6 +73,16 @@ nav { height: 90px !important; min-height: 90px !important; }
 .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .hamburger-btn.open span:nth-child(2) { opacity: 0; }
 .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── Admin font override (Poppins for content, not header/footer) ── */
+.admin-content,
+.admin-content *:not(.haru-footer):not(.haru-footer *) {
+    font-family: 'Poppins', sans-serif;
+}
+.admin-sidebar,
+.admin-sidebar * {
+    font-family: 'Poppins', sans-serif;
+}
 
 /* ── Admin body layout ── */
 .admin-body {
@@ -111,7 +123,7 @@ nav { height: 90px !important; min-height: 90px !important; }
 .admin-sidebar.open { left: 0; }
 
 .sidebar-label {
-    font-family: 'Times New Roman', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 0.65rem;
     color: #b8929f;
     text-transform: uppercase;
@@ -122,7 +134,7 @@ nav { height: 90px !important; min-height: 90px !important; }
     display: flex;
     align-items: center;
     gap: 0.7rem;
-    font-family: 'Times New Roman', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 0.95rem;
     color: #3a3a3a;
     text-decoration: none;
@@ -166,7 +178,7 @@ nav { height: 90px !important; min-height: 90px !important; }
 .lookbook-table { width: 100%; border-collapse: collapse; }
 .data-table th,
 .lookbook-table th {
-    font-family: 'Times New Roman', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 0.75rem;
     color: #b8929f;
     text-align: left;
@@ -175,7 +187,7 @@ nav { height: 90px !important; min-height: 90px !important; }
 }
 .data-table td,
 .lookbook-table td {
-    font-family: 'Times New Roman', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 0.85rem;
     color: #3a3a3a;
     padding: 0.6rem 0.5rem;
@@ -195,7 +207,7 @@ nav { height: 90px !important; min-height: 90px !important; }
     border: none;
     border-radius: 6px;
     padding: 6px 18px;
-    font-family: 'Times New Roman', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
@@ -217,7 +229,7 @@ nav { height: 90px !important; min-height: 90px !important; }
 
 /* ── Shared: empty state ── */
 .empty-state {
-    font-family: 'Times New Roman', serif;
+    font-family: 'Poppins', sans-serif;
     color: #bbb;
     font-size: 0.9rem;
     text-align: center;
@@ -227,7 +239,7 @@ nav { height: 90px !important; min-height: 90px !important; }
 /* ── Shared: page header ── */
 .page-header { margin-bottom: 1.5rem; }
 .page-header h1 {
-    font-family: 'Times New Roman', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 1.8rem;
     color: #2a2a2a;
 }
@@ -240,7 +252,7 @@ nav { height: 90px !important; min-height: 90px !important; }
     padding: 1.2rem 1.4rem;
 }
 .admin-card h2 {
-    font-family: 'Times New Roman', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 1rem;
     color: #2a2a2a;
     margin-bottom: 1rem;
@@ -253,7 +265,7 @@ nav { height: 90px !important; min-height: 90px !important; }
 
 /* ── Shared: dropdown select ── */
 .dash-select {
-    font-family: 'Times New Roman', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 0.78rem;
     color: #3a3a3a;
     border: 1px solid #e8c4cc;
@@ -269,6 +281,7 @@ nav { height: 90px !important; min-height: 90px !important; }
 .dash-select:hover { border-color: #c96a7f; box-shadow: 0 2px 8px rgba(201, 106, 127, 0.2); }
 .dash-select:focus { border-color: #c96a7f; box-shadow: 0 0 0 3px rgba(201, 106, 127, 0.15); }
 
+/* ── Responsive ── */
 @media (max-width: 900px) {
     .dash-row { grid-template-columns: 1fr; }
     .stat-grid { grid-template-columns: repeat(2, 1fr); }
@@ -276,4 +289,60 @@ nav { height: 90px !important; min-height: 90px !important; }
 @media (max-width: 500px) {
     .stat-grid { grid-template-columns: 1fr 1fr; }
     .admin-content { padding: 1.2rem 1rem; }
+}
+/* ══════════════════════════════════════════════════════════════
+     FO O O TER
+   ══════════════════════════════════════════════════════════════ */
+
+.hft {
+    position: relative;
+    width: 100%;
+    background-image: url("/images/Layout/Footer.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.hft-container {
+    display: flex;
+    height: 50vh;
+    width: 100%;
+    position: relative;
+}
+
+/* Social links overlaid on the right side matching Footer.png layout */
+.hft-links {
+    position: absolute;
+    right: 28%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.hft-links a {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.hft-links a svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.hft-links a:hover { color: #7a1030; }
+
+@media (max-width: 768px) {
+    .hft-container { height: 30vh; }
+    .hft-links { right: 5%; font-size: 0.7rem; }
 }
