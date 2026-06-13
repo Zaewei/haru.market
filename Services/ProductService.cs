@@ -81,7 +81,7 @@ namespace haru.market.Services
         {
             try
             {
-                // Assumes your users collection is named "users" and documents use the email as the ID
+                // user's role is stored in the users collection in firestore
                 DocumentReference docRef = _firestoreDb.Collection("users").Document(email);
                 DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
@@ -92,11 +92,11 @@ namespace haru.market.Services
             }
             catch (Exception ex)
             {
-                // Fallback or log error if database lookup fails
+                // fallback error
                 Console.WriteLine($"Error fetching user role: {ex.Message}");
             }
 
-            return "Customer"; // Default fallback role if document doesn't exist or doesn't have a role field
+            return "Customer";
         }
     }
 }
