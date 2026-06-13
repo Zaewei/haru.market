@@ -49,25 +49,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ── Charts ────────────────────────────────────────────────
-    //
-    // HOW TO CONNECT FROM RAZOR / BACKEND:
-    //
-    // Line chart — add data attributes to the <canvas> element:
-    //   <canvas id="viewsChart"
-    //       data-labels="@string.Join(",", Model.ViewLabels)"
-    //       data-values="@string.Join(",", Model.ViewCounts)"
-    //       data-max="@Model.ViewMax">
-    //   </canvas>
-    //
-    // Donut chart — add data attributes to the <canvas> element:
-    //   <canvas id="usersChart"
-    //       data-new="@Model.NewUsers"
-    //       data-returning="@Model.ReturningUsers"
-    //       data-inactive="@Model.InactiveUsers">
-    //   </canvas>
-    //
-    // ──────────────────────────────────────────────────────────
-
     const viewsCanvas = document.getElementById('viewsChart');
     const usersCanvas = document.getElementById('usersChart');
 
@@ -76,26 +57,14 @@ document.addEventListener('DOMContentLoaded', function () {
         script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
         script.onload = function () {
 
-            // ── Lookbook Views — line chart ──
+            // ── Lookbook Views — clean line chart ──
             if (viewsCanvas) {
-                // Read from data attributes; fall back to placeholders if not set
-                var rawLabels = viewsCanvas.getAttribute('data-labels');
-                var rawValues = viewsCanvas.getAttribute('data-values');
-                var rawMax    = viewsCanvas.getAttribute('data-max');
-
-                var viewLabels = rawLabels ? rawLabels.split(',').map(function(s) { return s.trim(); })
-                                           : ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'];
-                var viewValues = rawValues ? rawValues.split(',').map(function(s) { return parseFloat(s.trim()); })
-                                           : [0, 0, 0, 0, 0];
-                var viewMax    = rawMax ? parseInt(rawMax, 10)
-                                        : Math.max.apply(null, viewValues) || 10000;
-
                 new Chart(viewsCanvas, {
                     type: 'line',
                     data: {
-                        labels: viewLabels,
+                        labels: ['May 1', 'May 8', 'May 15', 'May 22', 'May 31'],
                         datasets: [{
-                            data: viewValues,
+                            data: [2000, 4500, 3800, 6200, 8000],
                             borderColor: '#c96a7f',
                             backgroundColor: 'rgba(201,106,127,0.08)',
                             borderWidth: 2,
@@ -106,17 +75,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         }]
                     },
                     options: {
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { enabled: true }
-                        },
+                        plugins: { legend: { display: false } },
                         scales: {
                             y: {
                                 beginAtZero: true,
                                 min: 0,
-                                max: viewMax,
+                                max: 10000,
                                 ticks: {
-                                    stepSize: Math.ceil(viewMax / 5),
+                                    stepSize: 2000,
                                     color: '#b8929f',
                                     font: { family: 'Times New Roman' },
                                     callback: function(value) {
@@ -140,17 +106,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // ── Users Overview — donut chart ──
             if (usersCanvas) {
-                // Read from data attributes; fall back to 0s if not set
-                var newUsers       = parseFloat(usersCanvas.getAttribute('data-new'))       || 0;
-                var returningUsers = parseFloat(usersCanvas.getAttribute('data-returning')) || 0;
-                var inactiveUsers  = parseFloat(usersCanvas.getAttribute('data-inactive'))  || 0;
-
                 new Chart(usersCanvas, {
                     type: 'doughnut',
                     data: {
                         labels: ['New Users', 'Returning Users', 'Inactive Users'],
                         datasets: [{
-                            data: [newUsers, returningUsers, inactiveUsers],
+                            data: [63, 16, 21],
                             backgroundColor: ['#c96a7f', '#e8b4be', '#f5dde2'],
                             borderWidth: 0
                         }]
@@ -159,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         cutout: '70%',
                         plugins: {
                             legend: { display: false },
-                            tooltip: { enabled: true }
+                            tooltip: { enabled: false }
                         }
                     }
                 });
@@ -853,63 +814,37 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── End Product Management ────────────────────────────────
 
     // ── Shared order data (used by Orders page AND Users page) ──
-    // ── Orders Page ───────────────────────────────────────────
-    //
-    // HOW TO CONNECT FROM RAZOR / BACKEND:
-    //
-    // Render each order as a <tr> inside <tbody id="ordersBody">.
-    // Each <tr> must carry data attributes so JS can read the order:
-    //
-    //   <tbody id="ordersBody">
-    //     @foreach (var o in Model.Orders) {
-    //       <tr class="ord-row"
-    //           data-id="@o.Id"
-    //           data-name="@o.CustomerName"
-    //           data-email="@o.CustomerEmail"
-    //           data-date="@o.Date.ToString("MMM d, yyyy")"
-    //           data-time="@o.Date.ToString("hh:mm tt")"
-    //           data-status="@o.Status.ToLower()"
-    //           data-payment="@o.PaymentMethod"
-    //           data-total="@o.Total.ToString("N0")"
-    //           data-address="@o.ShippingAddress">
-    //         <!-- cells are rendered by JS; you may leave the <tr> empty -->
-    //       </tr>
-    //     }
-    //   </tbody>
-    //
-    // Stat cards are derived from the rows automatically — no extra markup needed.
-    // ──────────────────────────────────────────────────────────
+    var allOrders = [
+        { id: '#HARU-10256', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'pending',   payment: 'Gcash',   total: '₱1,350', address: '123 Mango St, Cebu City' },
+        { id: '#HARU-10255', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'cancelled',  payment: 'Paymaya', total: '₱650',   address: '123 Mango St, Cebu City' },
+        { id: '#HARU-10254', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'delivered',  payment: 'Gcash',   total: '₱650',   address: '123 Mango St, Cebu City' },
+        { id: '#HARU-10253', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'shipped',    payment: 'Paymaya', total: '₱650',   address: '123 Mango St, Cebu City' },
+        { id: '#HARU-10252', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'paid',       payment: 'Gcash',   total: '₱650',   address: '123 Mango St, Cebu City' },
+        { id: '#HARU-10251', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'pending',    payment: 'Paymaya', total: '₱650',   address: '123 Mango St, Cebu City' },
+        { id: '#HARU-10250', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'cancelled',  payment: 'Gcash',   total: '₱650',   address: '123 Mango St, Cebu City' },
+        { id: '#HARU-10249', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'delivered',  payment: 'Paymaya', total: '₱650',   address: '123 Mango St, Cebu City' },
+        { id: '#HARU-1024B', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'shipped',    payment: 'Gcash',   total: '₱650',   address: '123 Mango St, Cebu City' },
+        { id: '#HARU-10247', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'delivered',  payment: 'Paymaya', total: '₱650',   address: '123 Mango St, Cebu City' },
+        { id: '#HARU-10246', name: 'Ana Cruz',        email: 'anacruz@gmail.com',       date: 'May 20, 2026', time: '09:15 AM', status: 'paid',       payment: 'Gcash',   total: '₱980',   address: '456 Rizal Ave, Manila' },
+        { id: '#HARU-10245', name: 'Ana Cruz',        email: 'anacruz@gmail.com',       date: 'May 20, 2026', time: '09:15 AM', status: 'pending',    payment: 'Paymaya', total: '₱450',   address: '456 Rizal Ave, Manila' },
+        { id: '#HARU-10244', name: 'Marco Reyes',     email: 'marcoreyes@gmail.com',    date: 'May 19, 2026', time: '02:00 PM', status: 'shipped',    payment: 'Gcash',   total: '₱1,200', address: '789 Bonifacio St, Davao' },
+        { id: '#HARU-10243', name: 'Marco Reyes',     email: 'marcoreyes@gmail.com',    date: 'May 19, 2026', time: '02:00 PM', status: 'delivered',  payment: 'Paymaya', total: '₱800',   address: '789 Bonifacio St, Davao' },
+        { id: '#HARU-10242', name: 'Lea Santos',      email: 'leasantos@gmail.com',     date: 'May 18, 2026', time: '11:45 AM', status: 'cancelled',  payment: 'Gcash',   total: '₱550',   address: '321 Luna St, Iloilo' },
+    ];
 
+    // ── Orders Page ───────────────────────────────────────────
     // Only runs when the orders table is present on the page.
     if (document.getElementById('ordersBody')) {
 
-        // ── Read orders from DOM rows ──────────────────────────
-        function ordReadFromDOM() {
-            return Array.from(document.querySelectorAll('#ordersBody .ord-row')).map(function(tr) {
-                return {
-                    id:      tr.getAttribute('data-id')      || '',
-                    name:    tr.getAttribute('data-name')     || '',
-                    email:   tr.getAttribute('data-email')    || '',
-                    date:    tr.getAttribute('data-date')     || '',
-                    time:    tr.getAttribute('data-time')     || '',
-                    status:  tr.getAttribute('data-status')   || '',
-                    payment: tr.getAttribute('data-payment')  || '',
-                    total:   tr.getAttribute('data-total')    || '',
-                    address: tr.getAttribute('data-address')  || ''
-                };
-            });
-        }
-
-        var allOrders          = ordReadFromDOM();
         var ordPageSize        = 10;
         var ordCurrentPage     = 1;
         var ordActiveEditIdx   = -1;
         var ordActiveDeleteIdx = -1;
 
         function ordFiltered() {
-            var q       = document.getElementById('ordSearch').value.toLowerCase();
-            var status  = document.getElementById('statusFilter').value;
-            var dateEl  = document.getElementById('dateFilter');
+            var q      = document.getElementById('ordSearch').value.toLowerCase();
+            var status = document.getElementById('statusFilter').value;
+            var dateEl = document.getElementById('dateFilter');
             var dateVal = dateEl ? dateEl.value : '';
             return allOrders.filter(function(o) {
                 var matchQ = !q || o.id.toLowerCase().includes(q) || o.name.toLowerCase().includes(q) || o.email.toLowerCase().includes(q);
@@ -923,48 +858,55 @@ document.addEventListener('DOMContentLoaded', function () {
         function ordMonthKey(dateStr) {
             if (!dateStr) return '';
             var parts = dateStr.split(' ');
-            return parts[0] + ' ' + parts[2];
+            return parts[0] + ' ' + parts[2]; // e.g. "May 2026"
         }
 
         // Populate date dropdown from unique months in allOrders
         function ordPopulateDateFilter() {
             var el = document.getElementById('dateFilter');
             if (!el) return;
-            var seen = {}, months = [];
+            var seen = {};
+            var months = [];
             allOrders.forEach(function(o) {
                 var key = ordMonthKey(o.date);
                 if (key && !seen[key]) { seen[key] = true; months.push(key); }
             });
-            months.sort(function(a, b) { return new Date(b) - new Date(a); });
+            // Sort descending
+            months.sort(function(a, b) {
+                var da = new Date(a), db = new Date(b);
+                return db - da;
+            });
             el.innerHTML = '<option value="">All Dates</option>';
             months.forEach(function(m) {
                 var opt = document.createElement('option');
-                opt.value = m; opt.textContent = m;
+                opt.value = m;
+                opt.textContent = m;
                 el.appendChild(opt);
             });
         }
 
         function ordUpdateStats() {
-            var total   = allOrders.length;
-            var revenue = allOrders.reduce(function(sum, o) {
-                return sum + (parseFloat(String(o.total).replace(/[^0-9.]/g, '')) || 0);
+            var total    = allOrders.length;
+            var revenue  = allOrders.reduce(function(sum, o) {
+                var n = parseFloat(String(o.total).replace(/[^0-9.]/g, '')) || 0;
+                return sum + n;
             }, 0);
-            var pending = allOrders.filter(function(o) { return o.status === 'pending'; }).length;
-            var shipped = allOrders.filter(function(o) { return o.status === 'shipped'; }).length;
+            var pending  = allOrders.filter(function(o) { return o.status === 'pending'; }).length;
+            var shipped  = allOrders.filter(function(o) { return o.status === 'shipped'; }).length;
 
             var elTotal   = document.getElementById('statTotalOrders');
             var elRev     = document.getElementById('statTotalRevenue');
             var elPending = document.getElementById('statPendingOrders');
             var elShipped = document.getElementById('statShippedOrders');
 
-            if (elTotal)   elTotal.textContent  = total;
-            if (elRev)     elRev.textContent     = '\u20b1' + revenue.toLocaleString();
-            if (elPending) elPending.textContent = pending;
-            if (elShipped) elShipped.textContent = shipped;
+            if (elTotal)   elTotal.textContent   = total;
+            if (elRev)     elRev.textContent      = '\u20b1' + revenue.toLocaleString();
+            if (elPending) elPending.textContent  = pending;
+            if (elShipped) elShipped.textContent  = shipped;
         }
 
         function ordRender() {
-            var orders     = ordFiltered();
+            var orders = ordFiltered();
             var totalPages = Math.max(1, Math.ceil(orders.length / ordPageSize));
             if (ordCurrentPage > totalPages) ordCurrentPage = totalPages;
             var start = (ordCurrentPage - 1) * ordPageSize;
@@ -975,27 +917,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (page.length === 0) {
                 tbody.innerHTML = '';
-                if (empty) empty.style.display = 'block';
+                empty.style.display = 'block';
             } else {
-                if (empty) empty.style.display = 'none';
+                empty.style.display = 'none';
                 tbody.innerHTML = page.map(function(o) {
                     var idx = allOrders.indexOf(o);
-                    return '<tr class="ord-row"' +
-                        ' data-id="'      + o.id      + '"' +
-                        ' data-name="'    + o.name    + '"' +
-                        ' data-email="'   + o.email   + '"' +
-                        ' data-date="'    + o.date    + '"' +
-                        ' data-time="'    + o.time    + '"' +
-                        ' data-status="'  + o.status  + '"' +
-                        ' data-payment="' + o.payment + '"' +
-                        ' data-total="'   + o.total   + '"' +
-                        ' data-address="' + o.address + '">' +
+                    return '<tr>' +
                         '<td class="ord-id">' + o.id + '</td>' +
                         '<td><div class="ord-customer-name">' + o.name + '</div><div class="ord-customer-email">' + o.email + '</div></td>' +
                         '<td><div class="ord-date">' + o.date + '</div><div class="ord-time">' + o.time + '</div></td>' +
                         '<td>' + ordBadgeFor(o.status) + '</td>' +
                         '<td class="ord-payment">' + o.payment + '</td>' +
-                        '<td class="ord-total">\u20b1' + o.total + '</td>' +
+                        '<td class="ord-total">' + o.total + '</td>' +
                         '<td class="ord-actions-cell">' +
                             '<div class="ord-ellipsis-wrap">' +
                                 '<button class="btn-ord-ellipsis" data-idx="' + idx + '" aria-label="More actions"><span></span><span></span><span></span></button>' +
@@ -1049,6 +982,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function ordBindRows() {
+            document.querySelectorAll('.btn-ord-view').forEach(function(btn) {
+                btn.addEventListener('click', function() { ordOpenViewModal(parseInt(this.dataset.idx)); });
+            });
             document.querySelectorAll('.btn-ord-ellipsis').forEach(function(btn) {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -1105,10 +1041,10 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('viewModalBody').innerHTML =
                 '<div class="ord-view-row"><span class="ord-view-label">Order ID</span><span class="ord-view-val ord-id">' + o.id + '</span></div>' +
                 '<div class="ord-view-row"><span class="ord-view-label">Customer</span><span class="ord-view-val">' + o.name + '<br><small>' + o.email + '</small></span></div>' +
-                '<div class="ord-view-row"><span class="ord-view-label">Date</span><span class="ord-view-val">' + o.date + ' \u00b7 ' + o.time + '</span></div>' +
+                '<div class="ord-view-row"><span class="ord-view-label">Date</span><span class="ord-view-val">' + o.date + ' · ' + o.time + '</span></div>' +
                 '<div class="ord-view-row"><span class="ord-view-label">Status</span><span class="ord-view-val">' + ordBadgeFor(o.status) + '</span></div>' +
                 '<div class="ord-view-row"><span class="ord-view-label">Payment</span><span class="ord-view-val">' + o.payment + '</span></div>' +
-                '<div class="ord-view-row"><span class="ord-view-label">Total</span><span class="ord-view-val ord-total">\u20b1' + o.total + '</span></div>' +
+                '<div class="ord-view-row"><span class="ord-view-label">Total</span><span class="ord-view-val ord-total">' + o.total + '</span></div>' +
                 '<div class="ord-view-row"><span class="ord-view-label">Address</span><span class="ord-view-val">' + o.address + '</span></div>';
             ordOpenModal('viewOrderModal');
         }
@@ -1116,9 +1052,9 @@ document.addEventListener('DOMContentLoaded', function () {
         function ordOpenEditModal(idx) {
             ordActiveEditIdx = idx;
             var o = allOrders[idx];
-            document.getElementById('editModalOrderId').textContent  = o.id;
+            document.getElementById('editModalOrderId').textContent = o.id;
             document.getElementById('editModalCustomer').textContent = o.name;
-            document.getElementById('editStatusSelect').value        = o.status;
+            document.getElementById('editStatusSelect').value = o.status;
             ordOpenModal('editOrderModal');
         }
         document.getElementById('saveEditModal').addEventListener('click', function() {
@@ -1171,62 +1107,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Users Page ────────────────────────────────────────────
     if (document.getElementById('usersBody')) {
 
-        // \u2500\u2500 HOW TO CONNECT FROM RAZOR / BACKEND \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-        //
-        // Render each user as a <tr> inside <tbody id="usersBody">.
-        // Each <tr> must carry data attributes so JS can read the user:
-        //
-        //   <tbody id="usersBody">
-        //     @foreach (var u in Model.Users) {
-        //       <tr class="usr-row"
-        //           data-id="@u.Id"
-        //           data-name="@u.FullName"
-        //           data-email="@u.Email"
-        //           data-phone="@u.Phone"
-        //           data-address="@u.Address"
-        //           data-joined="@u.JoinedDate.ToString('MMM d, yyyy')"
-        //           data-last-active="@u.LastActive"
-        //           data-role="@u.Role.ToLower()"
-        //           data-status="@u.Status.ToLower()"
-        //           data-pw-change="@u.LastPasswordChange.ToString('MMM d, yyyy')"
-        //           data-orders="@u.OrderCount"
-        //           data-lookbooks="@u.LookbookCount"
-        //           data-products="@u.ProductCount"
-        //           data-spent="@u.TotalSpent.ToString('N0')"
-        //           data-wishlist="@u.WishlistCount">
-        //         <!-- cells are rendered by JS; you may leave the <tr> empty -->
-        //       </tr>
-        //     }
-        //   </tbody>
-        //
-        // Stat cards (total, active, inactive, new this month) are derived
-        // from the rows automatically \u2014 no extra markup needed.
-        // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-        // \u2500\u2500 Read users from DOM rows \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-        function usrReadFromDOM() {
-            return Array.from(document.querySelectorAll('#usersBody .usr-row')).map(function(tr) {
-                return {
-                    id:         tr.getAttribute('data-id')          || '',
-                    name:       tr.getAttribute('data-name')        || '',
-                    email:      tr.getAttribute('data-email')       || '',
-                    phone:      tr.getAttribute('data-phone')       || '',
-                    address:    tr.getAttribute('data-address')     || '',
-                    joined:     tr.getAttribute('data-joined')      || '',
-                    lastActive: tr.getAttribute('data-last-active') || '',
-                    role:       tr.getAttribute('data-role')        || '',
-                    status:     tr.getAttribute('data-status')      || '',
-                    pwChange:   tr.getAttribute('data-pw-change')   || '',
-                    orders:     parseInt(tr.getAttribute('data-orders'))    || 0,
-                    lookbooks:  parseInt(tr.getAttribute('data-lookbooks')) || 0,
-                    products:   parseInt(tr.getAttribute('data-products'))  || 0,
-                    spent:      tr.getAttribute('data-spent')       || '0',
-                    wishlist:   parseInt(tr.getAttribute('data-wishlist'))  || 0
-                };
-            });
-        }
-
-        var allUsers = usrReadFromDOM();
+        var allUsers = [
+            { id: 'harumarket001', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', phone: '09123456789', address: 'Kl. Kemang Raya No. 20, Jakarta Selatan 12390, Indonesia', joined: 'May 23, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 15, 2026', orders: 10, lookbooks: 5, products: 5, spent: '₱1,350', wishlist: 15 },
+            { id: 'harumarket002', name: 'Ana Cruz',         email: 'anacruz@gmail.com',       phone: '09187654321', address: '456 Rizal Ave, Manila',                                   joined: 'May 20, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Apr 10, 2026', orders: 3,  lookbooks: 2, products: 3, spent: '₱1,980', wishlist: 4  },
+            { id: 'harumarket003', name: 'Marco Reyes',      email: 'marcoreyes@gmail.com',    phone: '09111222333', address: '789 Bonifacio St, Davao',                                 joined: 'May 19, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 1, 2026',  orders: 7,  lookbooks: 8, products: 7, spent: '₱4,200', wishlist: 9  },
+            { id: 'harumarket004', name: 'Lea Santos',       email: 'leasantos@gmail.com',     phone: '09222333444', address: '321 Luna St, Iloilo',                                    joined: 'May 18, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Mar 5, 2026',  orders: 1,  lookbooks: 1, products: 1, spent: '₱550',   wishlist: 2  },
+            { id: 'harumarket005', name: 'Rico Dela Cruz',   email: 'ricodc@gmail.com',        phone: '09333444555', address: '55 Magsaysay Blvd, Quezon City',                         joined: 'May 15, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'May 10, 2026', orders: 5,  lookbooks: 3, products: 5, spent: '₱2,750', wishlist: 7  },
+            { id: 'harumarket006', name: 'Sofia Lim',        email: 'sofialim@gmail.com',      phone: '09444555666', address: '12 Kalayaan Ave, Makati',                                joined: 'May 12, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'Apr 20, 2026', orders: 4,  lookbooks: 6, products: 4, spent: '₱2,100', wishlist: 11 },
+            { id: 'harumarket007', name: 'Ben Torres',       email: 'bentorres@gmail.com',     phone: '09555666777', address: '8 Sampaguita St, Cebu City',                             joined: 'May 10, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 5, 2026',  orders: 12, lookbooks: 4, products: 12, spent: '₱6,800', wishlist: 6  },
+            { id: 'harumarket008', name: 'Nina Flores',      email: 'ninaflores@gmail.com',    phone: '09666777888', address: '3 Pampanga Rd, Angeles City',                            joined: 'May 8, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Feb 14, 2026', orders: 2,  lookbooks: 0, products: 2, spent: '₱900',   wishlist: 3  },
+            { id: 'harumarket009', name: 'Carl Mendoza',     email: 'carlm@gmail.com',         phone: '09777888999', address: '77 Mayon St, Naga City',                                 joined: 'May 5, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'May 3, 2026',  orders: 6,  lookbooks: 2, products: 5, spent: '₱3,300', wishlist: 8  },
+            { id: 'harumarket010', name: 'Dana Reyes',       email: 'danareyes@gmail.com',     phone: '09888999000', address: '101 Sunset Blvd, Batangas',                              joined: 'May 1, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'Apr 28, 2026', orders: 8,  lookbooks: 7, products: 8, spent: '₱4,500', wishlist: 14 },
+        ];
 
         var usrPageSize    = 10;
         var usrCurrentPage = 1;
@@ -1372,34 +1264,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 ? '<span class="usr-badge usr-badge--active">Active</span>'
                 : '<span class="usr-badge usr-badge--inactive">Inactive</span>';
 
-            // past orders — read from DOM rows filtered by data-email matching this user
-            // TIP: for a more reliable match, add data-user-id="@o.UserId" to each .ord-row
-            // and filter by u.id instead of u.email
-            var allOrderRows = Array.from(document.querySelectorAll('#ordersBody .ord-row'));
-            var userOrders = allOrders.filter(function(o) { return o.email === u.email; });
-            // If orders page isn't loaded, fall back to reading fresh from any visible ord-rows
-            if (allOrderRows.length && !userOrders.length) {
-                userOrders = allOrderRows
-                    .filter(function(tr) { return tr.getAttribute('data-email') === u.email; })
-                    .map(function(tr) {
-                        return {
-                            id:      tr.getAttribute('data-id')      || '',
-                            name:    tr.getAttribute('data-name')     || '',
-                            email:   tr.getAttribute('data-email')    || '',
-                            date:    tr.getAttribute('data-date')     || '',
-                            time:    tr.getAttribute('data-time')     || '',
-                            status:  tr.getAttribute('data-status')   || '',
-                            payment: tr.getAttribute('data-payment')  || '',
-                            total:   tr.getAttribute('data-total')    || '',
-                            address: tr.getAttribute('data-address')  || ''
-                        };
-                    });
-            }
+            // past orders — built from allOrders filtered by this user's name
+            var userOrders = allOrders.filter(function(o) { return o.name === u.name; });
             var list = document.getElementById('detailOrdersList');
             if (userOrders.length === 0) {
                 list.innerHTML = '<p style="font-family:\'Poppins\',sans-serif;font-size:0.85rem;color:#b8929f;padding:1rem 0;">No orders found for this user.</p>';
             } else {
                 list.innerHTML = userOrders.map(function(o) {
+                    var ordIdx = allOrders.indexOf(o);
                     return '<div class="usr-order-row">' +
                         '<div class="usr-order-imgs">' +
                             '<div class="usr-order-img"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div>' +
@@ -1413,18 +1285,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         '</div>' +
                         '<div class="usr-order-right">' +
                             '<div class="usr-order-total-label">Total</div>' +
-                            '<div class="usr-order-total-val">\u20b1' + o.total + '</div>' +
+                            '<div class="usr-order-total-val">' + o.total + '</div>' +
                             '<div class="usr-order-payment">Payment Method &nbsp; ' + o.payment + '</div>' +
-                            '<button class="usr-btn-view-order" data-ord-id="' + o.id + '">View Order</button>' +
+                            '<button class="usr-btn-view-order" data-ord-idx="' + ordIdx + '">View Order</button>' +
                         '</div>' +
                     '</div>';
                 }).join('');
 
-                // Wire up each View Order button — look up order by ID, not array index
+                // Wire up each View Order button to open the order view modal
                 list.querySelectorAll('.usr-btn-view-order').forEach(function(btn) {
                     btn.addEventListener('click', function() {
-                        var ordId = this.getAttribute('data-ord-id');
-                        var o     = allOrders.filter(function(x) { return x.id === ordId; })[0];
+                        var idx = parseInt(this.getAttribute('data-ord-idx'));
+                        var o   = allOrders[idx];
                         if (!o) return;
 
                         var modal = document.getElementById('usrOrderViewModal');
