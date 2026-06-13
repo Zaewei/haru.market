@@ -3,3 +3,156 @@
 }
 
 <link rel="stylesheet" href="~/css/admin/orders.css" asp-append-version="true" />
+
+<!-- ── Page Header ── -->
+<div class="page-header">
+    <h1>Orders</h1>
+</div>
+
+<!-- ── Stat Cards ── -->
+<div class="ord-stat-grid">
+    <div class="ord-stat-card">
+        <div class="ord-stat-icon ord-stat-icon--orders">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.8" width="22" height="22"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <div class="ord-stat-label">Total Orders</div>
+        <div class="ord-stat-value" id="statTotalOrders">—</div>
+    </div>
+    <div class="ord-stat-card">
+        <div class="ord-stat-icon ord-stat-icon--revenue">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.8" width="22" height="22"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="ord-stat-label">Total Revenue</div>
+        <div class="ord-stat-value" id="statTotalRevenue">—</div>
+    </div>
+    <div class="ord-stat-card">
+        <div class="ord-stat-icon ord-stat-icon--pending">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.8" width="22" height="22"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="ord-stat-label">Pending Orders</div>
+        <div class="ord-stat-value" id="statPendingOrders">—</div>
+    </div>
+    <div class="ord-stat-card">
+        <div class="ord-stat-icon ord-stat-icon--shipped">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.8" width="22" height="22"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <div class="ord-stat-label">Shipped Orders</div>
+        <div class="ord-stat-value" id="statShippedOrders">—</div>
+    </div>
+</div>
+
+<!-- ── Toolbar ── -->
+<div class="ord-toolbar">
+    <div class="ord-search-wrap">
+        <svg class="ord-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="ord-search" id="ordSearch" placeholder="Search order ID, customer name, email..." />
+    </div>
+    <select class="ord-filter" id="statusFilter">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="paid">Paid</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Completed</option>
+        <option value="cancelled">Cancelled</option>
+    </select>
+    <div class="ord-date-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <select class="ord-filter ord-date-select" id="dateFilter"></select>
+    </div>
+</div>
+
+<!-- ── Orders Table ── -->
+<div class="admin-card ord-table-card">
+    <table class="data-table ord-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="ordersBody"></tbody>
+    </table>
+    <div id="ordEmpty" class="ord-empty" style="display:none;">No orders found.</div>
+</div>
+
+<!-- Pagination -->
+<div class="ord-pagination" id="ordPagination"></div>
+
+<!-- ═══ VIEW ORDER MODAL ═══ -->
+<div class="ord-modal-overlay" id="viewOrderModal">
+    <div class="ord-modal">
+        <div class="ord-modal-header">
+            <h2 id="viewModalTitle">Order Details</h2>
+            <button class="ord-modal-close" id="closeViewModal">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="ord-modal-body" id="viewModalBody"></div>
+        <div class="ord-modal-footer">
+            <button class="pm-btn-cancel" id="closeViewModalFooter">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ EDIT STATUS MODAL ═══ -->
+<div class="ord-modal-overlay" id="editOrderModal">
+    <div class="ord-modal ord-modal-sm">
+        <div class="ord-modal-header">
+            <h2>Edit Order Status</h2>
+            <button class="ord-modal-close" id="closeEditModal">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="ord-modal-body">
+            <div class="ord-form-group">
+                <div class="ord-form-label">Order ID</div>
+                <div class="ord-form-static" id="editModalOrderId"></div>
+            </div>
+            <div class="ord-form-group">
+                <div class="ord-form-label">Customer</div>
+                <div class="ord-form-static" id="editModalCustomer"></div>
+            </div>
+            <div class="ord-form-group" style="margin-top:1rem;">
+                <div class="ord-form-label">Status</div>
+                <select class="form-input" id="editStatusSelect">
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+        </div>
+        <div class="ord-modal-footer">
+            <button class="pm-btn-cancel" id="cancelEditModal">Cancel</button>
+            <button class="btn-create" id="saveEditModal">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ DELETE CONFIRM MODAL ═══ -->
+<div class="ord-modal-overlay" id="deleteOrderModal">
+    <div class="ord-modal ord-modal-sm">
+        <div class="ord-modal-header">
+            <h2>Delete Order</h2>
+            <button class="ord-modal-close" id="closeDeleteModal">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="ord-modal-body">
+            <p class="pm-delete-msg">Are you sure you want to delete order <strong id="deleteModalOrderId"></strong>? This cannot be undone.</p>
+        </div>
+        <div class="ord-modal-footer">
+            <button class="pm-btn-cancel" id="cancelDeleteModal">Cancel</button>
+            <button class="pm-btn-confirm-delete" id="confirmDeleteModal">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="ordToastContainer"></div>
