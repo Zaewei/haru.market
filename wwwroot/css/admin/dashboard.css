@@ -1,0 +1,203 @@
+.admin-content * {
+    font-weight: bold;
+}
+.dash-header { margin-bottom: 1.5rem; }
+.dash-header h1 {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.8rem;
+    color: #2a2a2a;
+}
+
+/* ── Stat cards grid ── */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    border: 1px solid #f0d6db;
+}
+.stat-card .stat-label {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.8rem;
+    color: #2a2a2a;
+    margin-bottom: 0.4rem;
+}
+.stat-card .stat-value {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #2a2a2a;
+}
+.stat-card .stat-change { font-size: 0.75rem; margin-top: 0.3rem; }
+.stat-change.up   { color: #4caf50; }
+.stat-change.down { color: #e57373; }
+.stat-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #fde8ed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.8rem;
+}
+.stat-icon svg { width: 18px; height: 18px; stroke: #c96a7f; fill: none; }
+
+/* ── Two-column card row ── */
+.dash-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.dash-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #f0d6db;
+    padding: 1.2rem 1.4rem;
+}
+.dash-card h2 {
+    font-family: 'Times New Roman', serif;
+    font-size: 1rem;
+    color: #2a2a2a;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #f7e4e8;
+    padding-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ── Top Lookbooks list ── */
+.top-lookbook-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid #faf0f2;
+}
+.top-lookbook-thumb {
+    width: 56px;
+    height: 42px;
+    border-radius: 6px;
+    background-color: #f0d6db;
+    flex-shrink: 0;
+}
+.top-lookbook-title {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.88rem;
+    color: #2a2a2a;
+}
+.top-lookbook-views {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.75rem;
+    color: #c96a7f;
+    margin-top: 2px;
+}
+
+/* ── Recent Lookbooks table thumbnail ── */
+.table-thumb-row { display: flex; align-items: center; gap: 0.6rem; }
+.table-thumb {
+    width: 40px;
+    height: 30px;
+    border-radius: 4px;
+    background-color: #f0d6db;
+    flex-shrink: 0;
+}
+
+/* ── Recent Activity feed ── */
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid #faf0f2;
+    font-family: 'Times New Roman', serif;
+    font-size: 0.85rem;
+    color: #3a3a3a;
+}
+.activity-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.activity-icon svg { width: 15px; height: 15px; stroke: currentColor; fill: none; }
+.activity-icon--publish,
+.activity-icon--edit,
+.activity-icon--upload,
+.activity-icon--user { background: #fde8ed; color: #c96a7f; }
+.activity-time { font-size: 0.72rem; color: #bbb; margin-top: 2px; }
+
+/* ── Top Collections ── */
+.collection-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #faf0f2;
+}
+.collection-thumb {
+    width: 44px;
+    height: 34px;
+    border-radius: 5px;
+    background-color: #f0d6db;
+    flex-shrink: 0;
+}
+.collection-info { flex: 1; min-width: 0; }
+.collection-name {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.85rem;
+    color: #2a2a2a;
+    margin-bottom: 4px;
+}
+.collection-bar-wrap { height: 6px; background: #f7e4e8; border-radius: 3px; overflow: hidden; }
+.collection-bar { height: 100%; background: #c96a7f; border-radius: 3px; }
+.collection-pct {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.8rem;
+    color: #b8929f;
+    min-width: 36px;
+    text-align: right;
+}
+
+/* ── Users Overview donut ── */
+.users-overview { display: flex; align-items: center; gap: 2rem; padding-top: 0.5rem; }
+.donut-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+.donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+.donut-total {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #2a2a2a;
+    line-height: 1;
+}
+.donut-label { font-family: 'Times New Roman', serif; font-size: 0.7rem; color: #b8929f; margin-top: 2px; }
+.users-legend { display: flex; flex-direction: column; gap: 0.6rem; }
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Times New Roman', serif;
+    font-size: 0.82rem;
+    color: #3a3a3a;
+}
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-val { margin-left: auto; color: #b8929f; font-size: 0.78rem; padding-left: 1rem; }
