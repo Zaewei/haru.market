@@ -3,3 +3,185 @@
 }
 
 <link rel="stylesheet" href="~/css/admin/users.css" asp-append-version="true" />
+
+<!-- Page Header -->
+<div class="page-header">
+    <h1>Users</h1>
+</div>
+
+<!-- ── Stat Cards ── -->
+<div class="usr-stat-grid">
+    <div class="usr-stat-card">
+        <div class="usr-stat-icon usr-stat-icon--total">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="usr-stat-label">Total Users</div>
+        <div class="usr-stat-value" id="statTotalUsers">126</div>
+    </div>
+    <div class="usr-stat-card">
+        <div class="usr-stat-icon usr-stat-icon--active">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="usr-stat-label">Active Users</div>
+        <div class="usr-stat-value" id="statActiveUsers">110</div>
+    </div>
+    <div class="usr-stat-card">
+        <div class="usr-stat-icon usr-stat-icon--new">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+        </div>
+        <div class="usr-stat-label">New Users (This Month)</div>
+        <div class="usr-stat-value" id="statNewUsers">26</div>
+    </div>
+    <div class="usr-stat-card">
+        <div class="usr-stat-icon usr-stat-icon--inactive">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+        </div>
+        <div class="usr-stat-label">Inactive Users</div>
+        <div class="usr-stat-value" id="statInactiveUsers">16</div>
+    </div>
+</div>
+
+<!-- ── Filter Toolbar ── -->
+<div class="usr-toolbar">
+    <div class="usr-search-wrap">
+        <svg class="usr-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="usr-search" id="usrSearch" type="text" placeholder="Search order ID, customer name, email…" />
+    </div>
+    <select class="usr-filter dash-select" id="roleFilter">
+        <option value="">All Roles</option>
+        <option value="admin">Admin</option>
+        <option value="customer">Customer</option>
+    </select>
+    <div class="usr-date-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <select class="usr-filter dash-select" id="joinFilter">
+            <option>Joined: All Time</option>
+            <option>Joined: This Month</option>
+            <option>Joined: This Year</option>
+        </select>
+    </div>
+</div>
+
+<!-- ── Users Table ── -->
+<div class="admin-card usr-table-card">
+    <table class="data-table usr-table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Joined At</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Last Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="usersBody"></tbody>
+    </table>
+    <div class="usr-empty" id="usrEmpty" style="display:none;">No users match your filters.</div>
+</div>
+
+<!-- Pagination -->
+<div class="usr-pagination" id="usrPagination"></div>
+
+
+<!-- ══════════════════════════════════════
+     USER DETAILS PANEL (slide-in overlay)
+     ══════════════════════════════════════ -->
+<div class="usr-detail-overlay" id="userDetailOverlay">
+    <div class="usr-detail-panel" id="userDetailPanel">
+
+        <!-- Breadcrumb -->
+        <div class="usr-detail-breadcrumb">
+            <button class="usr-detail-back" id="closeDetailBtn">Users</button>
+            <span class="usr-detail-breadcrumb-sep">›</span>
+            <span class="usr-detail-breadcrumb-cur">User details</span>
+        </div>
+
+        <!-- Account Overview card -->
+        <div class="usr-overview-card" id="detailOverviewCard">
+            <div class="usr-overview-header">
+                <span class="usr-overview-title">Account Overview</span>
+                <span class="usr-overview-status" id="detailStatus">Active</span>
+            </div>
+
+            <div class="usr-overview-grid">
+                <!-- Col 1: Personal Info -->
+                <div class="usr-info-col">
+                    <div class="usr-info-col-title">Personal Information</div>
+                    <div class="usr-info-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span id="detailName">—</span>
+                    </div>
+                    <div class="usr-info-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <span id="detailEmail">—</span>
+                    </div>
+                    <div class="usr-info-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg>
+                        <span id="detailPhone">—</span>
+                    </div>
+                    <div class="usr-info-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span id="detailAddress">—</span>
+                    </div>
+                    <div class="usr-info-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span id="detailJoined">—</span>
+                    </div>
+                </div>
+
+                <!-- Col 2: Account Info -->
+                <div class="usr-info-col">
+                    <div class="usr-info-col-title">Account Information</div>
+                    <div class="usr-acct-row"><span class="usr-acct-label">User ID</span><span id="detailUserId">—</span></div>
+                    <div class="usr-acct-row"><span class="usr-acct-label">Role</span><span id="detailRole">—</span></div>
+                    <div class="usr-acct-row"><span class="usr-acct-label">Status</span><span id="detailStatusInline">—</span></div>
+                    <div class="usr-acct-row"><span class="usr-acct-label">Last Active</span><span id="detailLastActive">—</span></div>
+                    <div class="usr-acct-row"><span class="usr-acct-label">Password Change</span><span id="detailPwChange">—</span></div>
+                </div>
+
+                <!-- Col 3: Activity Summary -->
+                <div class="usr-info-col">
+                    <div class="usr-info-col-title">Activity Summary</div>
+                    <div class="usr-activity-row"><span>Orders</span><span id="detailOrders">—</span></div>
+                    <div class="usr-activity-row"><span>Lookbooks Viewed</span><span id="detailLookbooks">—</span></div>
+                    <div class="usr-activity-row"><span>Products Purchased</span><span id="detailProducts">—</span></div>
+                    <div class="usr-activity-row"><span>Total Spent</span><span id="detailSpent" class="usr-activity-highlight">—</span></div>
+                    <div class="usr-activity-row"><span>Wishlist Items</span><span id="detailWishlist">—</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Past Orders -->
+        <div class="usr-orders-section">
+            <div class="usr-orders-header">
+                <span class="usr-orders-title">Past Orders</span>
+                <button class="usr-btn-view-all">View All Orders</button>
+            </div>
+            <div class="usr-orders-list" id="detailOrdersList">
+                <!-- populated by JS -->
+            </div>
+        </div>
+
+        <!-- Go Back -->
+        <button class="usr-btn-go-back" id="goBackBtn">Go back to user</button>
+
+    </div>
+</div>
+
+<!-- ═══ ORDER VIEW MODAL (Users page) ═══ -->
+<div class="ord-modal-overlay" id="usrOrderViewModal">
+    <div class="ord-modal">
+        <div class="ord-modal-header">
+            <h2 id="usrOrderViewTitle">Order Details</h2>
+            <button class="ord-modal-close" id="closeUsrOrderViewModal">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="ord-modal-body" id="usrOrderViewBody"></div>
+        <div class="ord-modal-footer">
+            <button class="pm-btn-cancel" id="closeUsrOrderViewFooter">Close</button>
+        </div>
+    </div>
+</div>
