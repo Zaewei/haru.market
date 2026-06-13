@@ -1,5 +1,228 @@
 @{
-    ViewData["Title"] = "ProductManagement";
+    ViewData["Title"] = "Product Management";
 }
 
-<link rel="stylesheet" href="~/css/admin/product-management.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/admin/productmanagement.css" asp-append-version="true" />
+
+<!-- ── Page Header ── -->
+<div class="pm-header">
+    <h1 class="pm-title">Product Management</h1>
+    <button class="btn-create" id="addProductBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Product
+    </button>
+</div>
+
+<!-- ── Product Table ── -->
+<div class="admin-card pm-table-card">
+    <table class="data-table pm-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Name</th>
+                <th>Color</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="productTableBody">
+            <tr class="pm-row" data-id="1">
+                <td><div class="pm-thumb-wrap"><div class="pm-thumb pm-thumb-placeholder" style="background:#1a1a1a;"><span style="color:#fff;font-size:0.6rem;font-family:'Times New Roman',serif;">IMG</span></div></div></td>
+                <td><span class="pm-name">My Darling</span></td>
+                <td><span class="pm-meta">Black</span></td>
+                <td><span class="pm-meta">S</span></td>
+                <td><span class="pm-price">₱650</span></td>
+                <td><span class="pm-meta">10</span></td>
+                <td class="pm-actions"><button class="btn-edit" data-action="pm-edit" data-id="1">Edit</button></td>
+            </tr>
+            <tr class="pm-row" data-id="2">
+                <td><div class="pm-thumb-wrap"><div class="pm-thumb pm-thumb-placeholder" style="background:#1a1a1a;"><span style="color:#fff;font-size:0.6rem;font-family:'Times New Roman',serif;">IMG</span></div></div></td>
+                <td><span class="pm-name">Everything Starts Anew</span></td>
+                <td><span class="pm-meta">Black</span></td>
+                <td><span class="pm-meta">L</span></td>
+                <td><span class="pm-price">₱650</span></td>
+                <td><span class="pm-meta">15</span></td>
+                <td class="pm-actions"><button class="btn-edit" data-action="pm-edit" data-id="2">Edit</button></td>
+            </tr>
+            <tr class="pm-row" data-id="3">
+                <td><div class="pm-thumb-wrap"><div class="pm-thumb pm-thumb-placeholder" style="background:#f5f5f5;"><span style="color:#999;font-size:0.6rem;font-family:'Times New Roman',serif;">IMG</span></div></div></td>
+                <td><span class="pm-name">HARUX3838</span></td>
+                <td><span class="pm-meta">White</span></td>
+                <td><span class="pm-meta">L</span></td>
+                <td><span class="pm-price">₱650</span></td>
+                <td><span class="pm-meta">15</span></td>
+                <td class="pm-actions"><button class="btn-edit" data-action="pm-edit" data-id="3">Edit</button></td>
+            </tr>
+            <tr class="pm-row" data-id="4">
+                <td><div class="pm-thumb-wrap"><div class="pm-thumb pm-thumb-placeholder" style="background:#f8c8d0;"><span style="color:#c96a7f;font-size:0.6rem;font-family:'Times New Roman',serif;">IMG</span></div></div></td>
+                <td><span class="pm-name">Pink White Collar</span></td>
+                <td><span class="pm-meta">Pink</span></td>
+                <td><span class="pm-meta">M</span></td>
+                <td><span class="pm-price">₱650</span></td>
+                <td><span class="pm-meta">20</span></td>
+                <td class="pm-actions"><button class="btn-edit" data-action="pm-edit" data-id="4">Edit</button></td>
+            </tr>
+            <tr class="pm-row" data-id="5">
+                <td><div class="pm-thumb-wrap"><div class="pm-thumb pm-thumb-placeholder" style="background:#1a1a1a;"><span style="color:#fff;font-size:0.6rem;font-family:'Times New Roman',serif;">IMG</span></div></div></td>
+                <td><span class="pm-name">Cherry Blossom Tee</span></td>
+                <td><span class="pm-meta">Black</span></td>
+                <td><span class="pm-meta">XS</span></td>
+                <td><span class="pm-price">₱700</span></td>
+                <td><span class="pm-meta">8</span></td>
+                <td class="pm-actions"><button class="btn-edit" data-action="pm-edit" data-id="5">Edit</button></td>
+            </tr>
+            <tr class="pm-row" data-id="6">
+                <td><div class="pm-thumb-wrap"><div class="pm-thumb pm-thumb-placeholder" style="background:#fce4ec;"><span style="color:#c96a7f;font-size:0.6rem;font-family:'Times New Roman',serif;">IMG</span></div></div></td>
+                <td><span class="pm-name">Sakura Puff Sleeve</span></td>
+                <td><span class="pm-meta">Pink</span></td>
+                <td><span class="pm-meta">S</span></td>
+                <td><span class="pm-price">₱750</span></td>
+                <td><span class="pm-meta">12</span></td>
+                <td class="pm-actions"><button class="btn-edit" data-action="pm-edit" data-id="6">Edit</button></td>
+            </tr>
+            <tr class="pm-row" data-id="7">
+                <td><div class="pm-thumb-wrap"><div class="pm-thumb pm-thumb-placeholder" style="background:#f5f5f5;"><span style="color:#999;font-size:0.6rem;font-family:'Times New Roman',serif;">IMG</span></div></div></td>
+                <td><span class="pm-name">Haru Classic White</span></td>
+                <td><span class="pm-meta">White</span></td>
+                <td><span class="pm-meta">M</span></td>
+                <td><span class="pm-price">₱650</span></td>
+                <td><span class="pm-meta">5</span></td>
+                <td class="pm-actions"><button class="btn-edit" data-action="pm-edit" data-id="7">Edit</button></td>
+            </tr>
+            <tr class="pm-row" data-id="8">
+                <td><div class="pm-thumb-wrap"><div class="pm-thumb pm-thumb-placeholder" style="background:#2d2d2d;"><span style="color:#fff;font-size:0.6rem;font-family:'Times New Roman',serif;">IMG</span></div></div></td>
+                <td><span class="pm-name">Midnight Bloom</span></td>
+                <td><span class="pm-meta">Black</span></td>
+                <td><span class="pm-meta">L</span></td>
+                <td><span class="pm-price">₱800</span></td>
+                <td><span class="pm-meta">18</span></td>
+                <td class="pm-actions"><button class="btn-edit" data-action="pm-edit" data-id="8">Edit</button></td>
+            </tr>
+            <tr class="pm-row" data-id="9">
+                <td><div class="pm-thumb-wrap"><div class="pm-thumb pm-thumb-placeholder" style="background:#fce4ec;"><span style="color:#c96a7f;font-size:0.6rem;font-family:'Times New Roman',serif;">IMG</span></div></div></td>
+                <td><span class="pm-name">Rose Collar Crop</span></td>
+                <td><span class="pm-meta">Pink</span></td>
+                <td><span class="pm-meta">XS</span></td>
+                <td><span class="pm-price">₱720</span></td>
+                <td><span class="pm-meta">9</span></td>
+                <td class="pm-actions"><button class="btn-edit" data-action="pm-edit" data-id="9">Edit</button></td>
+            </tr>
+            <tr class="pm-row" data-id="10">
+                <td><div class="pm-thumb-wrap"><div class="pm-thumb pm-thumb-placeholder" style="background:#f5f5f5;"><span style="color:#999;font-size:0.6rem;font-family:'Times New Roman',serif;">IMG</span></div></div></td>
+                <td><span class="pm-name">Pearl Button Down</span></td>
+                <td><span class="pm-meta">White</span></td>
+                <td><span class="pm-meta">S</span></td>
+                <td><span class="pm-price">₱780</span></td>
+                <td><span class="pm-meta">14</span></td>
+                <td class="pm-actions"><button class="btn-edit" data-action="pm-edit" data-id="10">Edit</button></td>
+            </tr>
+ 
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="pm-pagination" id="pmPaginationBar"></div>
+
+<!-- ═══════════════════════════════════════════
+     ADD / EDIT PRODUCT MODAL
+═══════════════════════════════════════════ -->
+<div class="pm-modal-overlay" id="productModal" style="display:none;">
+    <div class="pm-modal">
+        <div class="pm-modal-header">
+            <h2 id="productModalTitle">Add Product</h2>
+            <button class="pm-modal-close" id="closeProductModal" aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <div class="pm-modal-body">
+            <!-- Image Upload -->
+            <div class="pm-form-group">
+                <label class="form-label">Product Image</label>
+                <div class="pm-image-upload-area" id="imageUploadArea">
+                    <div class="pm-image-placeholder" id="imagePlaceholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#c96a7f" stroke-width="1.5" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>Click to upload image</span>
+                        <span class="pm-upload-hint">JPG, PNG, WEBP — max 5MB</span>
+                    </div>
+                    <img id="previewImage" class="pm-preview-img" src="" alt="Preview" style="display:none;" />
+                </div>
+                <input type="file" id="productImageFile" accept="image/*" style="display:none;" />
+                <div class="pm-image-actions" id="imageActions" style="display:none;">
+                    <button class="btn-edit" id="changeImageBtn" type="button">Change</button>
+                    <button class="btn-delete" id="removeImageBtn" type="button">Remove</button>
+                </div>
+            </div>
+
+            <!-- Name -->
+            <div class="pm-form-group">
+                <label class="form-label" for="productName">Product Name</label>
+                <input type="text" id="productName" class="form-input" placeholder="e.g. My Darling" />
+            </div>
+
+            <!-- Color & Size (side by side) -->
+            <div class="pm-form-row">
+                <div class="pm-form-group">
+                    <label class="form-label" for="productColor">Color</label>
+                    <input type="text" id="productColor" class="form-input" placeholder="e.g. Black" />
+                </div>
+                <div class="pm-form-group">
+                    <label class="form-label" for="productSize">Size</label>
+                    <select id="productSize" class="form-input dash-select" style="padding:8px 12px;">
+                        <option value="">Select size</option>
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Price & Stock (side by side) -->
+            <div class="pm-form-row">
+                <div class="pm-form-group">
+                    <label class="form-label" for="productPrice">Price (₱)</label>
+                    <input type="number" id="productPrice" class="form-input" placeholder="e.g. 650" min="0" step="0.01" />
+                </div>
+                <div class="pm-form-group">
+                    <label class="form-label" for="productStock">Available Stock</label>
+                    <input type="number" id="productStock" class="form-input" placeholder="e.g. 10" min="0" step="1" />
+                </div>
+            </div>
+        </div>
+
+        <div class="pm-modal-footer">
+            <button class="pm-btn-confirm-delete" id="modalDeleteBtn" type="button" style="display:none;margin-right:auto;">Delete</button>
+            <button class="pm-btn-cancel" id="cancelProductModal" type="button">Cancel</button>
+            <button class="btn-create" id="saveProductBtn" type="button">Save Product</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     DELETE CONFIRM MODAL
+═══════════════════════════════════════════ -->
+<div class="pm-modal-overlay" id="deleteProductModal" style="display:none;">
+    <div class="pm-modal pm-modal-sm">
+        <div class="pm-modal-header">
+            <h2>Delete Product</h2>
+            <button class="pm-modal-close" id="closeDeleteProductModal" aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="pm-modal-body">
+            <p class="pm-delete-msg">Are you sure you want to delete <strong id="deleteProductName"></strong>? This action cannot be undone.</p>
+        </div>
+        <div class="pm-modal-footer">
+            <button class="pm-btn-cancel" id="cancelDeleteProduct" type="button">Cancel</button>
+            <button class="btn-delete pm-btn-confirm-delete" id="confirmDeleteProduct" type="button">Delete</button>
+        </div>
+    </div>
+</div>
+
+
