@@ -3,7 +3,7 @@
 <div class="container" style="padding: 50px;">
     <h2>Test Login Page</h2>
     
-    <form asp-action="Login" method="post">
+    <form asp-controller="Account" asp-action="Login" method="post">
         <div asp-validation-summary="All" style="color:red;"></div>
 
         <div>
@@ -21,4 +21,12 @@
 
         <button type="submit">Submit Test Login</button>
     </form>
+
+    <hr />
+    <div style="margin-top: 15px; text-align: center;">
+        <p style="font-family: sans-serif; color: #333;">
+            Don't have an account yet? 
+            <a href="/Account/Register" style="color: #ff69b4; font-weight: bold; text-decoration: none; margin-left: 5px;">Create an Account</a>
+        </p>
+    </div>
 </div>

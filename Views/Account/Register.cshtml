@@ -3,12 +3,12 @@
 <div class="container" style="padding: 50px;">
     <h2>Test Registration Page</h2>
     
-    <form asp-action="Register" method="post">
+    <form asp-controller="Account" asp-action="Register" method="post">
         <div asp-validation-summary="All" style="color:red;"></div>
 
         <div>
-            <label>Username:</label><br />
-            <input asp-for="Username" /><br /><br />
+            <label>Full Name:</label><br />
+            <input asp-for="FullName" /><br /><br />
         </div>
         <div>
             <label>Email:</label><br />
@@ -26,7 +26,19 @@
             <label>Password:</label><br />
             <input asp-for="Password" type="password" /><br /><br />
         </div>
+        <div>
+            <label>Confirm Password:</label><br />
+            <input asp-for="ConfirmPassword" type="password" /><br /><br />
+        </div>
 
         <button type="submit">Submit Test Registration</button>
     </form>
+
+    <hr />
+    <div style="margin-top: 15px; text-align: center;">
+        <p style="font-family: sans-serif; color: #333;">
+            Already have an account? 
+            <a href="/Account/Login" style="color: #ff69b4; font-weight: bold; text-decoration: none; margin-left: 5px;">Login here</a>
+        </p>
+    </div>
 </div>

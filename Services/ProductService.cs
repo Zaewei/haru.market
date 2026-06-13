@@ -76,5 +76,27 @@ namespace haru.market.Services
 
             return productsList;
         }
+
+        public async Task<string> GetUserRoleAsync(string email)
+        {
+            try
+            {
+                // Assumes your users collection is named "users" and documents use the email as the ID
+                DocumentReference docRef = _firestoreDb.Collection("users").Document(email);
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+                if (snapshot.Exists && snapshot.ContainsField("role"))
+                {
+                    return snapshot.GetValue<string>("role");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Fallback or log error if database lookup fails
+                Console.WriteLine($"Error fetching user role: {ex.Message}");
+            }
+
+            return "Customer"; // Default fallback role if document doesn't exist or doesn't have a role field
+        }
     }
 }

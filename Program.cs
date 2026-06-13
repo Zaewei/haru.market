@@ -79,7 +79,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    // register page as opener
+    pattern: "{controller=Account}/{action=Register}/{id?}");
 
 app.Run();

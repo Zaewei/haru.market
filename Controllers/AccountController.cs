@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using haru.market.Models;
 using haru.market.Services;
 
@@ -9,10 +10,12 @@ namespace haru.market.Controllers
     public class AccountController : Controller
     {
         private readonly AuthService _authService;
+        private readonly ProductService _productService; 
 
-        public AccountController(AuthService authService)
+        public AccountController(AuthService authService, ProductService productService)
         {
             _authService = authService;
+            _productService = productService;
         }
 
         // us 01 customer registration
@@ -32,14 +35,39 @@ namespace haru.market.Controllers
 
             try
             {
-                var firebaseUser = await _authService.RegisterUserAsync(model.Email, model.Password, model.Username);
-                return Content($"Success! User account created with Firebase UID: {firebaseUser.Uid}");
+                // create their credentials in firebase auth and store their basic info in the database
+                var firebaseUser = await _authService.RegisterUserAsync(model.Email, model.Password, model.FullName);
+                
+                // instant login after sign up
+                string? userUid = await _authService.LoginUserAsync(model.Email, model.Password);
+
+                if (!string.IsNullOrEmpty(userUid))
+                {
+                    //  looks up the user's role in the database (default is "customer")
+                    string userRole = await _productService.GetUserRoleAsync(model.Email);
+
+                    // save role metadata in sesssion
+                    HttpContext.Session.SetString("UserRole", userRole);
+
+                    // redirect them to the appropriate page based on their role
+                    if (userRole == "Admin")
+                    {
+                        return RedirectToAction("Dashboard", "Admin");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, $"Registration failed: {ex.Message}");
                 return View(model);
             }
+
+            // fallback error
+            return RedirectToAction("Login", "Account");
         }
 
         // us 03 customer login
@@ -50,40 +78,42 @@ namespace haru.market.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
-                return View(model); 
+                return View(model);
             }
 
-            try
+            try 
             {
-                // Attempt to log in the user and get their UID
-                string? uid = await _authService.LoginUserAsync(model.Email, model.Password);
+                string? userUid = await _authService.LoginUserAsync(model.Email, model.Password);
 
-                if (string.IsNullOrEmpty(uid))
+                if (!string.IsNullOrEmpty(userUid))
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid email or password");
-                    return View(model);
+                    string userRole = await _productService.GetUserRoleAsync(model.Email);
+
+                    HttpContext.Session.SetString("UserRole", userRole);
+
+                    if (userRole == "Admin")
+                    {
+                        return RedirectToAction("Dashboard", "Admin");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
-
-                HttpContext.Session.SetString("UserUid", uid);
-
-                string sessionToken = await _authService.CreateSessionTokenAsync(uid);
-                
-                if (model.RememberMe)
-                {
-                    // browser cookies for remember me
-                }
-
-                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, $"Login failed: {ex.Message}");
+                ModelState.AddModelError(string.Empty, $"Login error: {ex.Message}");
                 return View(model);
             }
+
+            ModelState.AddModelError(string.Empty, "Invalid login credentials detected.");
+            return View(model);
         }
     } // closes the accountcontroller class
 } // closes the namespace
