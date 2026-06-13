@@ -1,51 +1,53 @@
+@model haru.market.Models.AdminDashboardViewModel
+
 @{
     ViewData["Title"] = "Dashboard";
 }
 
 <link rel="stylesheet" href="~/css/admin/dashboard.css" asp-append-version="true" />
 
-<!-- Page Header -->
 <div class="dash-header">
     <h1>Dashboard</h1>
 </div>
 
-<!-- ── Stat Cards ── -->
 <div class="stat-grid">
     <div class="stat-card">
         <div class="stat-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         </div>
         <div class="stat-label">Total Lookbooks</div>
-        <div class="stat-value">0</div>
+        <div class="stat-value">@Model.TotalLookbooks</div>
         <div class="stat-change up">↑ 0% vs. last month</div>
     </div>
+    
     <div class="stat-card">
         <div class="stat-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
         </div>
         <div class="stat-label">Total Products</div>
-        <div class="stat-value">0</div>
-        <div class="stat-change down">↓ 0% vs. last month</div>
+        <div class="stat-value">@Model.TotalProducts</div>
+        <div class="stat-change up">↑ 0% vs. last month</div>
     </div>
+    
     <div class="stat-card">
         <div class="stat-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
         </div>
         <div class="stat-label">Total Users</div>
-        <div class="stat-value">0</div>
-        <div class="stat-change down">↓ 0% vs. last month</div>
+        <div class="stat-value">@Model.TotalUsers</div>
+        <div class="stat-change up">↑ 0% vs. last month</div>
     </div>
+    
     <div class="stat-card">
         <div class="stat-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
         <div class="stat-label">Total Views</div>
-        <div class="stat-value">0</div>
+        <div class="stat-value">@Model.TotalViews.ToString("N0")</div>
         <div class="stat-change up">↑ 0% vs. last month</div>
     </div>
 </div>
 
-<!-- Row 1: Lookbook Views Chart + Top Lookbooks -->
 <div class="dash-row" style="margin-bottom:1rem;">
 
     <div class="dash-card">
@@ -56,7 +58,12 @@
                 <option>Last Month</option>
             </select>
         </h2>
-        <canvas id="viewsChart" height="110"></canvas>
+        <div class="chart-container" style="position: relative; height: 220px; width: 100%;">
+            <canvas id="viewsChart" 
+                    data-labels='@Json.Serialize(ViewData["ChartLabels"])' 
+                    data-values='@Json.Serialize(ViewData["ChartData"])'>
+            </canvas>
+        </div>
     </div>
 
     <div class="dash-card">
@@ -67,32 +74,31 @@
                 <option>Last Month</option>
             </select>
         </h2>
-        <div class="top-lookbook-item">
-            <div class="top-lookbook-thumb"></div>
-            <div class="top-lookbook-info">
-                <div class="top-lookbook-title">Lookbook Title</div>
-                <div class="top-lookbook-views">0 views</div>
-            </div>
-        </div>
-        <div class="top-lookbook-item">
-            <div class="top-lookbook-thumb"></div>
-            <div class="top-lookbook-info">
-                <div class="top-lookbook-title">Lookbook Title</div>
-                <div class="top-lookbook-views">0 views</div>
-            </div>
-        </div>
-        <div class="top-lookbook-item">
-            <div class="top-lookbook-thumb"></div>
-            <div class="top-lookbook-info">
-                <div class="top-lookbook-title">Lookbook Title</div>
-                <div class="top-lookbook-views">0 views</div>
-            </div>
-        </div>
+        
+        @{
+            var topLookbooks = ViewData["TopLookbooks"] as List<haru.market.Models.LookbookViewModel>;
+        }
+        @if (topLookbooks != null && topLookbooks.Any())
+        {
+            foreach (var item in topLookbooks)
+            {
+                <div class="top-lookbook-item">
+                    <div class="top-lookbook-thumb" style="background-image: url('@item.MediaUrl'); background-size: cover; background-position: center;"></div>
+                    <div class="top-lookbook-info">
+                        <div class="top-lookbook-title">@item.ThemeTitle</div>
+                        <div class="top-lookbook-views">0 views</div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="text-align: center; padding: 2rem; color: #a0a0a0;">No campaign records available.</div>
+        }
     </div>
 
 </div>
 
-<!-- Row 2: Recent Lookbooks Table + Recent Activity -->
 <div class="dash-row" style="margin-bottom:1rem;">
 
     <div class="dash-card">
@@ -109,121 +115,99 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
-                        <div class="table-thumb-row">
-                            <div class="table-thumb"></div>
-                            Lookbook Title
-                        </div>
-                    </td>
-                    <td><span class="badge-published">Published</span></td>
-                    <td>Jan 1, 2026</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="table-thumb-row">
-                            <div class="table-thumb"></div>
-                            Lookbook Title
-                        </div>
-                    </td>
-                    <td><span class="badge-published">Published</span></td>
-                    <td>Jan 1, 2026</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="table-thumb-row">
-                            <div class="table-thumb"></div>
-                            Lookbook Title
-                        </div>
-                    </td>
-                    <td><span class="badge-published">Published</span></td>
-                    <td>Jan 1, 2026</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="table-thumb-row">
-                            <div class="table-thumb"></div>
-                            Lookbook Title
-                        </div>
-                    </td>
-                    <td><span class="badge-draft">Draft</span></td>
-                    <td>Jan 1, 2026</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="table-thumb-row">
-                            <div class="table-thumb"></div>
-                            Lookbook Title
-                        </div>
-                    </td>
-                    <td><span class="badge-unpublished">Unpublished</span></td>
-                    <td>Jan 1, 2026</td>
-                </tr>
+                @if (Model.RecentLookbooks != null && Model.RecentLookbooks.Any())
+                {
+                    foreach (var item in Model.RecentLookbooks)
+                    {
+                        <tr>
+                            <td>
+                                <div class="table-thumb-row">
+                                    <div class="table-thumb" style="background-image: url('@item.MediaUrl'); background-size: cover; background-position: center;"></div>
+                                    @item.ThemeTitle
+                                </div>
+                            </td>
+                            <td><span class="badge-published">Published</span></td>
+                            <td>@item.CreatedAt.ToString("MMM d, yyyy")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" style="text-align: center; padding: 2rem; color: #a0a0a0;">No lookbooks found in database records.</td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
 
     <div class="dash-card">
         <h2>Recent Activity</h2>
-        <div class="activity-item">
-            <div class="activity-icon activity-icon--publish">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            </div>
-            <div>
-                <div>New Lookbook "Lookbook Title" was published.</div>
-                <div class="activity-time">Jan 1, 2026 · Admin</div>
-            </div>
-        </div>
-        <div class="activity-item">
-            <div class="activity-icon activity-icon--edit">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </div>
-            <div>
-                <div>Product "Product Name" was edited.</div>
-                <div class="activity-time">Jan 1, 2026 · Admin</div>
-            </div>
-        </div>
-        <div class="activity-item">
-            <div class="activity-icon activity-icon--upload">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-            </div>
-            <div>
-                <div>Media file "cover.jpg" was uploaded.</div>
-                <div class="activity-time">Jan 1, 2026 · Admin</div>
-            </div>
-        </div>
-        <div class="activity-item">
-            <div class="activity-icon activity-icon--edit">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            </div>
-            <div>
-                <div>Lookbook "Lookbook Title" was updated.</div>
-                <div class="activity-time">Jan 1, 2026 · Admin</div>
-            </div>
-        </div>
-        <div class="activity-item">
-            <div class="activity-icon activity-icon--user">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-            </div>
-            <div>
-                <div>User "User Name" registered.</div>
-                <div class="activity-time">Jan 1, 2026 · System</div>
-            </div>
-        </div>
-        <div class="activity-item">
-            <div class="activity-icon activity-icon--publish">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            </div>
-            <div>
-                <div>New Lookbook "Lookbook Title" was published.</div>
-                <div class="activity-time">Jan 1, 2026 · Admin</div>
-            </div>
-        </div>
+        
+        @{
+            var activities = new List<dynamic>();
+
+            if (Model.RecentLookbooks != null)
+            {
+                activities.AddRange(Model.RecentLookbooks.Select(l => new {
+                    Title = l.ThemeTitle,
+                    Type = "Lookbook",
+                    Date = l.CreatedAt,
+                    IconClass = "activity-icon--publish",
+                    Message = $"New Lookbook \"<strong>{l.ThemeTitle}</strong>\" was published."
+                }));
+            }
+
+            if (Model.RecentProducts != null)
+            {
+                activities.AddRange(Model.RecentProducts.Select(p => new {
+                    Title = p.Name, 
+                    Type = "Product",
+                    Date = p.CreatedAt, 
+                    IconClass = "activity-icon--edit",
+                    Message = $"Product \"<strong>{p.Name}</strong>\" was added to inventory."
+                }));
+            }
+
+            var chronologicalFeed = activities.OrderByDescending(a => a.Date).Take(20).ToList();
+        }
+
+        <div class="activity-scroll-container" style="max-height: 280px; overflow-y: auto; padding-right: 0.5rem;">
+            @if (chronologicalFeed.Any())
+            {
+                foreach (var activity in chronologicalFeed)
+                {
+                    <div class="activity-item">
+                        <div class="activity-icon @activity.IconClass">
+                            @if (activity.Type == "Lookbook")
+                            {
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                            }
+                            else
+                            {
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+                                </svg>
+                            }
+                        </div>
+                        <div>
+                            <div>@Html.Raw(activity.Message)</div>
+                            <div class="activity-time">@activity.Date.ToString("MMM d, yyyy") · Admin</div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div style="text-align: center; padding: 2rem; color: #a0a0a0;">No recent system activity logged.</div>
+            }
+        </div> 
     </div>
 
 </div>
 
-<!-- ── ROW 3: Top Collections + Users Overview ── -->
 <div class="dash-row">
 
     <div class="dash-card">
@@ -254,26 +238,6 @@
             </div>
             <div class="collection-pct">28%</div>
         </div>
-        <div class="collection-item">
-            <div class="collection-thumb"></div>
-            <div class="collection-info">
-                <div class="collection-name">Collection Name</div>
-                <div class="collection-bar-wrap">
-                    <div class="collection-bar" style="width:18%"></div>
-                </div>
-            </div>
-            <div class="collection-pct">18%</div>
-        </div>
-        <div class="collection-item">
-            <div class="collection-thumb"></div>
-            <div class="collection-info">
-                <div class="collection-name">Collection Name</div>
-                <div class="collection-bar-wrap">
-                    <div class="collection-bar" style="width:12%"></div>
-                </div>
-            </div>
-            <div class="collection-pct">12%</div>
-        </div>
     </div>
 
     <div class="dash-card">
@@ -286,9 +250,11 @@
         </h2>
         <div class="users-overview">
             <div class="donut-wrap">
-                <canvas id="usersChart" width="140" height="140"></canvas>
+                <div style="position: relative; height: 140px; width: 140px;">
+                    <canvas id="usersChart" data-total-users='@Model.TotalUsers'></canvas>
+                </div>
                 <div class="donut-center">
-                    <div class="donut-total">0</div>
+                    <div class="donut-total">@Model.TotalUsers</div>
                     <div class="donut-label">Total Users</div>
                 </div>
             </div>
@@ -296,16 +262,11 @@
                 <div class="legend-item">
                     <span class="legend-dot" style="background:#c96a7f"></span>
                     <span class="legend-text">New Users</span>
-                    <span class="legend-val">0 (0%)</span>
+                    <span class="legend-val">@Model.TotalUsers (100%)</span>
                 </div>
                 <div class="legend-item">
                     <span class="legend-dot" style="background:#e8b4be"></span>
                     <span class="legend-text">Returning Users</span>
-                    <span class="legend-val">0 (0%)</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot" style="background:#f5dde2"></span>
-                    <span class="legend-text">Inactive Users</span>
                     <span class="legend-val">0 (0%)</span>
                 </div>
             </div>
@@ -313,5 +274,3 @@
     </div>
 
 </div>
-
-

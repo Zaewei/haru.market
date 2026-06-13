@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return map[status] || '<span class="ord-badge">' + status + '</span>';
     }
 
-    // ── Charts ────────────────────────────────────────────────
+   // ── Charts ────────────────────────────────────────────────
     const viewsCanvas = document.getElementById('viewsChart');
     const usersCanvas = document.getElementById('usersChart');
 
@@ -57,14 +57,23 @@ document.addEventListener('DOMContentLoaded', function () {
         script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
         script.onload = function () {
 
-            // ── Lookbook Views — clean line chart ──
+            // ── Lookbook Views —
             if (viewsCanvas) {
+                const rawLabels = JSON.parse(viewsCanvas.getAttribute('data-labels') || '[]');
+                const rawValues = JSON.parse(viewsCanvas.getAttribute('data-values') || '[]');
+
+                const finalLabels = rawLabels.length > 0 ? rawLabels : ['No Data'];
+                const finalValues = rawValues.length > 0 ? rawValues : [0];
+
+                const maxVal = Math.max(...finalValues, 100);
+                const suggestedMax = Math.ceil(maxVal / 1000) * 1000;
+
                 new Chart(viewsCanvas, {
                     type: 'line',
                     data: {
-                        labels: ['May 1', 'May 8', 'May 15', 'May 22', 'May 31'],
+                        labels: finalLabels,
                         datasets: [{
-                            data: [2000, 4500, 3800, 6200, 8000],
+                            data: finalValues,
                             borderColor: '#c96a7f',
                             backgroundColor: 'rgba(201,106,127,0.08)',
                             borderWidth: 2,
@@ -75,16 +84,17 @@ document.addEventListener('DOMContentLoaded', function () {
                         }]
                     },
                     options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
                         plugins: { legend: { display: false } },
                         scales: {
                             y: {
                                 beginAtZero: true,
                                 min: 0,
-                                max: 10000,
+                                suggestedMax: suggestedMax,
                                 ticks: {
-                                    stepSize: 2000,
                                     color: '#b8929f',
-                                    font: { family: 'Times New Roman' },
+                                    font: { family: 'Poppins, sans-serif' },
                                     callback: function(value) {
                                         if (value >= 1000) return (value / 1000) + 'K';
                                         return value;
@@ -96,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 grid: { display: false },
                                 ticks: {
                                     color: '#b8929f',
-                                    font: { family: 'Times New Roman' }
+                                    font: { family: 'Poppins, sans-serif' }
                                 }
                             }
                         }
@@ -106,12 +116,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // ── Users Overview — donut chart ──
             if (usersCanvas) {
+                const liveUsers = parseInt(usersCanvas.getAttribute('data-total-users') || '0', 10);
+
                 new Chart(usersCanvas, {
                     type: 'doughnut',
                     data: {
                         labels: ['New Users', 'Returning Users', 'Inactive Users'],
                         datasets: [{
-                            data: [63, 16, 21],
+                            data: [liveUsers, 0, 0],
                             backgroundColor: ['#c96a7f', '#e8b4be', '#f5dde2'],
                             borderWidth: 0
                         }]
@@ -120,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         cutout: '70%',
                         plugins: {
                             legend: { display: false },
-                            tooltip: { enabled: false }
+                            tooltip: { enabled: true }
                         }
                     }
                 });
@@ -128,7 +140,6 @@ document.addEventListener('DOMContentLoaded', function () {
         };
         document.head.appendChild(script);
     }
-
     // ── Lookbook Page ─────────────────────────────────────────
 
     // ── Modal helpers ───────────────────────────────────────

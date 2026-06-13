@@ -45,40 +45,36 @@ namespace haru.market.Services
         }
 
         // retrieving the lookbooks
-       // retrieving the lookbooks
         public async Task<List<LookbookViewModel>> GetAllLookbooksAsync()
+{
+    var lookbooksList = new List<LookbookViewModel>();
+    CollectionReference collection = _firestoreDb.Collection("lookbooks");
+    QuerySnapshot snapshot = await collection.GetSnapshotAsync();
+
+    foreach (DocumentSnapshot document in snapshot.Documents)
+    {
+        if (document.Exists)
         {
-            var lookbooksList = new List<LookbookViewModel>();
-            CollectionReference collection = _firestoreDb.Collection("lookbooks");
-            QuerySnapshot snapshot = await collection.GetSnapshotAsync();
+            Dictionary<string, object> data = document.ToDictionary();
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
+            lookbooksList.Add(new LookbookViewModel
             {
-                if (document.Exists)
-                {
-                    var data = document.ToDictionary();
+                Id = document.Id,
+                ThemeTitle = data.ContainsKey("themeTitle") ? data["themeTitle"].ToString()! : "Untitled",
+                Description = data.ContainsKey("description") ? data["description"].ToString()! : "",
+                MediaUrl = data.ContainsKey("mediaUrl") ? data["mediaUrl"].ToString()! : "placeholder.png",
+                
+                Views = data.ContainsKey("views") ? Convert.ToInt32(data["views"]) : 0,
 
-                    lookbooksList.Add(new LookbookViewModel
-                    {
-                        Id = document.Id,
-                        ThemeTitle = data.ContainsKey("themeTitle") && data["themeTitle"] != null 
-                            ? data["themeTitle"].ToString()! 
-                            : "Untitled Campaign",
-                            
-                        Description = data.ContainsKey("description") && data["description"] != null 
-                            ? data["description"].ToString()! 
-                            : "",
-                            
-                        MediaUrl = data.ContainsKey("mediaUrl") && data["mediaUrl"] != null 
-                            ? data["mediaUrl"].ToString()! 
-                            : "placeholder.png"
-                    });
-                }
-            }
-
-            return lookbooksList;
+                CreatedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts
+                    ? ts.ToDateTime()
+                    : DateTime.UtcNow
+            });
         }
+    }
 
+    return lookbooksList;
+}
         public async Task SaveToWishlistAsync(string uid, LookbookViewModel lookbook)
         {
             DocumentReference doc = _firestoreDb.Collection("users").Document(uid).Collection("wishlist").Document(lookbook.Id);
@@ -135,6 +131,47 @@ namespace haru.market.Services
             }
 
             return wishlist;
+        }
+
+        public async Task<int> GetTotalLookbooksCountAsync()
+        {
+            try
+            {
+                CollectionReference collection = _firestoreDb.Collection("lookbooks");
+                AggregateQuerySnapshot snapshot = await collection.Count().GetSnapshotAsync();
+                return (int)(snapshot.Count ?? 0);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching lookbook aggregates: {ex.Message}");
+                return 0;
+            }
+        }
+
+       public async Task<int> GetTotalLookbookViewsCountAsync()
+        {
+            try
+            {
+                CollectionReference collection = _firestoreDb.Collection("lookbooks");
+                QuerySnapshot snapshot = await collection.GetSnapshotAsync();
+
+                int totalViews = 0;
+
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    if (document.Exists && document.ContainsField("views"))
+                    {
+                        totalViews += Convert.ToInt32(document.GetValue<object>("views"));
+                    }
+                }
+
+                return totalViews;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching total lookbook views: {ex.Message}");
+                return 0;
+            }
         }
     }
 }

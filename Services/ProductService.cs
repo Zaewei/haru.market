@@ -48,7 +48,6 @@ namespace haru.market.Services
                     // extract the data
                     Dictionary<string, object> data = document.ToDictionary();
 
-                    // maps the data to the product view model and adds it to the list with basic checks for any missing fields
                     productsList.Add(new ProductViewModel
                     {
                         Id = document.Id,
@@ -56,7 +55,11 @@ namespace haru.market.Services
                         Description = data.ContainsKey("description") ? data["description"].ToString()! : "",
                         Price = data.ContainsKey("price") ? Convert.ToDecimal(data["price"]) : 0.00m,
                         StockQuantity = data.ContainsKey("stockQuantity") ? Convert.ToInt32(data["stockQuantity"]) : 0,
-                        ImageUrl = data.ContainsKey("imageUrl") ? data["imageUrl"].ToString()! : "placeholder.png"
+                        ImageUrl = data.ContainsKey("imageUrl") ? data["imageUrl"].ToString()! : "placeholder.png",
+                        
+                        CreatedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts
+                            ? ts.ToDateTime()
+                            : DateTime.UtcNow
                     });
                 }
             }
@@ -86,7 +89,6 @@ namespace haru.market.Services
             return "Customer";
         }
 
-        // 🚀 ADDED: Dynamic lookup to find a user's account email via their Full Name input
         public async Task<string?> GetEmailByFullNameAsync(string fullName)
         {
             try
@@ -109,6 +111,61 @@ namespace haru.market.Services
             }
 
             return null;
+        }
+
+        public async Task<int> GetTotalProductsCountAsync()
+        {
+            try
+            {
+                CollectionReference collection = _firestoreDb.Collection("products");
+                AggregateQuerySnapshot snapshot = await collection.Count().GetSnapshotAsync();
+                return (int)(snapshot.Count ?? 0);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching product aggregates: {ex.Message}");
+                return 0;
+            }
+        }
+        public async Task<int> GetTotalUsersCountAsync()
+        {
+            try
+            {
+                CollectionReference collection = _firestoreDb.Collection("users");
+                AggregateQuerySnapshot snapshot = await collection.Count().GetSnapshotAsync();
+                return (int)(snapshot.Count ?? 0);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching user aggregates: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public async Task<int> GetTotalProductViewsCountAsync()
+        {
+            try
+            {
+                CollectionReference collection = _firestoreDb.Collection("products");
+                QuerySnapshot snapshot = await collection.GetSnapshotAsync();
+
+                int totalViews = 0;
+
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    if (document.Exists && document.ContainsField("views"))
+                    {
+                        totalViews += Convert.ToInt32(document.GetValue<object>("views"));
+                    }
+                }
+
+                return totalViews;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching total product views: {ex.Message}");
+                return 0;
+            }
         }
     }
 }

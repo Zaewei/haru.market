@@ -19,5 +19,7 @@ namespace haru.market.Models
         public string MediaUrl { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public int Views { get; set; }
     }
 }
