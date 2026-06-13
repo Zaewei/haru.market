@@ -5,55 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - HARU Admin</title>
     <script type="importmap"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/homepage.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/haru.market.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin/admin-base.css" asp-append-version="true" />
+
 </head>
 <body>
 
     <header>
         <nav>
             <div class="TopNav">
-
-                <!-- LEFT: hamburger + logo together in one navbox -->
                 <div class="admin-left-nav navbox">
-                    <button class="hamburger-btn"
-                            id="hamburgerBtn"
-                            aria-label="Toggle navigation"
-                            aria-expanded="false"
-                            aria-controls="adminSidebar">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                    <button class="hamburger-btn" id="hamburgerBtn"
+                            aria-label="Toggle navigation" aria-expanded="false" aria-controls="adminSidebar">
+                        <span></span><span></span><span></span>
                     </button>
                     <img src="~/images/Black_logo.png" alt="Logo" class="admin-logo" />
                 </div>
-
-                <!-- CENTER: HARU brand -->
                 <div class="Brand navbox">
                     <a href="#">HARU</a>
                     <span class="AdminBadge">Admin Panel</span>
                 </div>
-
-                <!-- RIGHT: icons -->
                 <div class="TopMenu navbox">
                     <ul>
                         <li class="TopMenu_search"><a href="#"><img src="~/images/Search-icon.png" alt="Search" /></a></li>
                         <li class="TopMenu_user"><a href="#"><img src="~/images/User-icon.png" alt="User" /></a></li>
                     </ul>
                 </div>
-
-            </div>
-            <div class="BottomNav">
-                <ul>
-                    <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-controller="Product" asp-action="Index">Shop</a></li>
-                    <li><a asp-controller="Lookbook" asp-action="Index">Lookbook</a></li>
-                </ul>
-            </div>
-        </nav>
+                        
     </header>
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -61,14 +45,12 @@
     <div class="admin-body">
 
         <aside class="admin-sidebar" id="adminSidebar">
-
             <span class="sidebar-label">Main</span>
             <a class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")"
                asp-controller="Admin" asp-action="Dashboard">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 Dashboard
             </a>
-
             <span class="sidebar-label">Manage</span>
             <a class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Lookbooks" ? "active" : "")"
                asp-controller="Admin" asp-action="Lookbooks">
@@ -90,22 +72,46 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 Users
             </a>
-
             <hr class="sidebar-divider" />
-
             <div class="sidebar-logout">
                 <a class="sidebar-link" asp-controller="Account" asp-action="Logout">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     Logout
                 </a>
             </div>
-
         </aside>
 
         <div class="admin-content">
             <main role="main">
                 @RenderBody()
             </main>
+
+
+            <!-- ═══ Footer ═══ -->
+            <footer class="hft">
+                <div class="hft-container">
+                    <div class="hft-links">
+                        <a href="https://www.facebook.com/harumarketofficial" target="_blank" rel="noopener">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                            @@harumarketofficial
+                        </a>
+                        <a href="https://www.instagram.com/harumarketofficial" target="_blank" rel="noopener">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                            @@harumarketofficial
+                        </a>
+                        <a href="https://www.tiktok.com/harumarketofficial" target="_blank" rel="noopener">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                            @@harumarketofficial
+                        </a>
+                        <a href="mailto:haru.marketofficial@gmail.com">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            haru.marketofficial@@gmail.com
+                        </a>
+                    </div>
+                </div>
+            </footer>
+
+
         </div>
 
     </div>
@@ -114,7 +120,6 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/admin.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
