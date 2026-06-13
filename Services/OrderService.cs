@@ -163,5 +163,35 @@ namespace haru.market.Services
                 }
             });
         }
+
+        public async Task<List<OrderViewModel>> GetAllOrdersAsync()
+{
+        var ordersList = new List<OrderViewModel>();
+        CollectionReference collection = _firestoreDb.Collection("orders");
+        QuerySnapshot snapshot = await collection.GetSnapshotAsync();
+
+        foreach (DocumentSnapshot document in snapshot.Documents)
+        {
+            if (document.Exists)
+            {
+                Dictionary<string, object> data = document.ToDictionary();
+
+                ordersList.Add(new OrderViewModel
+                {
+                    Id = document.Id,
+                    Name = data.ContainsKey("customerName") ? data["customerName"].ToString()! : "Unknown Customer",
+                    Email = data.ContainsKey("customerEmail") ? data["customerEmail"].ToString()! : "",
+                    Status = data.ContainsKey("status") ? data["status"].ToString()! : "Pending",
+                    PaymentMethod = data.ContainsKey("paymentMethod") ? data["paymentMethod"].ToString()! : "Gcash",
+                    Total = data.ContainsKey("totalAmount") ? Convert.ToDecimal(data["totalAmount"]) : 0,
+                    Date = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts
+                        ? ts.ToDateTime()
+                        : DateTime.UtcNow
+                });
+            }
+        }
+
+        return ordersList.OrderByDescending(o => o.Date).ToList();
+    }
     }
 }

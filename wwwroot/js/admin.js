@@ -825,26 +825,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── End Product Management ────────────────────────────────
 
     // ── Shared order data (used by Orders page AND Users page) ──
-    var allOrders = [
-        { id: '#HARU-10256', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'pending',   payment: 'Gcash',   total: '₱1,350', address: '123 Mango St, Cebu City' },
-        { id: '#HARU-10255', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'cancelled',  payment: 'Paymaya', total: '₱650',   address: '123 Mango St, Cebu City' },
-        { id: '#HARU-10254', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'delivered',  payment: 'Gcash',   total: '₱650',   address: '123 Mango St, Cebu City' },
-        { id: '#HARU-10253', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'shipped',    payment: 'Paymaya', total: '₱650',   address: '123 Mango St, Cebu City' },
-        { id: '#HARU-10252', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'paid',       payment: 'Gcash',   total: '₱650',   address: '123 Mango St, Cebu City' },
-        { id: '#HARU-10251', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'pending',    payment: 'Paymaya', total: '₱650',   address: '123 Mango St, Cebu City' },
-        { id: '#HARU-10250', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'cancelled',  payment: 'Gcash',   total: '₱650',   address: '123 Mango St, Cebu City' },
-        { id: '#HARU-10249', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'delivered',  payment: 'Paymaya', total: '₱650',   address: '123 Mango St, Cebu City' },
-        { id: '#HARU-1024B', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'shipped',    payment: 'Gcash',   total: '₱650',   address: '123 Mango St, Cebu City' },
-        { id: '#HARU-10247', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', date: 'May 21, 2026', time: '10:30 AM', status: 'delivered',  payment: 'Paymaya', total: '₱650',   address: '123 Mango St, Cebu City' },
-        { id: '#HARU-10246', name: 'Ana Cruz',        email: 'anacruz@gmail.com',       date: 'May 20, 2026', time: '09:15 AM', status: 'paid',       payment: 'Gcash',   total: '₱980',   address: '456 Rizal Ave, Manila' },
-        { id: '#HARU-10245', name: 'Ana Cruz',        email: 'anacruz@gmail.com',       date: 'May 20, 2026', time: '09:15 AM', status: 'pending',    payment: 'Paymaya', total: '₱450',   address: '456 Rizal Ave, Manila' },
-        { id: '#HARU-10244', name: 'Marco Reyes',     email: 'marcoreyes@gmail.com',    date: 'May 19, 2026', time: '02:00 PM', status: 'shipped',    payment: 'Gcash',   total: '₱1,200', address: '789 Bonifacio St, Davao' },
-        { id: '#HARU-10243', name: 'Marco Reyes',     email: 'marcoreyes@gmail.com',    date: 'May 19, 2026', time: '02:00 PM', status: 'delivered',  payment: 'Paymaya', total: '₱800',   address: '789 Bonifacio St, Davao' },
-        { id: '#HARU-10242', name: 'Lea Santos',      email: 'leasantos@gmail.com',     date: 'May 18, 2026', time: '11:45 AM', status: 'cancelled',  payment: 'Gcash',   total: '₱550',   address: '321 Luna St, Iloilo' },
-    ];
+    var allOrders = window.allOrders || [];
 
     // ── Orders Page ───────────────────────────────────────────
-    // Only runs when the orders table is present on the page.
+    
     if (document.getElementById('ordersBody')) {
 
         var ordPageSize        = 10;
@@ -865,14 +849,12 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Returns "Month YYYY" key from a date string like "May 21, 2026"
         function ordMonthKey(dateStr) {
             if (!dateStr) return '';
             var parts = dateStr.split(' ');
             return parts[0] + ' ' + parts[2]; // e.g. "May 2026"
         }
 
-        // Populate date dropdown from unique months in allOrders
         function ordPopulateDateFilter() {
             var el = document.getElementById('dateFilter');
             if (!el) return;
@@ -917,46 +899,49 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function ordRender() {
-            var orders = ordFiltered();
-            var totalPages = Math.max(1, Math.ceil(orders.length / ordPageSize));
-            if (ordCurrentPage > totalPages) ordCurrentPage = totalPages;
-            var start = (ordCurrentPage - 1) * ordPageSize;
-            var page  = orders.slice(start, start + ordPageSize);
-
-            var tbody = document.getElementById('ordersBody');
-            var empty = document.getElementById('ordEmpty');
-
-            if (page.length === 0) {
-                tbody.innerHTML = '';
-                empty.style.display = 'block';
-            } else {
-                empty.style.display = 'none';
-                tbody.innerHTML = page.map(function(o) {
-                    var idx = allOrders.indexOf(o);
-                    return '<tr>' +
-                        '<td class="ord-id">' + o.id + '</td>' +
-                        '<td><div class="ord-customer-name">' + o.name + '</div><div class="ord-customer-email">' + o.email + '</div></td>' +
-                        '<td><div class="ord-date">' + o.date + '</div><div class="ord-time">' + o.time + '</div></td>' +
-                        '<td>' + ordBadgeFor(o.status) + '</td>' +
-                        '<td class="ord-payment">' + o.payment + '</td>' +
-                        '<td class="ord-total">' + o.total + '</td>' +
-                        '<td class="ord-actions-cell">' +
-                            '<div class="ord-ellipsis-wrap">' +
-                                '<button class="btn-ord-ellipsis" data-idx="' + idx + '" aria-label="More actions"><span></span><span></span><span></span></button>' +
-                                '<div class="ord-dropdown" id="drop-' + idx + '">' +
-                                    '<button class="ord-drop-item" data-action="ord-view"   data-idx="' + idx + '">View</button>' +
-                                    '<button class="ord-drop-item" data-action="ord-edit"   data-idx="' + idx + '">Edit Status</button>' +
-                                    '<button class="ord-drop-item ord-drop-item--delete" data-action="ord-delete" data-idx="' + idx + '">Delete</button>' +
-                                '</div>' +
-                            '</div>' +
-                        '</td>' +
-                    '</tr>';
-                }).join('');
-            }
-            ordRenderPagination(totalPages);
-            ordBindRows();
+        if (window.allOrders && window.allOrders.length > 0 && allOrders.length === 0) {
+            allOrders = window.allOrders;
         }
 
+        var orders = ordFiltered();
+        var totalPages = Math.max(1, Math.ceil(orders.length / ordPageSize));
+        if (ordCurrentPage > totalPages) ordCurrentPage = totalPages;
+        var start = (ordCurrentPage - 1) * ordPageSize;
+        var page  = orders.slice(start, start + ordPageSize);
+
+        var tbody = document.getElementById('ordersBody');
+        var empty = document.getElementById('ordEmpty');
+
+        if (page.length === 0) {
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+            tbody.innerHTML = page.map(function(o) {
+                var idx = allOrders.indexOf(o);
+                return '<tr>' +
+                    '<td class="ord-id">' + o.id + '</td>' +
+                    '<td><div class="ord-customer-name">' + o.name + '</div><div class="ord-customer-email">' + o.email + '</div></td>' +
+                    '<td><div class="ord-date">' + o.date + '</div><div class="ord-time">' + o.time + '</div></td>' +
+                    '<td>' + ordBadgeFor(o.status) + '</td>' +
+                    '<td class="ord-payment">' + o.payment + '</td>' +
+                    '<td class="ord-total">' + o.total + '</td>' +
+                    '<td class="ord-actions-cell">' +
+                        '<div class="ord-ellipsis-wrap">' +
+                            '<button class="btn-ord-ellipsis" data-idx="' + idx + '" aria-label="More actions"><span></span><span></span><span></span></button>' +
+                            '<div class="ord-dropdown" id="drop-' + idx + '">' +
+                                '<button class="ord-drop-item" data-action="ord-view"   data-idx="' + idx + '">View</button>' +
+                                '<button class="ord-drop-item" data-action="ord-edit"   data-idx="' + idx + '">Edit Status</button>' +
+                                '<button class="ord-drop-item ord-drop-item--delete" data-action="ord-delete" data-idx="' + idx + '">Delete</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+        }
+        ordRenderPagination(totalPages);
+        ordBindRows();
+    }
         function ordRenderPagination(totalPages) {
             var el = document.getElementById('ordPagination');
             if (!el) return;

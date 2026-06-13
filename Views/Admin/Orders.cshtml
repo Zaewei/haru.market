@@ -1,15 +1,14 @@
+@model IEnumerable<haru.market.Models.OrderViewModel>
+
 @{
     ViewData["Title"] = "Orders";
 }
 
 <link rel="stylesheet" href="~/css/admin/orders.css" asp-append-version="true" />
 
-<!-- ── Page Header ── -->
 <div class="page-header">
     <h1>Orders</h1>
 </div>
-
-<!-- ── Stat Cards ── -->
 <div class="ord-stat-grid">
     <div class="ord-stat-card">
         <div class="ord-stat-icon ord-stat-icon--orders">
@@ -41,7 +40,6 @@
     </div>
 </div>
 
-<!-- ── Toolbar ── -->
 <div class="ord-toolbar">
     <div class="ord-search-wrap">
         <svg class="ord-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -61,7 +59,6 @@
     </div>
 </div>
 
-<!-- ── Orders Table ── -->
 <div class="admin-card ord-table-card">
     <table class="data-table ord-table">
         <thead>
@@ -80,10 +77,8 @@
     <div id="ordEmpty" class="ord-empty" style="display:none;">No orders found.</div>
 </div>
 
-<!-- Pagination -->
 <div class="ord-pagination" id="ordPagination"></div>
 
-<!-- ═══ VIEW ORDER MODAL ═══ -->
 <div class="ord-modal-overlay" id="viewOrderModal">
     <div class="ord-modal">
         <div class="ord-modal-header">
@@ -99,7 +94,6 @@
     </div>
 </div>
 
-<!-- ═══ EDIT STATUS MODAL ═══ -->
 <div class="ord-modal-overlay" id="editOrderModal">
     <div class="ord-modal ord-modal-sm">
         <div class="ord-modal-header">
@@ -135,7 +129,6 @@
     </div>
 </div>
 
-<!-- ═══ DELETE CONFIRM MODAL ═══ -->
 <div class="ord-modal-overlay" id="deleteOrderModal">
     <div class="ord-modal ord-modal-sm">
         <div class="ord-modal-header">
@@ -154,5 +147,17 @@
     </div>
 </div>
 
-<!-- Toast -->
 <div id="ordToastContainer"></div>
+
+<script>
+    window.allOrders = @Json.Serialize(Model != null ? Model.Select(o => new {
+        id = o.Id,
+        name = o.Name,
+        email = o.Email,
+        date = o.Date.ToString("MMM d, yyyy"),
+        time = o.Date.ToString("h:mm tt"),
+        status = o.Status.ToString().ToLower(),
+        payment = o.PaymentMethod,
+        total = "₱" + o.Total.ToString("N0")
+    }) : new object[] {});
+</script>

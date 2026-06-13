@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using haru.market.Services;
@@ -11,11 +12,16 @@ namespace haru.market.Controllers
     {
         private readonly ProductService _productService;
         private readonly LookbookService _lookbookService; 
+        private readonly OrderService _orderService;
 
-        public AdminController(ProductService productService, LookbookService lookbookService)
+        public AdminController(
+            ProductService productService, 
+            LookbookService lookbookService, 
+            OrderService orderService)
         {
             _productService = productService;
             _lookbookService = lookbookService;
+            _orderService = orderService;
         }
 
         [HttpGet]
@@ -55,6 +61,26 @@ namespace haru.market.Controllers
             ViewData["ChartData"] = lookbooksList.Select(l => l.Views).ToArray(); 
 
             return View(viewModel);
-            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Orders()
+        {
+            var liveOrders = await _orderService.GetAllOrdersAsync();
+            
+            return View(liveOrders);
+        }
+
+        [HttpGet]
+        public IActionResult Lookbooks()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Users()
+        {
+            return View();
         }
     }
+}
