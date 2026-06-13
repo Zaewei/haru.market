@@ -43,7 +43,6 @@ namespace haru.market.Controllers
         }
 
         // us 03 customer login
-    
         [HttpGet]
         public IActionResult Login()
         {
@@ -60,21 +59,25 @@ namespace haru.market.Controllers
 
             try
             {
-                // using the unique uid from firebase to create a session token
-                string mockUid = "J3ZInHktIaS3Lpphm9YUK89RBwU2";
+                // Attempt to log in the user and get their UID
+                string? uid = await _authService.LoginUserAsync(model.Email, model.Password);
 
-                // store the uid in the session to maintain user authentication state across requests
-                HttpContext.Session.SetString("UserUid", mockUid);
-                
-                string sessionToken = await _authService.CreateSessionTokenAsync(mockUid);
+                if (string.IsNullOrEmpty(uid))
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid email or password");
+                    return View(model);
+                }
+
+                HttpContext.Session.SetString("UserUid", uid);
+
+                string sessionToken = await _authService.CreateSessionTokenAsync(uid);
                 
                 if (model.RememberMe)
                 {
                     // browser cookies for remember me
                 }
 
-                // printing of success token
-                return Content($"Success! Secure Session Token Generated: {sessionToken.Substring(0, 15)}...");
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
