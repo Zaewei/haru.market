@@ -188,26 +188,80 @@ namespace haru.market.Services
                 {
                     double totalSum = orderData.Items.Sum(item => (double)item.Price * item.Quantity);
                     
-                    // We can format a clean HTML email now
-                    StringBuilder htmlBuilder = new StringBuilder();
-                    htmlBuilder.AppendLine($"<h2>Thank you for shopping at haru.market!</h2>");
-                    htmlBuilder.AppendLine($"<p><strong>Order Reference:</strong> {orderId}</p>");
-                    htmlBuilder.AppendLine($"<p><strong>Shipping To:</strong> {orderData.ShippingAddress}</p>");
-                    htmlBuilder.AppendLine("<h3>Line Items:</h3><ul>");
-
+                    StringBuilder itemRowsBuilder = new StringBuilder();
+                    itemRowsBuilder.Append("<table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>");
                     foreach (var item in orderData.Items)
                     {
-                        htmlBuilder.AppendLine($"<li>{item.ProductName} (x{item.Quantity}) : ₱{item.Price * item.Quantity:F2}</li>");
+                        itemRowsBuilder.Append($@"
+                            <tr>
+                                <td style='padding: 12px 0; border-bottom: 1px dashed #cccccc; font-size: 14px; font-weight: 500; color: #333333; text-align: left;'>
+                                    {item.ProductName} <span style='color: #888888; font-size: 12px;'>x{item.Quantity}</span>
+                                </td>
+                                <td style='padding: 12px 0; border-bottom: 1px dashed #cccccc; font-size: 14px; font-weight: bold; color: #000000; text-align: right; width: 100px;'>
+                                    ₱{item.Price * item.Quantity:N0}
+                                </td>
+                            </tr>");
                     }
-                    htmlBuilder.AppendLine($"</ul><h3>Total Amount Paid: ₱{totalSum:F2}</h3>");
+                    itemRowsBuilder.Append("</table>");
 
-                    // resend
+                    string htmlEmailBody = $@"
+                    <div style='font-family: ""Helvetica Neue"", Arial, sans-serif; background-color: #fbf9f6; padding: 30px 15px; text-align: left;'>
+                        <div style='max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);'>
+                            
+                            <div style='text-align: center; margin-bottom: 35px;'>
+                                <img src='https://raw.githubusercontent.com/Zaewei/haru.market/refs/heads/main/wwwroot/images/header.png' alt='HARU Header' style='width: 100%; max-width: 550px; display: block; margin: 0 auto; border-radius: 12px;' />
+                            </div>
+
+                            <h2 style='color: #d63384; font-size: 28px; font-weight: bold; margin: 0 0 10px 0;'>Hi</h2>
+                            <p style='font-size: 20px; font-weight: bold; color: #000000; margin: 0 0 25px 0;'>Thanks for your purchase.</p>
+                            
+                            <hr style='border: none; border-top: 1px dashed #888888; margin: 20px 0;' />
+
+                            <table style='width: 100%; border-collapse: collapse; font-size: 13px; color: #555555; margin-bottom: 15px;'>
+                                <tr>
+                                    <td style='vertical-align: top; padding: 0; text-align: left;'>
+                                        <span style='display: block; margin-bottom: 4px; color: #777777;'>Order #</span>
+                                        <strong style='color: #000000; font-size: 14px;'>{orderId.Substring(0, 8).ToUpper()}</strong>
+                                    </td>
+                                    <td style='text-align: right; vertical-align: top; padding: 0;'>
+                                        <span style='display: block; margin-bottom: 4px; color: #777777;'>Placed on</span>
+                                        <strong style='color: #000000; font-size: 14px;'>{DateTime.UtcNow:MMMM dd, yyyy}</strong>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <div style='margin: 20px 0;'>
+                                {itemRowsBuilder.ToString()}
+                            </div>
+
+                            <hr style='border: none; border-top: 1px dashed #888888; margin: 25px 0;' />
+
+                            <div style='padding-top: 5px;'>
+                                <table style='width: 100%; border-collapse: collapse; margin-bottom: 25px;'>
+                                    <tr>
+                                        <td style='font-size: 16px; font-weight: bold; color: #000000; text-align: left;'>
+                                            Total Amount
+                                        </td>
+                                        <td style='font-size: 22px; font-weight: bold; color: #d63384; text-align: right;'>
+                                            ₱{totalSum:N0}
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <div style='text-align: center; margin-top: 15px;'>
+                                    <img src='https://raw.githubusercontent.com/Zaewei/haru.market/refs/heads/main/wwwroot/images/footer.png' alt='HARU Footer' style='width: 100%; max-width: 550px; display: block; margin: 0 auto;' />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>";
+
                     var emailPayload = new
                     {
                         from = "onboarding@resend.dev",
                         to = new[] { orderData.CustomerEmail },
-                        subject = $"Order Confirmation Receipt - #{orderId}",
-                        html = htmlBuilder.ToString()
+                        subject = $"Your HARU.market Purchase Receipt - #{orderId.Substring(0, 8).ToUpper()}",
+                        html = htmlEmailBody
                     };
 
                     string resendApiKey = _configuration["Resend:ApiKey"] ?? "";
@@ -225,7 +279,7 @@ namespace haru.market.Services
                     }
                     else
                     {
-                        Console.WriteLine($"[RESEND SUCCESS] Live email sent to {orderData.CustomerEmail}");
+                        Console.WriteLine($"[RESEND SUCCESS] Live template email sent to {orderData.CustomerEmail}");
                     }
                 }
                 catch (Exception ex)
@@ -234,7 +288,6 @@ namespace haru.market.Services
                 }
             });
         }
-
         public async Task<List<OrderViewModel>> GetAllOrdersAsync()
         {
             var ordersList = new List<OrderViewModel>();
