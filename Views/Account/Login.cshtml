@@ -1,32 +1,86 @@
 @model haru.market.Models.LoginViewModel
 
-<div class="container" style="padding: 50px;">
-    <h2>Test Login Page</h2>
-    
-    <form asp-controller="Account" asp-action="Login" method="post">
-        <div asp-validation-summary="All" style="color:red;"></div>
+@{
+    Layout = "_Layout";
+}
 
-        <div>
-            <label>Email:</label><br />
-            <input asp-for="Email" /><br /><br />
-        </div>
-        <div>
-            <label>Password:</label><br />
-            <input asp-for="Password" type="password" /><br /><br />
-        </div>
-        <div>
-            <input asp-for="RememberMe" />
-            <label>Remember Me</label><br /><br />
+@section Styles {
+    <link rel="stylesheet" href="~/css/costumer_page/Account.css" asp-append-version="true" />
+}
+
+<div class="Account_Page">
+    <div class="Account_Card">
+
+        <!-- Pink side panel -->
+        <div class="Account_Side">
+            <div class="Account_Side_Top">
+                <img src="~/images/Layout/Black_Logo.png" alt="Haru Market Logo" class="Account_Logo" />
+                <h2>HARU.market</h2>
+                <p class="Account_Est">est. 2024</p>
+                <p class="Account_Tagline">everything starts anew</p>
+            </div>
+
+            <div class="Account_Switch">
+                <p>Don't have an account?</p>
+                <a href="/Account/Register" class="Account_Switch_Btn">Sign Up</a>
+            </div>
         </div>
 
-        <button type="submit">Submit Test Login</button>
-    </form>
+      
+        <div class="Account_Form_Side">
+            <div class="Account_Form_Header">
+                <h1>LOG IN</h1>
+                <a href="/Home/Index" class="Account_Close" aria-label="Close">&times;</a>
+            </div>
 
-    <hr />
-    <div style="margin-top: 15px; text-align: center;">
-        <p style="font-family: sans-serif; color: #333;">
-            Don't have an account yet? 
-            <a href="/Account/Register" style="color: #ff69b4; font-weight: bold; text-decoration: none; margin-left: 5px;">Create an Account</a>
-        </p>
+            <div class="Account_Form_Body">
+                <h2>Welcome back!</h2>
+
+                <form asp-controller="Account" asp-action="Login" method="post">
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""] != null)
+                    {
+                        <div class="Account_Validation_Summary" asp-validation-summary="ModelOnly"></div>
+                    }
+
+                    <div class="Account_Field">
+                        <label asp-for="Email">Email</label>
+                        <input asp-for="Email" type="email" placeholder="" />
+                        <span asp-validation-for="Email" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="Account_Field">
+                        <label asp-for="Password">Password</label>
+                        <div class="Account_Input_Wrap">
+                            <input asp-for="Password" id="Password" type="password" placeholder="" />
+                            <button type="button" id="PasswordToggle" class="Account_Toggle_Pass" aria-label="Toggle password visibility" tabindex="-1" onclick="var i=document.getElementById('Password'); if(i.type==='password'){i.type='text'; this.classList.add('Account_Eye_Off');} else {i.type='password'; this.classList.remove('Account_Eye_Off');} return false;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="Account_Row_Between">
+                        <div class="Account_Remember">
+                            <input asp-for="RememberMe" type="checkbox" />
+                            <label asp-for="RememberMe" style="margin:0; font-weight:600;">Remember me</label>
+                        </div>
+                        <div class="Account_Forgot">
+                            <a href="#">Forget Password</a>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="Account_Submit">Log In</button>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/costumer_page/Account.js" asp-append-version="true"></script>
+}
