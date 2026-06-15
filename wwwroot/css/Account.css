@@ -1,1 +1,318 @@
+/* ===== Account (Login / Sign Up) ===== */
 
+.Account_Page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 85vh;
+  padding: 4vh 1rem;
+}
+
+.Account_Card {
+  display: flex;
+  width: 100%;
+  max-width: 850px;
+  min-height: 520px;
+  background-color: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* ---- Pink side panel ---- */
+.Account_Side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 40%;
+  background-color: #F8CBD5;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.Account_Side_Top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.Account_Logo {
+  width: 90px;
+  height: auto;
+  margin-bottom: 1.5rem;
+}
+
+.Account_Side_Top h2 {
+  font-family: "Piazzolla", serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.Account_Side_Top .Account_Est {
+  font-family: "Piazzolla", serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0.1rem 0 0.75rem;
+}
+
+.Account_Side_Top .Account_Tagline {
+  font-family: "Piazzolla", serif;
+  font-weight: 600;
+  font-style: italic;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.Account_Switch {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 14px;
+  padding: 1.25rem 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.Account_Switch p {
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  margin: 0 0 0.85rem;
+  font-size: 0.95rem;
+}
+
+.Account_Switch_Btn {
+  display: inline-block;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  text-decoration: none;
+  color: #0f0f0f;
+  background-color: #F8CBD5;
+  border: 1px solid #f3a9bb;
+  border-radius: 50px;
+  padding: 0.5rem 2.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.Account_Switch_Btn:hover {
+  background-color: #f4b6c6;
+  color: #0f0f0f;
+}
+
+/* ---- Form side ---- */
+.Account_Form_Side {
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  background-color: #fff;
+}
+
+.Account_Form_Header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  background-color: #F8CBD5;
+  padding: 1.5rem 0;
+}
+
+.Account_Form_Header h1 {
+  font-family: "Piazzolla", serif;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.Account_Close {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  text-decoration: none;
+  color: #0f0f0f;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.Account_Close:hover {
+  color: #555;
+}
+
+.Account_Form_Body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.5rem 3rem;
+}
+
+.Account_Form_Body h2 {
+  font-family: "Piazzolla", serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+  margin: 0 0 1.5rem;
+}
+
+.Account_Field {
+  margin-bottom: 1.1rem;
+}
+
+.Account_Field label {
+  display: block;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.Account_Field label .required {
+  color: #e0506b;
+  margin-left: 0.15rem;
+}
+
+.Account_Input_Wrap {
+  position: relative;
+}
+
+.Account_Field input {
+  width: 100%;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.95rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #F8CBD5;
+  border-radius: 8px;
+  outline: none;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.Account_Field input:focus {
+  border-color: #f3a9bb;
+  box-shadow: 0 0 0 3px rgba(248, 203, 213, 0.35);
+}
+
+.Account_Field input.input-validation-error {
+  border-color: #e0506b;
+}
+
+.Account_Toggle_Pass {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Account_Toggle_Pass img,
+.Account_Toggle_Pass svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  opacity: 0.6;
+}
+
+.Account_Toggle_Pass.Account_Eye_Off svg {
+  opacity: 0.35;
+}
+
+.Account_Row_Between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.75rem 0 1.25rem;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.85rem;
+}
+
+.Account_Remember {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.Account_Remember input[type="checkbox"] {
+  accent-color: #F8CBD5;
+  width: 1rem;
+  height: 1rem;
+}
+
+.Account_Forgot a {
+  color: #0f0f0f;
+  text-decoration: underline;
+}
+
+.Account_Submit {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  margin: 0.5rem auto 0;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #0f0f0f;
+  background-color: #F8CBD5;
+  border: 1px solid #f3a9bb;
+  border-radius: 50px;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.Account_Submit:hover {
+  background-color: #f4b6c6;
+}
+
+.Account_Validation_Summary {
+  font-family: "Nunito", sans-serif;
+  color: #e0506b;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.Account_Validation_Summary ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.field-validation-error {
+  display: block;
+  color: #e0506b;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .Account_Card {
+    flex-direction: column;
+    max-width: 480px;
+  }
+
+  .Account_Side,
+  .Account_Form_Side {
+    width: 100%;
+  }
+
+  .Account_Side {
+    order: 2;
+    padding: 2rem 1.5rem;
+  }
+
+  .Account_Form_Side {
+    order: 1;
+  }
+
+  .Account_Form_Body {
+    padding: 2rem 1.5rem;
+  }
+}
