@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using haru.market.Models;
 using haru.market.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace haru.market.Controllers
 {
@@ -53,6 +54,28 @@ namespace haru.market.Controllers
             
             // give it to the view to display
             return View(catalog);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddToCart(string productId)
+        {
+            string? uid = HttpContext.Session.GetString("UserUid");
+
+            if (string.IsNullOrEmpty(uid))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var product = await _productService.GetProductAsync(productId);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            await _productService.AddToCartAsync(uid, product);
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }
