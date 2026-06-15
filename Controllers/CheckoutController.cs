@@ -105,14 +105,16 @@ namespace haru.market.Controllers
                 using var doc = System.Text.Json.JsonDocument.Parse(json);
                 var root = doc.RootElement;
 
-                string? orderToken = root.TryGetProperty("external_id", out var idElement) ? idElement.GetString() : null;
-                string? status = root.TryGetProperty("status", out var statusElement) ? statusElement.GetString() : null; 
-                string? paymentChannel = root.TryGetProperty("payment_channel", out var channelElement) ? channelElement.GetString() : null; 
+                // Determine if the properties are nested under "data" or sitting at the root layer
+                var targetElement = root.TryGetProperty("data", out var dataElement) ? dataElement : root;
+
+                string? orderToken = targetElement.TryGetProperty("external_id", out var idElement) ? idElement.GetString() : null;
+                string? status = targetElement.TryGetProperty("status", out var statusElement) ? statusElement.GetString() : null; 
+                string? paymentChannel = targetElement.TryGetProperty("payment_channel", out var channelElement) ? channelElement.GetString() : null; 
 
                 if (orderToken != null && status == "PAID")
                 {
                     await _orderService.UpdateOrderStatusAsync(orderToken, "Paid", paymentChannel ?? "Online");
-                    
                     return Ok(new { message = "Order successfully verified as PAID." });
                 }
 

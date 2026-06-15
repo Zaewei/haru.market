@@ -212,7 +212,7 @@ namespace haru.market.Services
                                 <img src='https://raw.githubusercontent.com/Zaewei/haru.market/refs/heads/main/wwwroot/images/header.png' alt='HARU Header' style='width: 100%; max-width: 550px; display: block; margin: 0 auto; border-radius: 12px;' />
                             </div>
 
-                            <h2 style='color: #d63384; font-size: 28px; font-weight: bold; margin: 0 0 10px 0;'>Hi</h2>
+                            <h2 style='color: #d63384; font-size: 28px; font-weight: bold; margin: 0 0 10px 0;'>Hi!</h2>
                             <p style='font-size: 20px; font-weight: bold; color: #000000; margin: 0 0 25px 0;'>Thanks for your purchase.</p>
                             
                             <hr style='border: none; border-top: 1px dashed #888888; margin: 20px 0;' />
