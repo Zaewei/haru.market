@@ -28,6 +28,11 @@
                             Stock: @item.StockQuantity
                         </span>
                     </div>
+                    <!-- Test Add to Cart function -->
+                    <form asp-action="AddToCart"; method="post">
+                        <input type="hidden"; name="productId"; value="@item.Id" />
+                        <button type="submit">Add To Cart</button>
+                    </form>
                 </div>
             }
         </div>
