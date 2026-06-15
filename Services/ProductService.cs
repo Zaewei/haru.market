@@ -167,5 +167,53 @@ namespace haru.market.Services
                 return 0;
             }
         }
+
+        public async Task<ProductViewModel?> GetProductAsync(string productId)
+        {
+            DocumentSnapshot doc = await _firestoreDb.Collection("products").Document(productId).GetSnapshotAsync();
+
+            if (!doc.Exists)
+                return null;
+
+            var data = doc.ToDictionary();
+
+            return new ProductViewModel
+            {
+                Id = doc.Id,
+                Name = data["name"]?.ToString() ?? "",
+                Description = data["description"]?.ToString() ?? "",
+                Price = Convert.ToDecimal(data["price"]),
+                StockQuantity = Convert.ToInt32(data["stockQuantity"]),
+                ImageUrl = data["imageUrl"]?.ToString() ?? ""
+            };
+        }
+
+        public async Task AddToCartAsync(string uid, ProductViewModel product)
+        {
+            DocumentReference doc = _firestoreDb.Collection("users").Document(uid).Collection("cart").Document(product.Id);
+
+            DocumentSnapshot existing = await doc.GetSnapshotAsync();
+
+            if (existing.Exists)
+            {
+                int currentQty = existing.GetValue<int>("quantity");
+
+                await doc.UpdateAsync("quantity", currentQty + 1);
+
+                return;
+            }
+
+            var cartData = new Dictionary<string, object>
+                {
+                    { "productId", product.Id ?? "" },
+                    { "productName", product.Name },
+                    { "price", (double)product.Price },
+                    { "imageUrl", product.ImageUrl },
+                    { "quantity", 1 },
+                    { "addedAt", Timestamp.FromDateTime(DateTime.UtcNow) }
+                };
+
+            await doc.SetAsync(cartData);
+        }
     }
 }
