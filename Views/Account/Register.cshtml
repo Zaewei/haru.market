@@ -1,44 +1,108 @@
 @model haru.market.Models.RegisterViewModel
 
-<div class="container" style="padding: 50px;">
-    <h2>Test Registration Page</h2>
-    
-    <form asp-controller="Account" asp-action="Register" method="post">
-        <div asp-validation-summary="All" style="color:red;"></div>
+@{
+    Layout = "_Layout";
+}
 
-        <div>
-            <label>Full Name:</label><br />
-            <input asp-for="FullName" /><br /><br />
-        </div>
-        <div>
-            <label>Email:</label><br />
-            <input asp-for="Email" /><br /><br />
-        </div>
-        <div>
-            <label>Delivery Address:</label><br />
-            <input asp-for="DeliveryAddress" /><br /><br />
-        </div>
-        <div>
-            <label>Contact Details:</label><br />
-            <input asp-for="ContactDetails" /><br /><br />
-        </div>
-        <div>
-            <label>Password:</label><br />
-            <input asp-for="Password" type="password" /><br /><br />
-        </div>
-        <div>
-            <label>Confirm Password:</label><br />
-            <input asp-for="ConfirmPassword" type="password" /><br /><br />
+@section Styles {
+    <link rel="stylesheet" href="~/css/costumer_page/Account.css" asp-append-version="true" />
+}
+
+<div class="Account_Page">
+    <div class="Account_Card">
+
+        <!-- Form side -->
+        <div class="Account_Form_Side">
+            <div class="Account_Form_Header">
+                <a href="/Home/Index" class="Account_Close" style="left:1.5rem; right:auto;" aria-label="Close">&times;</a>
+                <h1>SIGN UP</h1>
+            </div>
+
+            <div class="Account_Form_Body">
+                <h2>Hello there!</h2>
+
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""] != null)
+                    {
+                        <div class="Account_Validation_Summary" asp-validation-summary="ModelOnly"></div>
+                    }
+
+                    <div class="Account_Field">
+                        <label asp-for="FullName">Full Name<span class="required">*</span></label>
+                        <input asp-for="FullName" type="text" />
+                        <span asp-validation-for="FullName" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="Account_Field">
+                        <label asp-for="Email">Email<span class="required">*</span></label>
+                        <input asp-for="Email" type="email" />
+                        <span asp-validation-for="Email" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="Account_Field">
+                        <label asp-for="DeliveryAddress">Delivery Address<span class="required">*</span></label>
+                        <input asp-for="DeliveryAddress" type="text" />
+                        <span asp-validation-for="DeliveryAddress" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="Account_Field">
+                        <label asp-for="ContactDetails">Contact Details<span class="required">*</span></label>
+                        <input asp-for="ContactDetails" type="text" />
+                        <span asp-validation-for="ContactDetails" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="Account_Field">
+                        <label asp-for="Password">Password<span class="required">*</span></label>
+                        <div class="Account_Input_Wrap">
+                            <input asp-for="Password" id="Password" type="password" />
+                            <button type="button" id="PasswordToggle" class="Account_Toggle_Pass" aria-label="Toggle password visibility" tabindex="-1" onclick="var i=document.getElementById('Password'); if(i.type==='password'){i.type='text'; this.classList.add('Account_Eye_Off');} else {i.type='password'; this.classList.remove('Account_Eye_Off');} return false;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="Account_Field">
+                        <label asp-for="ConfirmPassword">Confirm Password<span class="required">*</span></label>
+                        <div class="Account_Input_Wrap">
+                            <input asp-for="ConfirmPassword" id="ConfirmPassword" type="password" />
+                            <button type="button" id="ConfirmPasswordToggle" class="Account_Toggle_Pass" aria-label="Toggle password visibility" tabindex="-1" onclick="var i=document.getElementById('ConfirmPassword'); if(i.type==='password'){i.type='text'; this.classList.add('Account_Eye_Off');} else {i.type='password'; this.classList.remove('Account_Eye_Off');} return false;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="field-validation-error"></span>
+                    </div>
+
+                    <button type="submit" class="Account_Submit">Sign Up</button>
+                </form>
+            </div>
         </div>
 
-        <button type="submit">Submit Test Registration</button>
-    </form>
+        <!-- Pink side panel -->
+        <div class="Account_Side">
+            <div class="Account_Side_Top">
+                <img src="~/images/Layout/Black_Logo.png" alt="Haru Market Logo" class="Account_Logo" />
+                <h2>HARU.market</h2>
+                <p class="Account_Est">est. 2024</p>
+                <p class="Account_Tagline">everything starts anew</p>
+            </div>
 
-    <hr />
-    <div style="margin-top: 15px; text-align: center;">
-        <p style="font-family: sans-serif; color: #333;">
-            Already have an account? 
-            <a href="/Account/Login" style="color: #ff69b4; font-weight: bold; text-decoration: none; margin-left: 5px;">Login here</a>
-        </p>
+            <div class="Account_Switch">
+                <p>Already have an account?</p>
+                <a href="/Account/Login" class="Account_Switch_Btn">Log In</a>
+            </div>
+        </div>
+
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/costumer_page/Account.js" asp-append-version="true"></script>
+}
