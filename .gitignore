@@ -429,3 +429,5 @@ FodyWeavers.xsd
 *.msp
 # ignores the private key of our firebase secret account below
 haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json
+appsettings.json
+*.json

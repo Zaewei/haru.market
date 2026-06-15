@@ -4,20 +4,28 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
 using Google.Cloud.Firestore;
 using haru.market.Models;
-using MimeKit;
-using MailKit.Net.Smtp;
-using MailKit.Security;
+using Microsoft.Extensions.Configuration;
+using Xendit.net;
 
 namespace haru.market.Services
 {
     public class OrderService
     {
         private readonly FirestoreDb _firestoreDb;
+        private readonly IConfiguration _configuration;
+        private readonly HttpClient _httpClient;
 
-        public OrderService()
+        public OrderService(IConfiguration configuration)
         {
+            _configuration = configuration;
+            _httpClient = new HttpClient();
+
+            // Initialize Firestore
             string keyPath = "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json";
             var credential = Google.Apis.Auth.OAuth2.ServiceAccountCredential.FromServiceAccountData(
                 new MemoryStream(Encoding.UTF8.GetBytes(File.ReadAllText(keyPath)))
@@ -28,18 +36,18 @@ namespace haru.market.Services
                 ProjectId = "haru-market",
                 Credential = credential
             }.Build();
+
+            // Initialize Xendit SDK
+            XenditConfiguration.ApiKey = _configuration["Xendit:SecretKey"];
         }
 
-        // register complete order details to firestore and return the doc id as order fulfillment token
-        // this is us 09 and 011
+        // US-09 & 011: Register complete order details to firestore
         public async Task<string> CreateOrderAsync(OrderPlacementViewModel orderData)
         {
-            // entire checkout process 
             string generatedOrderId = await _firestoreDb.RunTransactionAsync(async transaction =>
             {
                 double totalAmount = 0;
 
-                // verify stock for each item in order and update inventory counts
                 foreach (var item in orderData.Items)
                 {
                     DocumentReference productRef = _firestoreDb.Collection("products").Document(item.ProductId);
@@ -47,29 +55,21 @@ namespace haru.market.Services
 
                     if (!productSnapshot.Exists)
                     {
-                        throw new Exception($"Product '{item.ProductName}' no longer exists in our market catalog repository.");
+                        throw new Exception($"Product '{item.ProductName}' no longer exists in our catalog.");
                     }
 
-                    // reads the current stock quantity for the item from the db
                     long currentStock = productSnapshot.GetValue<long>("stockQuantity");
                     
                     if (currentStock < item.Quantity)
                     {
-                        // stops the entire order if stock is insufficient for any item
-                        throw new Exception($"Insufficient stock quantity available for {item.ProductName}. Current stock: {currentStock} units.");
+                        throw new Exception($"Insufficient stock for {item.ProductName}. Current: {currentStock}");
                     }
 
-                    // calculates the updated stock count after the purchase
                     long updatedStockCount = currentStock - item.Quantity;
-                    
-                    // updates the stock quantity in the database for each item
                     transaction.Update(productRef, "stockQuantity", updatedStockCount);
-
-                    // total amount for oder
                     totalAmount += (double)item.Price * item.Quantity;
                 }
 
-                // if inventory checks pass then proceeed to create the order document
                 CollectionReference ordersCollection = _firestoreDb.Collection("orders");
                 var firestoreOrderObject = new Dictionary<string, object>
                 {
@@ -77,6 +77,8 @@ namespace haru.market.Services
                     { "shippingAddress", orderData.ShippingAddress },
                     { "customerEmail", orderData.CustomerEmail },
                     { "totalAmount", totalAmount },
+                    { "status", "Pending" }, // Explicitly set initial status
+                    { "paymentMethod", "Pending" }, // Will update after Xendit checkout
                     { "createdAt", Timestamp.FromDateTime(DateTime.UtcNow) },
                     { "items", orderData.Items.Select(i => new Dictionary<string, object>
                         {
@@ -89,109 +91,160 @@ namespace haru.market.Services
                 };
 
                 DocumentReference newOrderRef = await ordersCollection.AddAsync(firestoreOrderObject);
-                return newOrderRef.Id; // commit the transaction and updates to the database, then returns the order document id
+                return newOrderRef.Id; 
             });
 
             return generatedOrderId;
         }
 
-        // this is the invoice for us 10
+        // Generates a hosted Xendit payment checkout link for GCash / Maya via Direct REST API
+        public async Task<string> CreateXenditInvoiceAsync(string databaseOrderId, OrderPlacementViewModel orderData)
+        {
+            try
+            {
+                double totalSum = orderData.Items.Sum(item => (double)item.Price * item.Quantity);
+
+                // 1. Build the payload explicitly
+                var invoiceParams = new
+                {
+                    external_id = databaseOrderId,
+                    amount = totalSum,
+                    currency = "PHP",
+                    payer_email = orderData.CustomerEmail,
+                    description = $"Haru Market Checkout - Order #{databaseOrderId.Substring(0, 8)}",
+                    invoice_duration = 86400,
+                    payment_methods = new[] { "GCASH", "PAYMAYA", "GRABPAY", "CREDIT_CARD" },
+                    success_redirect_url = "https://localhost:7193/Checkout/Success",
+                    failure_redirect_url = "https://localhost:7193/Checkout/Cancel"
+                };
+
+                // 2. Authenticate using Base64 encoded Secret Key (Xendit requires appending a colon)
+                string xenditKey = _configuration["Xendit:SecretKey"] + ":";
+                string base64Auth = Convert.ToBase64String(Encoding.UTF8.GetBytes(xenditKey));
+
+                // 3. Dispatch the HTTP Request
+                var request = new HttpRequestMessage(HttpMethod.Post, "https://api.xendit.co/v2/invoices");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", base64Auth);
+                request.Content = new StringContent(JsonSerializer.Serialize(invoiceParams), Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.SendAsync(request);
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // 4. Extract and return the generated checkout URL
+                    using JsonDocument doc = JsonDocument.Parse(responseBody);
+                    return doc.RootElement.GetProperty("invoice_url").GetString()!;
+                }
+                else
+                {
+                    Console.WriteLine($"[XENDIT ERROR] API Response: {responseBody}");
+                    throw new Exception("Payment gateway rejected the invoice request.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[XENDIT ERROR] Execution failure: {ex.Message}");
+                throw new Exception("Payment gateway initialization failed.");
+            }
+        }
+
+        // Helper to update a document's status flag directly via Webhook
+        public async Task UpdateOrderStatusAsync(string orderId, string newStatus, string paymentChannel = "Online")
+        {
+            DocumentReference orderRef = _firestoreDb.Collection("orders").Document(orderId);
+            
+            await orderRef.UpdateAsync(new Dictionary<string, object>
+            {
+                { "status", newStatus },
+                { "paymentMethod", paymentChannel }
+            });
+        }
+
+        // US-10: Upgraded to use Resend REST API instead of Mailtrap Sandbox
         public void DispatchInvoiceBackground(string orderId, OrderPlacementViewModel orderData)
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 try
                 {
-                    // totals
                     double totalSum = orderData.Items.Sum(item => (double)item.Price * item.Quantity);
                     
-                    StringBuilder invoiceBuilder = new StringBuilder();
-                    invoiceBuilder.AppendLine("==================================================");
-                    invoiceBuilder.AppendLine("                HARU.MARKET RECEIPT               ");
-                    invoiceBuilder.AppendLine("==================================================");
-                    invoiceBuilder.AppendLine($"Order Reference Token: {orderId}");
-                    invoiceBuilder.AppendLine($"Timestamp Generation : {DateTime.UtcNow} UTC");
-                    invoiceBuilder.AppendLine("--------------------------------------------------");
-                    invoiceBuilder.AppendLine($"Customer Name        : {orderData.CustomerName}");
-                    invoiceBuilder.AppendLine($"Destination Delivery : {orderData.ShippingAddress}");
-                    invoiceBuilder.AppendLine($"Profile Inbox Address: {orderData.CustomerEmail}");
-                    invoiceBuilder.AppendLine("--------------------------------------------------");
-                    invoiceBuilder.AppendLine("Line Items Purchased:");
+                    // We can format a clean HTML email now
+                    StringBuilder htmlBuilder = new StringBuilder();
+                    htmlBuilder.AppendLine($"<h2>Thank you for shopping at haru.market!</h2>");
+                    htmlBuilder.AppendLine($"<p><strong>Order Reference:</strong> {orderId}</p>");
+                    htmlBuilder.AppendLine($"<p><strong>Shipping To:</strong> {orderData.ShippingAddress}</p>");
+                    htmlBuilder.AppendLine("<h3>Line Items:</h3><ul>");
 
                     foreach (var item in orderData.Items)
                     {
-                        invoiceBuilder.AppendLine($" - {item.ProductName} (x{item.Quantity}) : ${item.Price * item.Quantity:F2}");
+                        htmlBuilder.AppendLine($"<li>{item.ProductName} (x{item.Quantity}) : ₱{item.Price * item.Quantity:F2}</li>");
                     }
+                    htmlBuilder.AppendLine($"</ul><h3>Total Amount Paid: ₱{totalSum:F2}</h3>");
 
-                    invoiceBuilder.AppendLine("--------------------------------------------------");
-                    invoiceBuilder.AppendLine($"Total Amount Charged : ${totalSum:F2}");
-                    invoiceBuilder.AppendLine("==================================================");
-                    invoiceBuilder.AppendLine("   Thank you for shopping at haru.market!   ");
-                    invoiceBuilder.AppendLine("==================================================");
-
-                    // creats an invoice file in the base directory with the order id as part of the filename for retrieval
-                    string outputFilename = $"Invoice_Receipt_{orderId}.txt";
-                    string fullStoragePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, outputFilename);
-                    
-                    File.WriteAllText(fullStoragePath, invoiceBuilder.ToString());
-
-                    // testing mailkit to send an actual email, very neat
-                    var email = new MimeMessage();
-                    email.From.Add(new MailboxAddress("haru.market Support", "support@haru.market"));
-                    email.To.Add(new MailboxAddress(orderData.CustomerName, orderData.CustomerEmail));
-                    email.Subject = $"Order Confirmation Receipt - #{orderId}";
-
-                    var bodyBuilder = new BodyBuilder();
-                    bodyBuilder.TextBody = invoiceBuilder.ToString();
-                    email.Body = bodyBuilder.ToMessageBody();
-
-                    using (var smtpClient = new SmtpClient())
+                    // Resend Payload
+                    var emailPayload = new
                     {
-                        smtpClient.Connect("sandbox.smtp.mailtrap.io", 2525, SecureSocketOptions.StartTls);
-                        
-                        // mailkit sandox auth credentials
-                        smtpClient.Authenticate("4ee893c2602ba1", "accb67817c94ac");
-                        
-                        smtpClient.Send(email);
-                        smtpClient.Disconnect(true);
+                        from = "onboarding@resend.dev", // Free tier requires using this sender
+                        to = new[] { orderData.CustomerEmail }, // NOTE: On free tier, this MUST be your verified Resend account email!
+                        subject = $"Order Confirmation Receipt - #{orderId}",
+                        html = htmlBuilder.ToString()
+                    };
+
+                    string resendApiKey = _configuration["Resend:ApiKey"] ?? "";
+                    
+                    var request = new HttpRequestMessage(HttpMethod.Post, "https://api.resend.com/emails");
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", resendApiKey);
+                    request.Content = new StringContent(JsonSerializer.Serialize(emailPayload), Encoding.UTF8, "application/json");
+
+                    var response = await _httpClient.SendAsync(request);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        string errorResponse = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"[RESEND ERROR] Failed to dispatch email: {errorResponse}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[RESEND SUCCESS] Live email sent to {orderData.CustomerEmail}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    // failsafe to log any errors during the process
                     Console.WriteLine($"Background dispatch error telemetry alert: {ex.Message}");
                 }
             });
         }
 
         public async Task<List<OrderViewModel>> GetAllOrdersAsync()
-{
-        var ordersList = new List<OrderViewModel>();
-        CollectionReference collection = _firestoreDb.Collection("orders");
-        QuerySnapshot snapshot = await collection.GetSnapshotAsync();
-
-        foreach (DocumentSnapshot document in snapshot.Documents)
         {
-            if (document.Exists)
+            var ordersList = new List<OrderViewModel>();
+            CollectionReference collection = _firestoreDb.Collection("orders");
+            QuerySnapshot snapshot = await collection.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                Dictionary<string, object> data = document.ToDictionary();
-
-                ordersList.Add(new OrderViewModel
+                if (document.Exists)
                 {
-                    Id = document.Id,
-                    Name = data.ContainsKey("customerName") ? data["customerName"].ToString()! : "Unknown Customer",
-                    Email = data.ContainsKey("customerEmail") ? data["customerEmail"].ToString()! : "",
-                    Status = data.ContainsKey("status") ? data["status"].ToString()! : "Pending",
-                    PaymentMethod = data.ContainsKey("paymentMethod") ? data["paymentMethod"].ToString()! : "Gcash",
-                    Total = data.ContainsKey("totalAmount") ? Convert.ToDecimal(data["totalAmount"]) : 0,
-                    Date = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts
-                        ? ts.ToDateTime()
-                        : DateTime.UtcNow
-                });
-            }
-        }
+                    Dictionary<string, object> data = document.ToDictionary();
 
-        return ordersList.OrderByDescending(o => o.Date).ToList();
-    }
+                    ordersList.Add(new OrderViewModel
+                    {
+                        Id = document.Id,
+                        Name = data.ContainsKey("customerName") ? data["customerName"].ToString()! : "Unknown Customer",
+                        Email = data.ContainsKey("customerEmail") ? data["customerEmail"].ToString()! : "",
+                        Status = data.ContainsKey("status") ? data["status"].ToString()! : "Pending",
+                        PaymentMethod = data.ContainsKey("paymentMethod") ? data["paymentMethod"].ToString()! : "Gcash",
+                        Total = data.ContainsKey("totalAmount") ? Convert.ToDecimal(data["totalAmount"]) : 0,
+                        Date = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts
+                            ? ts.ToDateTime()
+                            : DateTime.UtcNow
+                    });
+                }
+            }
+
+            return ordersList.OrderByDescending(o => o.Date).ToList();
+        }
     }
 }

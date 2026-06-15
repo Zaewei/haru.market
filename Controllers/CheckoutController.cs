@@ -60,19 +60,37 @@ namespace haru.market.Controllers
 
             try
             {
-                // process checkout in real time with inv sync and order registration in firestore
+                // process checkout
                 string orderToken = await _orderService.CreateOrderAsync(model);
 
-                // background invoice after successful inventory sync and order creation
+                // generate xendit payment link
+                string xenditCheckoutUrl = await _orderService.CreateXenditInvoiceAsync(orderToken, model);
+
+                // background invoice sent via resend
                 _orderService.DispatchInvoiceBackground(orderToken, model);
 
-                return Content($"Fulfillment Success! US-09 Captured logistics data. Order Document ID registered: {orderToken}. US-10: Automated Invoice has been securely dispatched to {model.CustomerEmail}! US-11: Stock counts synced.");
+                // redirect user to xendit transaction page
+                return Redirect(xenditCheckoutUrl);
             }
             catch (System.Exception ex)
             {
                 // catches any exceptions thrown during the transaction
                 return Content($"Checkout Aborted by Transaction Protection: {ex.Message}");
             }
+        }
+
+        [HttpGet]
+        public IActionResult Success()
+        {
+            // xendit will send the user here after a successful payment
+            return Content("Payment Successful! Thank you for your order. Your receipt has been sent to your email.");
+        }
+
+        [HttpGet]
+        public IActionResult Cancel()
+        {
+            // xendit will send the user here if they close the payment window
+            return Content("Payment Cancelled or Failed. Please try again.");
         }
     }
 }
