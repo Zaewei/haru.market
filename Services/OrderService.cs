@@ -97,14 +97,12 @@ namespace haru.market.Services
             return generatedOrderId;
         }
 
-        // Generates a hosted Xendit payment checkout link for GCash / Maya via Direct REST API
         public async Task<string> CreateXenditInvoiceAsync(string databaseOrderId, OrderPlacementViewModel orderData)
         {
             try
             {
                 double totalSum = orderData.Items.Sum(item => (double)item.Price * item.Quantity);
 
-                // 1. Build the payload explicitly
                 var invoiceParams = new
                 {
                     external_id = databaseOrderId,
@@ -114,15 +112,13 @@ namespace haru.market.Services
                     description = $"Haru Market Checkout - Order #{databaseOrderId.Substring(0, 8)}",
                     invoice_duration = 86400,
                     payment_methods = new[] { "GCASH", "PAYMAYA", "GRABPAY", "CREDIT_CARD" },
-                    success_redirect_url = "https://localhost:7193/Checkout/Success",
-                    failure_redirect_url = "https://localhost:7193/Checkout/Cancel"
+                    success_redirect_url = "https://localhost:5167/Checkout/Success",
+                    failure_redirect_url = "https://localhost:5167/Checkout/Cancel"
                 };
 
-                // 2. Authenticate using Base64 encoded Secret Key (Xendit requires appending a colon)
                 string xenditKey = _configuration["Xendit:SecretKey"] + ":";
                 string base64Auth = Convert.ToBase64String(Encoding.UTF8.GetBytes(xenditKey));
 
-                // 3. Dispatch the HTTP Request
                 var request = new HttpRequestMessage(HttpMethod.Post, "https://api.xendit.co/v2/invoices");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Basic", base64Auth);
                 request.Content = new StringContent(JsonSerializer.Serialize(invoiceParams), Encoding.UTF8, "application/json");
@@ -132,7 +128,6 @@ namespace haru.market.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // 4. Extract and return the generated checkout URL
                     using JsonDocument doc = JsonDocument.Parse(responseBody);
                     return doc.RootElement.GetProperty("invoice_url").GetString()!;
                 }
@@ -149,19 +144,42 @@ namespace haru.market.Services
             }
         }
 
-        // Helper to update a document's status flag directly via Webhook
-        public async Task UpdateOrderStatusAsync(string orderId, string newStatus, string paymentChannel = "Online")
+        public async Task UpdateOrderStatusAsync(string orderId, string newStatus, string paymentChannel)
         {
-            DocumentReference orderRef = _firestoreDb.Collection("orders").Document(orderId);
-            
-            await orderRef.UpdateAsync(new Dictionary<string, object>
+            var orderRef = _firestoreDb.Collection("orders").Document(orderId);
+
+            string polishedChannel = "Online";
+            if (!string.IsNullOrWhiteSpace(paymentChannel))
+            {
+                switch (paymentChannel.ToUpper())
+                {
+                    case "CREDIT_CARD":
+                        polishedChannel = "Credit Card";
+                        break;
+                    case "GCASH":
+                        polishedChannel = "GCash";
+                        break;
+                    case "PAYMAYA":
+                        polishedChannel = "Maya";
+                        break;
+                    case "GRABPAY":
+                        polishedChannel = "GrabPay";
+                        break;
+                    default:
+                        polishedChannel = char.ToUpper(paymentChannel[0]) + paymentChannel.Substring(1).ToLower();
+                        break;
+                }
+            }
+
+            var updates = new Dictionary<string, object>
             {
                 { "status", newStatus },
-                { "paymentMethod", paymentChannel }
-            });
+                { "paymentMethod", polishedChannel }
+            };
+
+            await orderRef.UpdateAsync(updates);
         }
 
-        // US-10: Upgraded to use Resend REST API instead of Mailtrap Sandbox
         public void DispatchInvoiceBackground(string orderId, OrderPlacementViewModel orderData)
         {
             Task.Run(async () =>
@@ -183,11 +201,11 @@ namespace haru.market.Services
                     }
                     htmlBuilder.AppendLine($"</ul><h3>Total Amount Paid: ₱{totalSum:F2}</h3>");
 
-                    // Resend Payload
+                    // resend
                     var emailPayload = new
                     {
-                        from = "onboarding@resend.dev", // Free tier requires using this sender
-                        to = new[] { orderData.CustomerEmail }, // NOTE: On free tier, this MUST be your verified Resend account email!
+                        from = "onboarding@resend.dev",
+                        to = new[] { orderData.CustomerEmail },
                         subject = $"Order Confirmation Receipt - #{orderId}",
                         html = htmlBuilder.ToString()
                     };
