@@ -39,9 +39,36 @@
 
 
 .Bag_Summary_Content {
+  display: flex;
+  justify-content: space-between;
+  align-content: end;
   width: 100%;
   height: 60%;
 }
+
+.Left_Table {
+  text-align: left;
+  margin: 3vh 0 3vh 10vh;
+  flex-grow: 1;
+}
+
+.Right_Table {
+  text-align: right;
+  margin: 3vh 10vh 3vh 0;
+  flex-grow: 1;
+
+}
+
+table td th {
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+}
+
+.Table_Space {
+  padding: .5vh 1vh 0 1vh;
+  background: #F8CBD5;
+}
+
 
 .Bag_Summary_Checkout_Card {
   display: flex;
@@ -70,3 +97,96 @@
   color: #0f0f0f;
   font-weight: 700;
 }
+
+.Bag_Product_Container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.Bag_Product_Card {
+  max-width: 100%;
+  height: 25vh;
+  display: flex;
+  padding: 3vh;
+  margin: 0 3vh 0 3vh;
+  border-bottom: 2px solid black;
+  justify-content: space-between;
+  gap:2vh;
+}
+
+.Bag_Product_Image {
+  height: 100%;
+  width:15%;
+}
+
+.Bag_Product_Image img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
+.Bag_Product_Description {
+  height: 100%;
+  width:55%;
+}
+
+.Bag_Product_Description h3 h5 p {
+  font-family: "Nunito", sans-serif;
+}
+
+.Bag_Product_Amount_Button {
+    height: 100%;
+    width:15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.quantity {
+    display: flex;
+    align-items: center;
+    gap: 5%;
+    border: 1px solid #131212;
+    width: 100%;
+    margin: 5px 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.quantity button {
+    background-color: #F8F6EE;
+    width: 30px;
+    height: 30px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.quantity span {
+    min-width: 20px;
+    text-align: center;
+}
+
+.Bag_Product_Delete_Button {
+  height: 100%;
+  width:15%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Bag_Product_Delete_Button_container {
+  width: 25%;
+  height: 25%;
+  object-fit: contain;
+}
+
+.Bag_Product_Delete_Button_container img {
+  width: 100%;
+  height: 100%;
+}
+

@@ -1,69 +1,92 @@
 .Search_Popup_Overlay {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background-color: rgba(0,0,0,.5);
-
+    top:2%;
+    left: 66%;
+    width: 23%;
+    height: 6vh;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 
-    z-index: 9999;
+    z-index: 8000;
 }
 
 .Search_Popup_Window {
-    background-color: #F8F6EE;
+
+    background-color: transparent;
     display: flex;
-    flex-direction: column;
 
     width: 100%;
     height: 100%;
-
-    border-radius: 10px;
 }
 
-.Search_Popup_Title {
+.Search_Content_Container {
   display: flex;
-  flex-direction: row;
+  justify-items: center;
+  align-items: center;
+  height: 100%;
+  width: 90%;
+  background-color: #F8F6EE;
+  overflow: hidden;
+  margin-right: 2vh;
+  border-radius: 1.5vh;
+  padding:.5vh
+  
+
+}
+
+.Search_Text_Box {
+  width: 65%;
+  height: 75%;
+  margin: 5px;
+  background-color: #FFFFFF;
+  border: 1px solid #f8cbd5;
+  border-radius: 1vh;
+  overflow: hidden;
+
+
+}
+
+.Search_Text_Box input {
   width: 100%;
-  height: 10%;
-  box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2);
-}
-
-.Search_Popup_Title_Card {
-  display: flex;
-  width: 80%;
   height: 100%;
+  border: none;
+
+}
+
+.Search_Text_Box input:focus {
+  border: none;
+  outline: none;
+}
+
+.Search_Button {
+  width: 30%;
+  height: 75%;
+  background-color: #f8cbd5; 
+  border-radius: 1vh;
   align-items: center;
-  padding-left: 3vh;
+  justify-items: center;
+  padding:1%;
 }
 
-.Search_Popup_Title_Card h3 {
-  font-family: "Piazzolla", serif;
-  font-size: 4vh;
-  font-weight: 650;
-  font-style: italic;
-}
-
-.Search_Popup_Exit_Card {
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  width: 20%;
-  height: 100%;
-  padding-right: 5vh;
-}
-
-.Search_Popup_Exit_Card a {
+.Search_Button a {
   text-decoration: none;
-  font-size: 4vh;
   color: black;
-  font-family: 'Nunito', sans-serif;
 }
 
-.Search_Popup_Content {
-  width: 100%;
-  height: 85%;
+.Search_Button a h5 {
+  justify-self: center;
+  align-self: center;
+  font-family: "Nunito", sans-serif;
+  
+}
+
+.Search_Popup_Window button{
+  border: none;
+  background-color: transparent;
+  border-radius: 1vh;
+  height: 100%;
+  width: 10%;
+
 }
