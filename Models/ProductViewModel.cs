@@ -24,6 +24,7 @@ namespace haru.market.Models
 
         [Url(ErrorMessage = "Please provide a valid image URL layout.")]
         public string ImageUrl { get; set; } = string.Empty;
+        public string Imageurl2{ get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

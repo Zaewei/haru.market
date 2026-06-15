@@ -56,6 +56,7 @@ namespace haru.market.Services
                         Price = data.ContainsKey("price") ? Convert.ToDecimal(data["price"]) : 0.00m,
                         StockQuantity = data.ContainsKey("stockQuantity") ? Convert.ToInt32(data["stockQuantity"]) : 0,
                         ImageUrl = data.ContainsKey("imageUrl") ? data["imageUrl"].ToString()! : "placeholder.png",
+                        Imageurl2 = data.ContainsKey("imageurl2") ? data["imageurl2"].ToString()! : "",
                         
                         CreatedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts
                             ? ts.ToDateTime()
