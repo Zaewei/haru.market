@@ -5,8 +5,20 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/costumer_page/Account.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Account.css" asp-append-version="true" />
 }
+
+        <div>
+            <label>Email:</label><br />
+            <input asp-for="Email" /><br /><br />
+        </div>
+        <div>
+            <label>Password:</label><br />
+            <input asp-for="Password" type="password" /><br /><br />
+        </div>
+        <div>
+            <input asp-for="RememberMe" />
+            <label>Remember Me</label><br /><br />
 
 <div class="Account_Page">
     <div class="Account_Card">
@@ -24,6 +36,10 @@
                 <p>Don't have an account?</p>
                 <a href="/Account/Register" class="Account_Switch_Btn">Sign Up</a>
             </div>
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> 7f6bb56 (fixed unlinked account css and whatever else happened)
         </div>
 
       
