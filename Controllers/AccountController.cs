@@ -43,10 +43,13 @@ namespace haru.market.Controllers
 
                 if (!string.IsNullOrEmpty(userUid))
                 {
+                    // save their uid in session 
+                    HttpContext.Session.SetString("UserUid", userUid);
+
                     //  looks up the user's role in the database (default is "customer")
                     string userRole = await _productService.GetUserRoleAsync(model.Email);
 
-                    // save role metadata in sesssion
+                    // save role metadata in session
                     HttpContext.Session.SetString("UserRole", userRole);
 
                     // redirect them to the appropriate page based on their role
@@ -92,6 +95,8 @@ namespace haru.market.Controllers
 
                 if (!string.IsNullOrEmpty(userUid))
                 {
+                    HttpContext.Session.SetString("UserUid", userUid);
+
                     string userRole = await _productService.GetUserRoleAsync(model.Email);
 
                     HttpContext.Session.SetString("UserRole", userRole);
