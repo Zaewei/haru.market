@@ -45,6 +45,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddSingleton<haru.market.Services.ProductService>();
 builder.Services.AddSingleton<haru.market.Services.OrderService>();
 builder.Services.AddSingleton<haru.market.Services.LookbookService>();
+builder.Services.AddSingleton<haru.market.Services.UserService>();
 builder.Services.AddSingleton<haru.market.Services.AuthService>();
 
 var app = builder.Build();
@@ -71,7 +72,6 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    // register page as opener
-    pattern: "{controller=Account}/{action=Register}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

@@ -185,3 +185,27 @@
         </div>
     </div>
 </div>
+
+@model IEnumerable<haru.market.Models.AdminUserViewModel>
+
+<script>
+    window.allUsers = @Json.Serialize(Model != null ? Model.Select(u => new {
+    id = u.Id,
+    name = u.Name,
+    email = u.Email,
+    joined = u.JoinedAt.ToString("MMM d, yyyy"),
+    lastActive = u.LastActive.ToString("MMM d, yyyy, h:mm tt"),
+    role = u.Role.ToLower(),
+    status = u.Status.ToLower(),
+    
+    phone = u.Phone,
+    address = u.Address,
+    
+    pwChange = "N/A",
+    lookbooks = 0,
+    products = 0,
+    wishlist = 0
+}) : new object[] {});
+</script>
+
+<script src="~/js/admin.js" asp-append-version="true"></script>

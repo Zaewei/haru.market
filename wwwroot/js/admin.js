@@ -1103,29 +1103,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Users Page ────────────────────────────────────────────
     if (document.getElementById('usersBody')) {
 
-        var allUsers = [
-            { id: 'harumarket001', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', phone: '09123456789', address: 'Kl. Kemang Raya No. 20, Jakarta Selatan 12390, Indonesia', joined: 'May 23, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 15, 2026', orders: 10, lookbooks: 5, products: 5, spent: '₱1,350', wishlist: 15 },
-            { id: 'harumarket002', name: 'Ana Cruz',         email: 'anacruz@gmail.com',       phone: '09187654321', address: '456 Rizal Ave, Manila',                                   joined: 'May 20, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Apr 10, 2026', orders: 3,  lookbooks: 2, products: 3, spent: '₱1,980', wishlist: 4  },
-            { id: 'harumarket003', name: 'Marco Reyes',      email: 'marcoreyes@gmail.com',    phone: '09111222333', address: '789 Bonifacio St, Davao',                                 joined: 'May 19, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 1, 2026',  orders: 7,  lookbooks: 8, products: 7, spent: '₱4,200', wishlist: 9  },
-            { id: 'harumarket004', name: 'Lea Santos',       email: 'leasantos@gmail.com',     phone: '09222333444', address: '321 Luna St, Iloilo',                                    joined: 'May 18, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Mar 5, 2026',  orders: 1,  lookbooks: 1, products: 1, spent: '₱550',   wishlist: 2  },
-            { id: 'harumarket005', name: 'Rico Dela Cruz',   email: 'ricodc@gmail.com',        phone: '09333444555', address: '55 Magsaysay Blvd, Quezon City',                         joined: 'May 15, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'May 10, 2026', orders: 5,  lookbooks: 3, products: 5, spent: '₱2,750', wishlist: 7  },
-            { id: 'harumarket006', name: 'Sofia Lim',        email: 'sofialim@gmail.com',      phone: '09444555666', address: '12 Kalayaan Ave, Makati',                                joined: 'May 12, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'Apr 20, 2026', orders: 4,  lookbooks: 6, products: 4, spent: '₱2,100', wishlist: 11 },
-            { id: 'harumarket007', name: 'Ben Torres',       email: 'bentorres@gmail.com',     phone: '09555666777', address: '8 Sampaguita St, Cebu City',                             joined: 'May 10, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 5, 2026',  orders: 12, lookbooks: 4, products: 12, spent: '₱6,800', wishlist: 6  },
-            { id: 'harumarket008', name: 'Nina Flores',      email: 'ninaflores@gmail.com',    phone: '09666777888', address: '3 Pampanga Rd, Angeles City',                            joined: 'May 8, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Feb 14, 2026', orders: 2,  lookbooks: 0, products: 2, spent: '₱900',   wishlist: 3  },
-            { id: 'harumarket009', name: 'Carl Mendoza',     email: 'carlm@gmail.com',         phone: '09777888999', address: '77 Mayon St, Naga City',                                 joined: 'May 5, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'May 3, 2026',  orders: 6,  lookbooks: 2, products: 5, spent: '₱3,300', wishlist: 8  },
-            { id: 'harumarket010', name: 'Dana Reyes',       email: 'danareyes@gmail.com',     phone: '09888999000', address: '101 Sunset Blvd, Batangas',                              joined: 'May 1, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'Apr 28, 2026', orders: 8,  lookbooks: 7, products: 8, spent: '₱4,500', wishlist: 14 },
-        ];
+        var allUsers = window.allUsers || [];
 
         var usrPageSize    = 10;
         var usrCurrentPage = 1;
 
-        // ── Update user stat cards from allUsers data ──
         function usrUpdateStats() {
             var total    = allUsers.length;
             var active   = allUsers.filter(function(u) { return u.status === 'active'; }).length;
             var inactive = allUsers.filter(function(u) { return u.status === 'inactive'; }).length;
 
-            // "New this month" = joined in the same month/year as the most recent join date
             var months = allUsers.map(function(u) { return u.joined; }).sort().reverse();
             var latestMonth = months.length ? months[0].split(' ').slice(0,2).join(' ') : '';
             var newThisMonth = allUsers.filter(function(u) {
@@ -1222,7 +1209,6 @@ document.addEventListener('DOMContentLoaded', function () {
             // intentionally empty — handled by delegated listener below
         }
 
-        // Delegated click for View buttons — runs once, always works
         document.addEventListener('click', function(e) {
             var viewBtn = e.target.closest('.btn-usr-view');
             if (viewBtn) {
@@ -1232,23 +1218,33 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // ── User Detail Panel ─────────────────────────────────
-        function usrOpenDetail(idx) {
-            var u = allUsers[idx];
-            // populate fields
-            document.getElementById('detailName').textContent       = u.name;
-            document.getElementById('detailEmail').textContent      = u.email;
-            document.getElementById('detailPhone').textContent      = u.phone;
-            document.getElementById('detailAddress').textContent    = u.address;
-            document.getElementById('detailJoined').textContent     = 'Joined on ' + u.joined;
-            document.getElementById('detailUserId').textContent     = u.id;
-            document.getElementById('detailRole').textContent       = u.role.charAt(0).toUpperCase() + u.role.slice(1);
-            document.getElementById('detailLastActive').textContent = u.lastActive;
-            document.getElementById('detailPwChange').textContent   = u.pwChange;
-            document.getElementById('detailOrders').textContent     = u.orders;
-            document.getElementById('detailLookbooks').textContent  = u.lookbooks;
-            document.getElementById('detailProducts').textContent   = u.products;
-            document.getElementById('detailSpent').textContent      = u.spent;
-            document.getElementById('detailWishlist').textContent   = u.wishlist;
+       function usrOpenDetail(idx) {
+            var u = allUsers[idx]; //
+
+            var userOrders = allOrders.filter(function(o) { 
+                return o.email && u.email && o.email.toLowerCase() === u.email.toLowerCase(); 
+            });
+
+            var totalSpentVal = userOrders.reduce(function(sum, o) {
+                var n = parseFloat(String(o.total).replace(/[^0-9.]/g, '')) || 0;
+                return sum + n;
+            }, 0);
+
+            document.getElementById('detailName').textContent       = u.name; //
+            document.getElementById('detailEmail').textContent      = u.email; //
+            document.getElementById('detailPhone').textContent      = u.phone; //
+            document.getElementById('detailAddress').textContent    = u.address; //
+            document.getElementById('detailJoined').textContent     = 'Joined on ' + u.joined; //
+            document.getElementById('detailUserId').textContent     = u.id; //
+            document.getElementById('detailRole').textContent       = u.role.charAt(0).toUpperCase() + u.role.slice(1); //
+            document.getElementById('detailLastActive').textContent = u.lastActive; //
+            document.getElementById('detailPwChange').textContent   = u.pwChange; //
+            document.getElementById('detailOrders').textContent     = userOrders.length;
+            document.getElementById('detailSpent').textContent      = '\u20b1' + totalSpentVal.toLocaleString();
+            
+            document.getElementById('detailLookbooks').textContent  = u.lookbooks; //
+            document.getElementById('detailProducts').textContent   = u.products; //
+            document.getElementById('detailWishlist').textContent   = u.wishlist; //
 
             // status badge
             var statusBadge = document.getElementById('detailStatus');
@@ -1261,7 +1257,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 : '<span class="usr-badge usr-badge--inactive">Inactive</span>';
 
             // past orders — built from allOrders filtered by this user's name
-            var userOrders = allOrders.filter(function(o) { return o.name === u.name; });
+            var userOrders = allOrders.filter(function(o) { 
+                return o.email && u.email && o.email.toLowerCase() === u.email.toLowerCase(); 
+            });
             var list = document.getElementById('detailOrdersList');
             if (userOrders.length === 0) {
                 list.innerHTML = '<p style="font-family:\'Poppins\',sans-serif;font-size:0.85rem;color:#b8929f;padding:1rem 0;">No orders found for this user.</p>';
@@ -1288,7 +1286,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     '</div>';
                 }).join('');
 
-                // Wire up each View Order button to open the order view modal
                 list.querySelectorAll('.usr-btn-view-order').forEach(function(btn) {
                     btn.addEventListener('click', function() {
                         var idx = parseInt(this.getAttribute('data-ord-idx'));
@@ -1326,7 +1323,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('closeDetailBtn').addEventListener('click', usrCloseDetail);
         document.getElementById('goBackBtn').addEventListener('click', usrCloseDetail);
 
-        // Close the order view modal
         function usrCloseOrderModal() {
             var modal = document.getElementById('usrOrderViewModal');
             if (modal) modal.classList.remove('ord-modal-overlay--open');
@@ -1350,19 +1346,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Dashboard Page ────────────────────────────────────────
     if (document.getElementById('dashProducts') || document.getElementById('dashLookbooks')) {
         function dashUpdate() {
-            // Products: count rows in productTableBody if on same page, else use stored count
             var productRows = document.querySelectorAll('#productTableBody .pm-row');
             var productCount = productRows.length > 0
                 ? productRows.length
                 : parseInt(sessionStorage.getItem('haruProductCount') || '0');
 
-            // Lookbooks: count list items if present
             var lookbookItems = document.querySelectorAll('.lb-list-item');
             var lookbookCount = lookbookItems.length > 0
                 ? lookbookItems.length
                 : parseInt(sessionStorage.getItem('haruLookbookCount') || '0');
 
-            // Users: count user rows if present
             var userRows = document.querySelectorAll('.users-table-row');
             var userCount = userRows.length > 0
                 ? userRows.length

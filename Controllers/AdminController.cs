@@ -13,15 +13,18 @@ namespace haru.market.Controllers
         private readonly ProductService _productService;
         private readonly LookbookService _lookbookService; 
         private readonly OrderService _orderService;
+        private readonly UserService _userService;
 
         public AdminController(
             ProductService productService, 
             LookbookService lookbookService, 
-            OrderService orderService)
+            OrderService orderService,
+            UserService userService)
         {
             _productService = productService;
             _lookbookService = lookbookService;
             _orderService = orderService;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -78,9 +81,11 @@ namespace haru.market.Controllers
         }
 
         [HttpGet]
-        public IActionResult Users()
+        public async Task<IActionResult> Users()
         {
-            return View();
+            var users = await _userService.GetAllUsersAsync();
+            var sortedUsers = users.OrderByDescending(u => u.JoinedAt).ToList();
+            return View(sortedUsers);
         }
 
         [HttpPost]

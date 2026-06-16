@@ -12,7 +12,7 @@ namespace haru.market.Services
 {
     public class AuthService
     {
-        public async Task<UserRecord> RegisterUserAsync(string email, string password, string username)
+        public async Task<UserRecord> RegisterUserAsync(string email, string password, string username, string phone, string address)
         {
             var args = new UserRecordArgs()
             {
@@ -24,17 +24,19 @@ namespace haru.market.Services
 
             UserRecord user = await FirebaseAuth.DefaultInstance.CreateUserAsync(args);
 
-            DocumentReference userDoc =
-                _firestoreDb
-                    .Collection("users")
-                    .Document(user.Uid);
+            DocumentReference userDoc = _firestoreDb.Collection("users").Document(user.Uid);
 
             var firestoreUser = new Dictionary<string, object>
             {
                 { "uid", user.Uid },
                 { "email", email },
                 { "username", username },
-                { "createdAt", Timestamp.GetCurrentTimestamp() }
+                { "role", "Customer" },
+                { "status", "active" },
+                { "createdAt", Timestamp.GetCurrentTimestamp() },
+                { "lastActive", Timestamp.GetCurrentTimestamp() },
+                { "phone", phone.Trim() },
+                { "address", address.Trim() }
             };
 
             await userDoc.SetAsync(firestoreUser);
@@ -42,7 +44,6 @@ namespace haru.market.Services
             return user;
         }
 
-        // us 03 for login persistence
         public async Task<string> CreateSessionTokenAsync(string uid)
         {
             return await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync(uid);
@@ -55,7 +56,6 @@ namespace haru.market.Services
             _firestoreDb = firestoreDb;
         }
 
-        // test login with firebase auth REST API
         public async Task<string?> LoginUserAsync(string email, string password)
         {
             string apiKey = "AIzaSyA9djCxGd4Xg0QJKCm_VIPfYvytg5-CjOQ";
