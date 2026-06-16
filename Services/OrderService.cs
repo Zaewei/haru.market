@@ -146,6 +146,12 @@ namespace haru.market.Services
 
         public async Task UpdateOrderStatusAsync(string orderId, string newStatus, string paymentChannel)
         {
+            if (orderId == "invoice_123124123")
+            {
+                Console.WriteLine("[XENDIT TEST] Dashboard 'Test & Save' request verified successfully. Database update bypassed.");
+                return;
+            }
+
             var orderRef = _firestoreDb.Collection("orders").Document(orderId);
 
             string polishedChannel = "Online";

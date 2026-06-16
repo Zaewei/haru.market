@@ -6,10 +6,43 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/costumer_page/Shop.css" />
     <style>
-        /* Forces the image to animate smoothly when opacity changes */
-        .rotating-image {
-            transition: opacity 0.4s ease-in-out;
+        .Product_Image {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            width: 100%;
+        }
+
+        .product-img-front {
+            width: 100%;
+            display: block;
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.3s ease-in-out, transform 0.4s ease-out;
+        }
+
+        .product-img-back {
+            width: 100%;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.4s ease-out;
+        }
+
+        .Product_Card:hover .product-img-front {
+            opacity: 0;
+        }
+
+        .Product_Card:hover .product-img-back {
             opacity: 1;
+        }
+        
+        .Product_Card:hover .product-img-back,
+        .Product_Card:hover .product-img-front {
+            transform: scale(1.02);
         }
     </style>
 }
@@ -29,12 +62,17 @@
             {
                 <div class="Product_Card">
                     <div class="Product_Image">
-                        <img class="rotating-image" 
+                        <img class="product-img-front" 
                              src="@product.ImageUrl" 
-                             data-front="@product.ImageUrl" 
-                             data-back="@product.Imageurl2" 
                              alt="@product.Name" 
                              onerror="this.src='https://placehold.co/300?text=Product+Image';" />
+
+                        @if (!string.IsNullOrEmpty(product.Imageurl2))
+                        {
+                            <img class="product-img-back" 
+                                 src="@product.Imageurl2" 
+                                 alt="@product.Name side view" />
+                        }
                     </div>
 
                     <div class="Product_ColorSeletor">
@@ -73,31 +111,4 @@
 </section>
 
 @section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-        
-            const productImages = document.querySelectorAll('.rotating-image');
-
-            let showingBackView = false;
-
-            setInterval(() => {
-                showingBackView = !showingBackView;
-
-                productImages.forEach(img => {
-                    const frontSrc = img.getAttribute('data-front');
-                    const backSrc = img.getAttribute('data-back');
-
-                    if (!backSrc || backSrc === "") return;
-
-                    img.style.opacity = '0';
-
-                    setTimeout(() => {
-                        img.src = showingBackView ? backSrc : frontSrc;
-                        img.style.opacity = '1';
-                    }, 400);
-                });
-                
-            }, 5000);
-        });
-    </script>
 }
