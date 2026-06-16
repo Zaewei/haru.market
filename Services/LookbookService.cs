@@ -173,5 +173,37 @@ namespace haru.market.Services
                 return 0;
             }
         }
+
+        public async Task<List<string>> GetShuffledHeroBannersAsync()
+        {
+            try
+            {
+                DocumentReference docRef = _firestoreDb.Collection("banners").Document("hero");
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    Dictionary<string, object> data = snapshot.ToDictionary();
+
+                    if (data.ContainsKey("imageurls") && data["imageurls"] is List<object> arrayList)
+                    {
+                        List<string> images = arrayList.Select(img => img.ToString()!).ToList();
+
+                        if (images.Any())
+                        {
+                            Random rand = new Random();
+                            return images.OrderBy(x => rand.Next()).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // fallback catch loop
+            }
+
+            // Default fallback list if database is unreachable
+            return new List<string> { "/images/banners/default-hero.jpg" };
+        }
     }
 }

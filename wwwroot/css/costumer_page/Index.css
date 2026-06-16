@@ -8,19 +8,43 @@
 }
 
 
-.LookbookSection {
-    position: relative;
-    width: 100%;
+.LookBookSection_container, 
+.LookBookPreview_container {
+    display: flex;
+    width: 800%;
     height: 100vh;
-    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: slide-eight 32s infinite ease-in-out; 
 }
 
-.LookBookSection_container {
-    display: flex;
-    width: 400%; 
-    height: 100vh;
-    transition: transform 0.5s ease;
-    animation: horizontalSlide 24s infinite;
+.LookBookSection_container .slide,
+.LookBookPreview_container .slide {
+    width: 12.5%; 
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+@keyframes slide-eight {
+    0%, 10% { transform: translateX(0); }
+    
+    12.5%, 22.5% { transform: translateX(-12.5%); }
+    
+    25%, 35% { transform: translateX(-25%); }
+    
+    37.5%, 47.5% { transform: translateX(-37.5%); }
+    
+    50%, 60% { transform: translateX(-50%); }
+    
+    62.5%, 72.5% { transform: translateX(-62.5%); }
+    
+    75%, 85% { transform: translateX(-75%); }
+
+    87.5%, 97.5% { transform: translateX(-87.5%); }
+    
+    100% { transform: translateX(0); }
 }
 
 .slide {

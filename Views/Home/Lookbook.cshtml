@@ -14,9 +14,12 @@
 <section class="LookbookSection">
     @* preview container *@
     <div class="LookBookPreview_container">
-        @foreach (var campaign in campaignsList)
+        @if (ViewBag.HeroBannerUrls != null)
         {
-            <div class="slide" style="background-image: url('@campaign.MediaUrl'); background-size: cover; background-position: center;"></div>
+            foreach (var url in (List<string>)ViewBag.HeroBannerUrls)
+            {
+                <div class="slide" style="background-image: url('@url'); background-size: cover; background-position: center;"></div>
+            }
         }
     </div>
 

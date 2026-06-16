@@ -20,6 +20,9 @@ namespace haru.market.Controllers
         public async Task<IActionResult> Index()
         {
             var lookbooks = await _lookbookService.GetAllLookbooksAsync();
+
+            ViewBag.HeroBannerUrl = await _lookbookService.GetShuffledHeroBannersAsync();
+            
             return View(lookbooks);
         }
 

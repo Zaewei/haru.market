@@ -2,60 +2,61 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using haru.market.Models;
 using haru.market.Services;
-using System.Dynamic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace haru.market.Controllers;
-
-public class HomeController : Controller
+namespace haru.market.Controllers
 {
-    private readonly ProductService _productService;
-    private readonly LookbookService _lookbookService;
-
-    // firestore service
-    public HomeController(ProductService productService, LookbookService lookbookService)
+    public class HomeViewModel
     {
-        _productService = productService;
-        _lookbookService = lookbookService;
+        public IEnumerable<LookbookViewModel>? Lookbooks { get; set; }
+        public IEnumerable<ProductViewModel>? Products { get; set; }
     }
 
-    // gets home/index
-    public async Task<IActionResult> Index()
+    public class HomeController : Controller
     {
-        // pull active data from firestore
-        var activeProducts = await _productService.GetAllProductsAsync();
-        var activeLookbooks = await _lookbookService.GetAllLookbooksAsync();
+        private readonly ProductService _productService;
+        private readonly LookbookService _lookbookService;
 
-        // renders the view with the data
-        dynamic homeViewModel = new ExpandoObject();
-        homeViewModel.Products = activeProducts;
-        homeViewModel.Lookbooks = activeLookbooks;
+        public HomeController(ProductService productService, LookbookService lookbookService)
+        {
+            _productService = productService;
+            _lookbookService = lookbookService;
+        }
 
-        return View(homeViewModel);
-    }
+        // gets home/index
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            // 🚀 Change this to pass the entire collection of randomized slide links
+            ViewBag.HeroBannerUrls = await _lookbookService.GetShuffledHeroBannersAsync();
 
-    // gets home/shop
-    public async Task<IActionResult> Shop()
-    {
-        // pulls the inventory from firestore
-        var activeProducts = await _productService.GetAllProductsAsync();
-        return View(activeProducts);
-    }
+            var lookbooks = await _lookbookService.GetAllLookbooksAsync();
+            var products = await _productService.GetAllProductsAsync();
 
-    // gets home/lookbook
-    public async Task<IActionResult> Lookbook()
-    {
-        var activeLookbooks = await _lookbookService.GetAllLookbooksAsync();
-        return View(activeLookbooks);
-    }
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+            var model = new HomeViewModel
+            {
+                Lookbooks = lookbooks,
+                Products = products
+            };
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(model);
+        }
+
+        // gets home/shop
+        public async Task<IActionResult> Shop()
+        {
+            var activeProducts = await _productService.GetAllProductsAsync();
+            return View(activeProducts);
+        }
+
+        // gets home/lookbook
+        public async Task<IActionResult> Lookbook()
+        {
+            ViewBag.HeroBannerUrls = await _lookbookService.GetShuffledHeroBannersAsync();
+
+            var activeLookbooks = await _lookbookService.GetAllLookbooksAsync();
+            return View(activeLookbooks);
+        }
     }
 }
