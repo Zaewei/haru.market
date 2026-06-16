@@ -82,5 +82,24 @@ namespace haru.market.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateOrderStatus(string orderId, string status)
+        {
+            if (string.IsNullOrWhiteSpace(orderId) || string.IsNullOrWhiteSpace(status))
+            {
+                return BadRequest(new { success = false, message = "Invalid order parameters passed." });
+            }
+
+            try
+            {
+                await _orderService.UpdateOrderStatusAsync(orderId, status, string.Empty);
+                return Json(new { success = true, message = "Firestore updated cleanly!" });
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

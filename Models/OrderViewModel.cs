@@ -12,5 +12,6 @@ namespace haru.market.Models
         public string PaymentMethod { get; set; } = "Gcash";
         public decimal Total { get; set; }
         public string Address { get; set; } = string.Empty;
+        public string ShippingAddress { get; set; } = string.Empty;
     }
 }

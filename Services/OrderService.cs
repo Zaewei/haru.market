@@ -146,17 +146,18 @@ namespace haru.market.Services
 
         public async Task UpdateOrderStatusAsync(string orderId, string newStatus, string paymentChannel)
         {
-            if (orderId == "invoice_123124123")
+            var orderRef = _firestoreDb.Collection("orders").Document(orderId); //
+
+            var updates = new Dictionary<string, object>();
+
+            if (!string.IsNullOrWhiteSpace(newStatus))
             {
-                Console.WriteLine("[XENDIT TEST] Dashboard 'Test & Save' request verified successfully. Database update bypassed.");
-                return;
+                updates.Add("status", newStatus);
             }
 
-            var orderRef = _firestoreDb.Collection("orders").Document(orderId);
-
-            string polishedChannel = "Online";
             if (!string.IsNullOrWhiteSpace(paymentChannel))
             {
+                string polishedChannel = "Online";
                 switch (paymentChannel.ToUpper())
                 {
                     case "CREDIT_CARD":
@@ -175,15 +176,13 @@ namespace haru.market.Services
                         polishedChannel = char.ToUpper(paymentChannel[0]) + paymentChannel.Substring(1).ToLower();
                         break;
                 }
+                updates.Add("paymentMethod", polishedChannel);
             }
-
-            var updates = new Dictionary<string, object>
+            
+            if (updates.Any())
             {
-                { "status", newStatus },
-                { "paymentMethod", polishedChannel }
-            };
-
-            await orderRef.UpdateAsync(updates);
+                await orderRef.UpdateAsync(updates); //
+            }
         }
 
         public void DispatchInvoiceBackground(string orderId, OrderPlacementViewModel orderData)
@@ -314,9 +313,8 @@ namespace haru.market.Services
                         Status = data.ContainsKey("status") ? data["status"].ToString()! : "Pending",
                         PaymentMethod = data.ContainsKey("paymentMethod") ? data["paymentMethod"].ToString()! : "Gcash",
                         Total = data.ContainsKey("totalAmount") ? Convert.ToDecimal(data["totalAmount"]) : 0,
-                        Date = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts
-                            ? ts.ToDateTime()
-                            : DateTime.UtcNow
+                        Date = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts ? ts.ToDateTime().ToLocalTime() : DateTime.UtcNow,
+                        ShippingAddress = data.ContainsKey("shippingAddress") ? data["shippingAddress"].ToString()! : "No Address Provided"
                     });
                 }
             }

@@ -158,6 +158,63 @@
         time = o.Date.ToString("h:mm tt"),
         status = o.Status.ToString().ToLower(),
         payment = o.PaymentMethod,
-        total = "₱" + o.Total.ToString("N0")
+        total = "₱" + o.Total.ToString("N0"),
+        address = o.ShippingAddress
     }) : new object[] {});
+</script>
+
+<script src="~/js/admin/orders.js" asp-append-version="true"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const saveButton = document.getElementById("saveEditModal");
+        
+        if (saveButton) {
+            saveButton.addEventListener("click", function () {
+                const orderId = document.getElementById("editModalOrderId").innerText.trim();
+                const rawStatusValue = document.getElementById("editStatusSelect").value;
+
+                if (!orderId || !rawStatusValue) {
+                    alert("Unable to process: Missing order identifiers.");
+                    return;
+                }
+
+                let formattedStatus = rawStatusValue.charAt(0).toUpperCase() + rawStatusValue.slice(1);
+                if (rawStatusValue === "delivered") {
+                    formattedStatus = "Completed";
+                }
+
+                const originalText = saveButton.innerText;
+                saveButton.disabled = true;
+                saveButton.innerText = "Syncing...";
+
+                fetch('/Admin/UpdateOrderStatus', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'orderId': orderId,
+                        'status': formattedStatus
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert("Database Update Rejected: " + data.message);
+                        saveButton.disabled = false;
+                        saveButton.innerText = originalText;
+                    }
+                })
+                .catch(error => {
+                    console.error("Transmission Failure:", error);
+                    alert("Critical Error: Failed to communicate with the application backend server.");
+                    saveButton.disabled = false;
+                    saveButton.innerText = originalText;
+                });
+            });
+        }
+    });
 </script>

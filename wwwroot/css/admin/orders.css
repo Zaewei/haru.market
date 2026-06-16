@@ -130,7 +130,7 @@
     background: #fff;
     border: 1px solid #f0d6db;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: visible !important;
     margin-bottom: 1rem;
     padding: 0 !important;
 }
