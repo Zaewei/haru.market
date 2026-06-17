@@ -1307,20 +1307,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Users Page ────────────────────────────────────────────
     if (document.getElementById('usersBody')) {
-
-        var allUsers = [
-            { id: 'harumarket001', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', phone: '09123456789', address: 'Kl. Kemang Raya No. 20, Jakarta Selatan 12390, Indonesia', joined: 'May 23, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 15, 2026', orders: 10, lookbooks: 5, products: 5, spent: '₱1,350', wishlist: 15 },
-            { id: 'harumarket002', name: 'Ana Cruz',         email: 'anacruz@gmail.com',       phone: '09187654321', address: '456 Rizal Ave, Manila',                                   joined: 'May 20, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Apr 10, 2026', orders: 3,  lookbooks: 2, products: 3, spent: '₱1,980', wishlist: 4  },
-            { id: 'harumarket003', name: 'Marco Reyes',      email: 'marcoreyes@gmail.com',    phone: '09111222333', address: '789 Bonifacio St, Davao',                                 joined: 'May 19, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 1, 2026',  orders: 7,  lookbooks: 8, products: 7, spent: '₱4,200', wishlist: 9  },
-            { id: 'harumarket004', name: 'Lea Santos',       email: 'leasantos@gmail.com',     phone: '09222333444', address: '321 Luna St, Iloilo',                                    joined: 'May 18, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Mar 5, 2026',  orders: 1,  lookbooks: 1, products: 1, spent: '₱550',   wishlist: 2  },
-            { id: 'harumarket005', name: 'Rico Dela Cruz',   email: 'ricodc@gmail.com',        phone: '09333444555', address: '55 Magsaysay Blvd, Quezon City',                         joined: 'May 15, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'May 10, 2026', orders: 5,  lookbooks: 3, products: 5, spent: '₱2,750', wishlist: 7  },
-            { id: 'harumarket006', name: 'Sofia Lim',        email: 'sofialim@gmail.com',      phone: '09444555666', address: '12 Kalayaan Ave, Makati',                                joined: 'May 12, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'Apr 20, 2026', orders: 4,  lookbooks: 6, products: 4, spent: '₱2,100', wishlist: 11 },
-            { id: 'harumarket007', name: 'Ben Torres',       email: 'bentorres@gmail.com',     phone: '09555666777', address: '8 Sampaguita St, Cebu City',                             joined: 'May 10, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 5, 2026',  orders: 12, lookbooks: 4, products: 12, spent: '₱6,800', wishlist: 6  },
-            { id: 'harumarket008', name: 'Nina Flores',      email: 'ninaflores@gmail.com',    phone: '09666777888', address: '3 Pampanga Rd, Angeles City',                            joined: 'May 8, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Feb 14, 2026', orders: 2,  lookbooks: 0, products: 2, spent: '₱900',   wishlist: 3  },
-            { id: 'harumarket009', name: 'Carl Mendoza',     email: 'carlm@gmail.com',         phone: '09777888999', address: '77 Mayon St, Naga City',                                 joined: 'May 5, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'May 3, 2026',  orders: 6,  lookbooks: 2, products: 5, spent: '₱3,300', wishlist: 8  },
-            { id: 'harumarket010', name: 'Dana Reyes',       email: 'danareyes@gmail.com',     phone: '09888999000', address: '101 Sunset Blvd, Batangas',                              joined: 'May 1, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'Apr 28, 2026', orders: 8,  lookbooks: 7, products: 8, spent: '₱4,500', wishlist: 14 },
-        ];
-
+        if (window.allUsers && window.allUsers.length > 0) {
+        allUsers = window.allUsers; 
+    }
         var usrPageSize    = 10;
         var usrCurrentPage = 1;
 
@@ -1584,6 +1573,29 @@ document.addEventListener('DOMContentLoaded', function () {
             if (elV) elV.textContent = parseInt(sessionStorage.getItem('haruViews') || '0');
         }
         dashUpdate();
+    }
+
+    if (document.getElementById('ordersBody')) {
+        document.addEventListener('click', function(e) {
+            // Find the closest button that has a data-action attribute
+            var btn = e.target.closest('.ord-drop-item');
+            if (!btn) return;
+
+            e.stopPropagation();
+            var action = btn.getAttribute('data-action');
+            var idx    = parseInt(btn.getAttribute('data-idx'));
+
+            if (action === 'ord-view') {
+                ordOpenViewModal(idx);
+            } else if (action === 'ord-edit') {
+                ordOpenEditModal(idx);
+            } else if (action === 'ord-delete') {
+                ordOpenDeleteModal(idx);
+            }
+            
+            // Close dropdown after action
+            document.querySelectorAll('.ord-dropdown').forEach(d => d.classList.remove('ord-dropdown--open'));
+        });
     }
     // ── End Dashboard Page ────────────────────────────────────
 

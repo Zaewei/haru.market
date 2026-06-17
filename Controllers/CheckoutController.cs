@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using haru.market.Models;
 using haru.market.Services;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using System.Linq;
 
 namespace haru.market.Controllers
 {
+    [Authorize]
     public class CheckoutController : Controller
     {
         private readonly OrderService _orderService;
@@ -18,111 +20,147 @@ namespace haru.market.Controllers
             _productService = productService;
         }
 
-        // checkout
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // pull first live item from product service for checkout scenario (change this later to reflect actual shopping items)
-            var products = await _productService.GetAllProductsAsync();
-            var testProduct = products.FirstOrDefault();
+            string userUid = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? User.Identity?.Name ?? "";
+            if (string.IsNullOrEmpty(userUid)) return RedirectToAction("Login", "Account");
+
+            var activeCartItems = await _productService.GetCartItemsAsync(userUid);
+            
+            if (!activeCartItems.Any()) return RedirectToAction("Shop", "Home");
+
+            ViewBag.CartItems = activeCartItems;
 
             var checkoutSetup = new OrderPlacementViewModel
             {
                 CustomerName = string.Empty,
-                CustomerEmail = string.Empty,
+                CustomerEmail = User.Identity?.Name ?? string.Empty,
                 ShippingAddress = string.Empty,
                 Items = new List<OrderItemModel>()
             };
 
-            if (testProduct != null)
+            foreach (var item in activeCartItems)
             {
                 checkoutSetup.Items.Add(new OrderItemModel
                 {
-                    ProductId = testProduct.Id ?? "SimulatedId",
-                    ProductName = testProduct.Name,
-                    Price = testProduct.Price,
-                    Quantity = 0
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
+                    Price = item.Price,
+                    Quantity = item.Quantity
                 });
             }
 
             return View(checkoutSetup);
         }
 
-        // checkout process
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcessCheckout(OrderPlacementViewModel model)
+        public async Task<IActionResult> ProcessCheckout(OrderPlacementViewModel model, string PaymentMethod, string City, string PostalCode, string PhoneNumber)
         {
-            if (!ModelState.IsValid)
+            string userUid = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+
+            string fullAddress = model.ShippingAddress ?? "";
+            if (!string.IsNullOrEmpty(City)) fullAddress += $", {City}";
+            if (!string.IsNullOrEmpty(PostalCode)) fullAddress += $" {PostalCode}";
+            if (!string.IsNullOrEmpty(PhoneNumber)) fullAddress += $" | Phone: {PhoneNumber}";
+            
+            model.ShippingAddress = fullAddress;
+
+            if (model.Items == null || !model.Items.Any())
             {
-                return View("Index", model);
+                var activeCartItems = await _productService.GetCartItemsAsync(userUid);
+                model.Items = activeCartItems.Select(i => new OrderItemModel {
+                    ProductId = i.ProductId, ProductName = i.ProductName, Price = i.Price, Quantity = i.Quantity
+                }).ToList();
             }
 
             try
             {
-                // process checkout
                 string orderToken = await _orderService.CreateOrderAsync(model);
 
-                // generate xendit payment link
-                string xenditCheckoutUrl = await _orderService.CreateXenditInvoiceAsync(orderToken, model);
+                await ClearUserCartAsync(userUid);
 
-                // background invoice sent via resend
-                _orderService.DispatchInvoiceBackground(orderToken, model);
-
-                // redirect user to xendit transaction page
-                return Redirect(xenditCheckoutUrl);
+                if (PaymentMethod == "Online")
+                {
+                    string xenditCheckoutUrl = await _orderService.CreateXenditInvoiceAsync(orderToken, model);
+                    _orderService.DispatchInvoiceBackground(orderToken, model);
+                    return Redirect(xenditCheckoutUrl);
+                }
+                else 
+                {
+                    return RedirectToAction("Success");
+                }
             }
             catch (System.Exception ex)
             {
-                // catches any exceptions thrown during the transaction
                 return Content($"Checkout Aborted by Transaction Protection: {ex.Message}");
+            }
+        }
+
+        private async Task ClearUserCartAsync(string userUid)
+        {
+            var db = _productService.GetFirestoreDbInstance();
+            var cartSnapshot = await db.Collection("users").Document(userUid).Collection("cart").GetSnapshotAsync();
+            foreach (var doc in cartSnapshot.Documents)
+            {
+                await doc.Reference.DeleteAsync();
             }
         }
 
         [HttpGet]
         public IActionResult Success()
         {
-            // xendit will send the user here after a successful payment
-            return Content("Payment Successful! Thank you for your order. Your receipt has been sent to your email.");
+            return Content("Success! Your order has been placed. We are preparing it for shipment.");
         }
 
         [HttpGet]
         public IActionResult Cancel()
         {
-            // xendit will send the user here if they close the payment window
             return Content("Payment Cancelled or Failed. Please try again.");
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [IgnoreAntiforgeryToken]
         public async Task<IActionResult> XenditWebhook()
         {
             using var reader = new System.IO.StreamReader(Request.Body);
             var json = await reader.ReadToEndAsync();
+            Console.WriteLine($"\n🔔 RAW PAYLOAD RECEIVED: {json}\n");
 
             try
             {
                 using var doc = System.Text.Json.JsonDocument.Parse(json);
                 var root = doc.RootElement;
 
-                // Determine if the properties are nested under "data" or sitting at the root layer
-                var targetElement = root.TryGetProperty("data", out var dataElement) ? dataElement : root;
+                string? orderToken = null;
+                string? status = null;
 
-                string? orderToken = targetElement.TryGetProperty("external_id", out var idElement) ? idElement.GetString() : null;
-                string? status = targetElement.TryGetProperty("status", out var statusElement) ? statusElement.GetString() : null; 
-                string? paymentChannel = targetElement.TryGetProperty("payment_channel", out var channelElement) ? channelElement.GetString() : null; 
-
-                if (orderToken != null && status == "PAID")
-                {
-                    await _orderService.UpdateOrderStatusAsync(orderToken, "Paid", paymentChannel ?? "Online");
-                    return Ok(new { message = "Order successfully verified as PAID." });
+                string? FindValue(System.Text.Json.JsonElement element, string key) {
+                    if (element.TryGetProperty(key, out var val)) return val.GetString();
+                    if (element.TryGetProperty("data", out var data) && data.TryGetProperty(key, out var val2)) return val2.GetString();
+                    return null;
                 }
 
-                return Ok(new { message = $"Webhook processed with status: {status ?? "UNKNOWN"}" });
+                orderToken = FindValue(root, "external_id");
+                status = FindValue(root, "status");
+
+                Console.WriteLine($"Extracted -> Token: {orderToken ?? "NOT FOUND"} | Status: {status ?? "NOT FOUND"}");
+
+                if (!string.IsNullOrEmpty(orderToken) && status == "PAID")
+                {
+                    await _orderService.UpdateOrderStatusAsync(orderToken, "Paid", "Online");
+                    Console.WriteLine("Order verified as PAID.");
+                    return Ok();
+                }
+
+                return Ok("Webhook received, but order not marked PAID.");
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                Console.WriteLine($"Parsing Error: {ex.Message}");
+                return BadRequest(ex.Message);
             }
         }
     }

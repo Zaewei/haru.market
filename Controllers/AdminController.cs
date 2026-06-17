@@ -185,7 +185,7 @@ namespace haru.market.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateOrderStatus(string orderId, string status)
+        public async Task<IActionResult> UpdateOrderStatus(string orderId, string status, string? paymentChannel = null)
         {
             if (string.IsNullOrWhiteSpace(orderId) || string.IsNullOrWhiteSpace(status))
             {
@@ -194,12 +194,30 @@ namespace haru.market.Controllers
 
             try
             {
-                await _orderService.UpdateOrderStatusAsync(orderId, status, string.Empty);
+                await _orderService.UpdateOrderStatusAsync(orderId, status, paymentChannel ?? "");
                 return Json(new { success = true, message = "Firestore updated cleanly!" });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteOrder(string orderId)
+        {
+            try 
+            {
+                await _productService.GetFirestoreDbInstance()
+                    .Collection("orders")
+                    .Document(orderId)
+                    .DeleteAsync();
+                    
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
     }

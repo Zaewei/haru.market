@@ -144,46 +144,30 @@ namespace haru.market.Services
             }
         }
 
-        public async Task UpdateOrderStatusAsync(string orderId, string newStatus, string paymentChannel)
+       public async Task UpdateOrderStatusAsync(string orderId, string newStatus, string paymentChannel)
+{
+        var orderRef = _firestoreDb.Collection("orders").Document(orderId);
+        var updates = new Dictionary<string, object>();
+
+        if (!string.IsNullOrWhiteSpace(newStatus))
+            updates.Add("status", newStatus);
+
+        if (!string.IsNullOrWhiteSpace(paymentChannel))
         {
-            var orderRef = _firestoreDb.Collection("orders").Document(orderId); //
-
-            var updates = new Dictionary<string, object>();
-
-            if (!string.IsNullOrWhiteSpace(newStatus))
+            string polishedChannel = paymentChannel;
+            switch (paymentChannel.ToUpper())
             {
-                updates.Add("status", newStatus);
+                case "CREDIT_CARD": polishedChannel = "Credit Card"; break;
+                case "GCASH": polishedChannel = "GCash"; break;
+                case "PAYMAYA": polishedChannel = "Maya"; break;
+                case "GRABPAY": polishedChannel = "GrabPay"; break;
             }
-
-            if (!string.IsNullOrWhiteSpace(paymentChannel))
-            {
-                string polishedChannel = "Online";
-                switch (paymentChannel.ToUpper())
-                {
-                    case "CREDIT_CARD":
-                        polishedChannel = "Credit Card";
-                        break;
-                    case "GCASH":
-                        polishedChannel = "GCash";
-                        break;
-                    case "PAYMAYA":
-                        polishedChannel = "Maya";
-                        break;
-                    case "GRABPAY":
-                        polishedChannel = "GrabPay";
-                        break;
-                    default:
-                        polishedChannel = char.ToUpper(paymentChannel[0]) + paymentChannel.Substring(1).ToLower();
-                        break;
-                }
-                updates.Add("paymentMethod", polishedChannel);
-            }
-            
-            if (updates.Any())
-            {
-                await orderRef.UpdateAsync(updates); //
-            }
+            updates.Add("paymentMethod", polishedChannel);
         }
+        
+        if (updates.Any())
+            await orderRef.UpdateAsync(updates);
+    }
 
         public void DispatchInvoiceBackground(string orderId, OrderPlacementViewModel orderData)
         {

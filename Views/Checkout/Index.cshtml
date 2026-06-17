@@ -1,3 +1,9 @@
+@using haru.market.Models
+@model OrderPlacementViewModel
+
+@{
+    var cartItems = ViewBag.CartItems as List<CartItemViewModel> ?? new List<CartItemViewModel>();
+}
 
 @section Styles {
     <link rel="stylesheet" href="~/css/checkout/checkout.css" />
@@ -5,94 +11,70 @@
 
 <div class="back_button">
     <a href="@Url.Action("Shop", "Home")">&lt; Back</a>
-
-
 </div>
-    
-<div class="Checkout_Main_Container">
+
+<form asp-action="ProcessCheckout" asp-controller="Checkout" method="post" class="Checkout_Main_Container">
 
     <div class="Checkout_Details_Container">
 
         <div class="Checkout_Details_Title">
-
             <h4>Checkout Details</h4>
-
         </div>
 
         <div class="Checkout_Details_Form">
 
             <div class="Contact_Information_Form">
                 <div class="Title_Contact_Information_Form">
-
                     <h5>Contact Information</h5>
-
                 </div>
 
                 <div class="Name_Contact_Information_Form">
-                    <input type="text" placeholder="First name" class="Fname_input">
-                    <input type="text" placeholder="Last name" class="Lname_input">
+                    <input type="text" name="CustomerName" placeholder="Full Name" class="Fname_input" required style="width: 100%;">
                 </div>
 
                 <div class="Email_Contact_Information_Form">
-                    <input type="text" placeholder="Email">
+                    <input type="email" name="CustomerEmail" placeholder="Email" value="@Model.CustomerEmail" required>
                 </div>                
-
-
             </div>
 
             <div class="Delivery_Details_Form">
-
                 <div class="Title_Delivery_Details_Form">
-                    
                     <h5>Delivery Details</h5>
-
                 </div>
 
                 <div class="Input_Delivery_Details_Form">
-                    <input type="text" placeholder="Address" class="Address_input">
-                    <input type="text" placeholder="City" class="City_input">
-                    <input type="text" placeholder="Postal Code" class="Postal_input">
-                    <input type="text" placeholder="Phone Number" class="Phonenum_input">
+                    <input type="text" name="ShippingAddress" placeholder="Street Address" class="Address_input" required>
+                    <input type="text" name="City" placeholder="City" class="City_input" required>
+                    <input type="text" name="PostalCode" placeholder="Postal Code" class="Postal_input" required>
+                    <input type="text" name="PhoneNumber" placeholder="Phone Number" class="Phonenum_input" required>
                 </div>
             </div>
 
             <div class="Payment_Method_Buttons">
                 <div class="Title_Payment_Method_Buttons">
                     <h6>Payment Methods</h6>
-
                 </div>
 
                 <div class="Buttons_Payment_Method">
-
                     <label class="radio-option">
-                        <input type="radio" name="PaymentMethod" value="CashOnDelivery" checked>
+                        <input type="radio" name="PaymentMethod" value="COD" checked>
                         Cash on Delivery
                     </label>
 
                     <label class="radio-option">
-                        <input type="radio" name="PaymentMethod" value="GCash">
-                        GCash
+                        <input type="radio" name="PaymentMethod" value="Online">
+                        Pay Online (GCash, Maya, Card)
                     </label>
-
-                    <label class="radio-option">
-                        <input type="radio" name="PaymentMethod" value="Maya">
-                        Maya
-                    </label>
-
                 </div>
-
             </div>
 
         </div>
 
         <div class="Checkout_Details_Button">
-
-            <button>Checkout</button>
-
+            <button type="submit">Checkout</button>
         </div>
 
     </div>
-
 
     <div class="Checkout_Cart_Summary_Container">
 
@@ -101,72 +83,37 @@
         </div>
 
         <div class="Content_Checkout_Cart_Summary_Container">
+            @if (cartItems.Any())
+            {
+                foreach (var item in cartItems)
+                {
+                    <div class="Checkout_Product_Card">
+                        <div class="Picture_Checkout_Product_Card">
+                            <div class="Badge_Picture_Checkout_Product_Card">
+                                <p>@item.Quantity</p>
+                            </div>
+                            <img src="@item.ImageUrl" alt="@item.ProductName" onerror="this.src='https://placehold.co/100x130?text=Haru';">
+                        </div>
 
-            <div class="Checkout_Product_Card">
-
-                <div class="Picture_Checkout_Product_Card">
-
-                    <div class="Badge_Picture_Checkout_Product_Card">
-                        <p>(#)</p>
+                        <div class="Description_Checkout_Product_Card">
+                            <h5 style="margin: 0 0 5px 0;">@item.ProductName</h5>
+                            <h6 style="color: #EB899D; font-weight: bold; margin: 0 0 5px 0;">₱@item.Price.ToString("N0")</h6>
+                            <p style="margin: 0; font-size: 0.85rem; color: #555;">Size: @item.Size</p>
+                        </div>
                     </div>
-                    <img src="" alt="">
-
+                }
+            }
+            else
+            {
+                <div style="padding: 40px; text-align: center; color: #888;">
+                    <p>Your bag is currently empty.</p>
                 </div>
-
-                <div class="Description_Checkout_Product_Card">
-                    <h5>(Product Title)</h5>
-                    <h6>₱(price)</p>
-                    <p>Size: (size)</p>
-                    <p>(color)<p/>
-                </div>
-            </div>
-
-            <div class="Checkout_Product_Card">
-
-                <div class="Picture_Checkout_Product_Card">
-
-                    <div class="Badge_Picture_Checkout_Product_Card">
-                        <p>(#)</p>
-                    </div>
-                    <img src="" alt="">
-
-                </div>
-
-                <div class="Description_Checkout_Product_Card">
-                    <h5>(Product Title)</h5>
-                    <h6>₱(price)</p>
-                    <p>Size: (size)</p>
-                    <p>(color)<p/>
-                </div>
-            </div>
-
-            <div class="Checkout_Product_Card">
-
-                <div class="Picture_Checkout_Product_Card">
-
-                    <div class="Badge_Picture_Checkout_Product_Card">
-                        <p>(#)</p>
-                    </div>
-                    <img src="" alt="">
-
-                </div>
-
-                <div class="Description_Checkout_Product_Card">
-                    <h5>(Product Title)</h5>
-                    <h6>₱(price)</p>
-                    <p>Size: (size)</p>
-                    <p>(color)<p/>
-                </div>
-            </div>
-
+            }
         </div>
 
-        <div class="Bottom_Space_Checkout_Cart_Summary_Container">.
-
+        <div class="Bottom_Space_Checkout_Cart_Summary_Container">
         </div>
-
 
     </div> 
 
-
-</div>
+</form>
