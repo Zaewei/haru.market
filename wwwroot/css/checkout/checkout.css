@@ -1,3 +1,23 @@
+
+
+.back_button {
+    height: 7vh;
+    padding-left:7%;
+
+    
+    display: flex;
+    align-items: center;
+}
+
+.back_button a {
+    text-decoration: none;
+    font-family: "nunito", sans-serif;
+    font-weight: 700;
+    font-size: 2.5vh;
+    color: black;
+}
+
+
 .Checkout_Main_Container {
     display: flex;
     gap: 5vh;
@@ -5,7 +25,7 @@
     min-height: 100vh;
     width: 100%;
 
-    padding: 10vh 20vh 10vh 20vh;
+    padding: 0 20vh 10vh 20vh;
 
 }
 

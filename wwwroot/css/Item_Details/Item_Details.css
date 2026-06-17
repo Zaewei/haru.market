@@ -1,0 +1,253 @@
+
+.back_button {
+    height: 7vh;
+    padding-left:7%;
+
+    
+    display: flex;
+    align-items: center;
+}
+
+.back_button a {
+    text-decoration: none;
+    font-family: "nunito", sans-serif;
+    font-weight: 700;
+    font-size: 2.5vh;
+    color: black;
+}
+
+.Item_Details {
+    width: 100%;
+    height:90vh;
+    display: flex;
+    justify-content: center;
+}
+
+.Picture_Item_Details_container {
+    width:27%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.main_view {
+    width: 100%;
+    height: 70%;
+    border: .4vh solid #EB899D;
+    border-radius: 3vh;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+}
+
+.view_selector {
+    width: 100%;
+    height: 30%;
+    padding-top: 5%;
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+
+
+}
+
+.Picture {
+    width: 32%;
+    height: 100%;
+    border: .4vh solid #EB899D;
+    border-radius: 1.5vh;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); 
+
+}
+
+.Desciption_Picture_Item_Details_container {
+
+    width: 35%;
+    height: 80%;
+    border: 1px solid black;
+    padding-left: 5%;
+    padding-top: 1.5%;
+
+}
+
+.Texts {
+    width: 100%;
+    height:13%;
+    border: 1px solid black;
+    
+}
+
+.Texts h5 {
+    font-family: "Piazzolla", sans-serif;
+    font-weight: 900;
+    font-size: 3.4vh;
+
+}
+
+.Texts p {
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
+    font-size: 2.5vh;
+}
+
+.Color_Choice {
+    margin-top: 2vh;
+    width: 100%;
+    height: 10%;
+    border: 1px solid black;
+    display: flex;
+    align-content: center;
+    gap:3vh;
+}
+
+.Color_Button {
+    width: 5vh;
+    height: 5vh;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    overflow: hidden;
+}
+
+.Color_Button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+
+}
+
+.Color_Button:hover {
+    border: 2px solid black;
+}
+
+.Color_Button.active {
+    border: 2px solid black;
+}
+
+.size_choice {
+    width: 100%;
+    height: 10%;
+    border: 1px solid black;
+
+}
+
+.Size_Button {
+    width: 6vh;
+    height: 6vh;
+    border-radius: 1vh;
+    font-family: "Nunito", sans-serif;
+    font-weight: 800;
+    border: 2px solid transparent;
+    background-color: #F8F6EE;
+
+}
+
+.Size_Button:hover {
+    border: 2px solid #EB899D;
+}
+
+.Size_Button.active {
+    border: 2px solid #EB899D;
+}
+
+.Desciption_Picture_Item_Details_container a {
+    color: black;
+    font-family: "Nunito", sans-serif;
+    text-underline-offset: .7vh;
+
+}
+
+.Item_Counter {
+    width: 100%;
+    height: 10%;
+    border: 1px solid black;
+    margin-top: 3vh;
+}
+
+
+.Quantity_Counter {
+    display: flex;
+    align-items: center;
+
+    width: 30%;
+    height: 40px;
+
+    border: 1px solid #000000;
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+.Quantity_Counter button {
+    width: 33%;
+    height: 100%;
+
+    border: none;
+    background-color: white;
+
+    font-size: 3vh;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.Quantity_Counter button:hover {
+    background-color: #f8cbd5;
+}
+
+.Quantity_Counter input {
+    width: 6vh;
+    text-align: center;
+    border-left: .02vh solid black;
+    border-right: .02vh solid black;
+    border-top: none;
+    border-bottom: none;
+
+    font-size: 2.5vh;
+    font-weight: 500;
+    height: 100%;
+}
+
+.Addto_Choice {
+    width: 100%;
+    height: 10%;
+    border: 1px solid black;
+    margin-top: 1vh;
+    display: flex;
+    gap: 4vh;
+
+}
+
+.Addto_Choice input {
+    margin: 0;
+}
+
+.Heart_Button {
+    font-size: 7vh;
+    position: relative;
+    top: -2.3vh;
+    color: #ccc;
+    cursor: pointer;
+    user-select: none;
+    padding: 0;
+    margin-left:1vh;
+    width: 5vh;
+    height: 100%;
+
+}
+
+#fav1:checked + .Heart_Button {
+    color: black;
+}
+
+.addtobag {
+    height: 80%;
+    width: 37%;
+    border: 1px solid black;
+    margin-top: 1%;
+    border-radius: 1vh;
+    text-align: center;
+    text-decoration: none;
+    padding-top: 1.5%;
+    font-family: "Nunito", sans-serif;
+    font-weight: 800;
+    background-color: #FFBCCB;
+}
