@@ -7,6 +7,7 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/costumer_page/Shop.css" asp-append-version="true" />
     <style>
+        /* Core workspace shell */
         .haru-shop-workspace {
             max-width: 1200px;
             margin: 40px auto 80px auto;
@@ -14,46 +15,101 @@
             box-sizing: border-box;
         }
 
-        .Filter_Container {
+        .Haru_Filter_Container_Fixed {
+            position: relative !important;
             display: flex !important;
-            justify-content: flex-start !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
             width: 100% !important;
-            margin: 0 0 25px 0 !important;
+            margin: 0 0 25px 0 !important; 
             padding: 0 !important;
+            transform: none !important;
+            left: 0 !important;
         }
 
-        .Filter_Button {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background-color: #fff5f7;
-            border: 2px solid #f2d6dc;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-family: "Nunito", sans-serif;
-            font-weight: 700;
-            font-size: 14px;
-            color: #c96a7f;
-            cursor: pointer;
-            margin: 0 !important;
-            transition: all 0.2s ease-in-out;
+        .Haru_Filter_Button_Fixed {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            background-color: #fff5f7 !important;
+            border: 2px solid #f2d6dc !important;
+            padding: 10px 24px !important;
+            border-radius: 8px !important;
+            font-family: "Nunito", sans-serif !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            color: #c96a7f !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease-in-out !important;
+            user-select: none !important;
+            margin: 0 !important; 
+            transform: none !important;
         }
 
-        .Filter_Button:hover {
-            background-color: #EB899D;
-            border-color: #EB899D;
-            color: #ffffff;
-            transform: translateY(-1px);
+        .Haru_Filter_Button_Fixed:hover, .Haru_Filter_Button_Fixed.active-btn {
+            background-color: #EB899D !important;
+            border-color: #EB899D !important;
+            color: #ffffff !important;
+            transform: translateY(-1px) !important;
         }
 
-        .Filter_Button img {
-            width: 16px;
-            height: 16px;
-            object-fit: contain;
+        .Haru_Filter_Button_Fixed svg {
+            fill: #c96a7f !important;
+            transition: fill 0.2s ease-in-out !important;
         }
         
-        .Filter_Button:hover img {
-            filter: brightness(0) invert(1);
+        .Haru_Filter_Button_Fixed:hover svg, .Haru_Filter_Button_Fixed.active-btn svg {
+            fill: #ffffff !important;
+        }
+
+        /* Expandable dropdown menu panel layouts */
+        .Filter_Dropdown_Menu {
+            position: absolute !important;
+            top: calc(100% + 8px) !important;
+            left: 0 !important;
+            z-index: 100 !important;
+            background-color: #ffffff !important;
+            border: 2px solid #f2d6dc !important;
+            border-radius: 10px !important;
+            width: 240px !important;
+            box-shadow: 0 10px 25px rgba(201, 106, 127, 0.08) !important;
+            padding: 8px 0 !important;
+            display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .Filter_Dropdown_Menu.show-menu {
+            display: block !important;
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+
+        .Dropdown_Sort_Option {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-family: "Nunito", sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #555555;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .Dropdown_Sort_Option:hover {
+            background-color: #fff5f7;
+            color: #EB899D;
+            padding-left: 24px;
+        }
+
+        .Dropdown_Sort_Option.selected-option {
+            color: #EB899D;
+            background-color: #fff5f7;
+            font-weight: 700;
         }
 
         .Product_Container {
@@ -183,14 +239,23 @@
 
 <div class="haru-shop-workspace">
 
-    <div class="Filter_Container">
-        <div class="Filter_Button">
-            <img src="/images/Shop/Filter-icon.png" alt="Filters" />
+    <div class="Haru_Filter_Container_Fixed">
+        <div class="Haru_Filter_Button_Fixed" id="sortMenuTriggerBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24">
+                <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+            </svg>
             <span>Filter & Sort</span>
+        </div>
+
+        <div class="Filter_Dropdown_Menu" id="sortSelectionDrawer">
+            <button class="Dropdown_Sort_Option selected-option" data-sort="default">Default Catalog</button>
+            <button class="Dropdown_Sort_Option" data-sort="price-low">Price: Low to High</button>
+            <button class="Dropdown_Sort_Option" data-sort="price-high">Price: High to Low</button>
+            <button class="Dropdown_Sort_Option" data-sort="alpha">Alphabetical (A - Z)</button>
         </div>
     </div>
     
-    <div class="Product_Container">
+    <div class="Product_Container" id="haruCatalogGridBox">
         @if (groupedProducts.Any())
         {
             foreach (var group in groupedProducts)
@@ -202,7 +267,12 @@
                 var hasMultipleColors = uniqueColors.Count > 1;
                 var cardUniqueId = "prod_card_" + primary.Id;
 
-                <div class="Product_Card" id="@cardUniqueId" onclick="window.location.href='@Url.Action("Index", "Item_Details", new { id = primary.Id })'">
+                <div class="Product_Card" 
+                     id="@cardUniqueId" 
+                     data-price="@primary.Price" 
+                     data-name="@primary.Name.Trim()"
+                     data-index="@groupedProducts.IndexOf(group)"
+                     onclick="window.location.href='@Url.Action("Index", "Item_Details", new { id = primary.Id })'">
                     
                     <div class="Product_Image">
                         <img class="product-img-front" src="@primary.ImageUrl" alt="@primary.Name" onerror="this.src='https://placehold.co/300x400?text=Haru+Market';" />
@@ -239,7 +309,7 @@
         }
         else
         {
-            <div class="Product_Card">
+            <div class="Product_Card" data-price="0" data-name="Z">
                 <div class="Product_Image">
                     <img class="product-img-front" src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
                 </div>
@@ -255,6 +325,52 @@
 
 @section Scripts {
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const triggerBtn = document.getElementById("sortMenuTriggerBtn");
+            const dropdownMenu = document.getElementById("sortSelectionDrawer");
+            const sortOptions = document.querySelectorAll(".Dropdown_Sort_Option");
+            const catalogGrid = document.getElementById("haruCatalogGridBox");
+
+            triggerBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                triggerBtn.classList.toggle("active-btn");
+                dropdownMenu.classList.toggle("show-menu");
+            });
+
+            document.addEventListener("click", function () {
+                triggerBtn.classList.remove("active-btn");
+                dropdownMenu.classList.remove("show-menu");
+            });
+
+            sortOptions.forEach(option => {
+                option.addEventListener("click", function () {
+                    sortOptions.forEach(opt => opt.classList.remove("selected-option"));
+                    this.classList.add("selected-option");
+
+                    const sortingMethod = this.getAttribute("data-sort");
+                    const productCards = Array.from(catalogGrid.querySelectorAll(".Product_Card"));
+
+                    productCards.sort((cardA, cardB) => {
+                        if (sortingMethod === "price-low") {
+                            return parseFloat(cardA.getAttribute("data-price")) - parseFloat(cardB.getAttribute("data-price"));
+                        } 
+                        else if (sortingMethod === "price-high") {
+                            return parseFloat(cardB.getAttribute("data-price")) - parseFloat(cardA.getAttribute("data-price"));
+                        } 
+                        else if (sortingMethod === "alpha") {
+                            return cardA.getAttribute("data-name").localeCompare(cardB.getAttribute("data-name"));
+                        } 
+                        else {
+                            return parseInt(cardA.getAttribute("data-index")) - parseInt(cardB.getAttribute("data-index"));
+                        }
+                    });
+
+                    catalogGrid.innerHTML = "";
+                    productCards.forEach(card => catalogGrid.appendChild(card));
+                });
+            });
+        });
+
         function swapProductCardVariant(e, cardId, detailsUrl, frontImg, backImg, price, displayName, dotElement) {
             e.stopPropagation(); 
 
@@ -281,6 +397,9 @@
 
             const priceLabel = card.querySelector('.Product_Price');
             if (priceLabel) priceLabel.innerText = '₱' + price;
+
+            card.setAttribute("data-price", price);
+            card.setAttribute("data-name", displayName.trim());
 
             const siblingDots = dotElement.parentElement.querySelectorAll('.color-dot');
             siblingDots.forEach(d => d.classList.remove('active-dot'));
