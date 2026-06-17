@@ -57,10 +57,9 @@ namespace haru.market.Services
                         StockQuantity = data.ContainsKey("stockQuantity") ? Convert.ToInt32(data["stockQuantity"]) : 0,
                         ImageUrl = data.ContainsKey("imageUrl") ? data["imageUrl"].ToString()! : "placeholder.png",
                         Imageurl2 = data.ContainsKey("imageurl2") ? data["imageurl2"].ToString()! : "",
-                        
-                        CreatedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts
-                            ? ts.ToDateTime()
-                            : DateTime.UtcNow
+                        CreatedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts ? ts.ToDateTime() : DateTime.Now,
+                        GroupKey = data.ContainsKey("groupKey") ? data["groupKey"].ToString()! : "",
+                        Color = data.ContainsKey("color") ? data["color"].ToString()! : ""
                     });
                 }
             }
@@ -185,8 +184,13 @@ namespace haru.market.Services
                 Description = data["description"]?.ToString() ?? "",
                 Price = Convert.ToDecimal(data["price"]),
                 StockQuantity = Convert.ToInt32(data["stockQuantity"]),
-                ImageUrl = data["imageUrl"]?.ToString() ?? ""
+                ImageUrl = data["imageUrl"]?.ToString() ?? "",
+                Imageurl2 = data.ContainsKey("imageurl2") ? data["imageurl2"]?.ToString() ?? "" : "",
+                GroupKey = data.ContainsKey("groupKey") ? data["groupKey"].ToString()! : "",
+                Color = data.ContainsKey("color") ? data["color"].ToString()! : ""
+
             };
+            
         }
 
         public async Task AddToCartAsync(string uid, ProductViewModel product)
@@ -216,5 +220,7 @@ namespace haru.market.Services
 
             await doc.SetAsync(cartData);
         }
+
+        
     }
 }

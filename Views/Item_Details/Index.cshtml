@@ -1,92 +1,118 @@
+@model haru.market.Models.ProductViewModel
+@using System.Text.Encodings.Web
+
 @section Styles {
-    <link rel="stylesheet" href="~/css/Item_Details/Item_Details.css" />
+    <link rel="stylesheet" href="~/css/Item_Details/Item_Details.css" asp-append-version="true" />
 }
 
 @section Scripts {
-    <script src="~/js/Item_Details/Item_Details.js"></script>
+    <script src="~/js/Item_Details/Item_Details.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const sizeButtons = document.querySelectorAll(".Size_Button");
+            sizeButtons.forEach(btn => {
+                btn.addEventListener("click", function () {
+                    sizeButtons.forEach(b => b.classList.remove("active"));
+                    this.classList.add("active");
+                });
+            });
+        });
+    </script>
 }
 
-
-<div class="back_button">
-    <a href="@Url.Action("Shop", "Home")">&lt; Back</a>
+<div class="back_button_container">
+    <a href="@Url.Action("Shop", "Home")" class="haru-back-link">&larr; Back to Catalog</a>
 </div>
 
-<section class="Item_Details">
+<section class="Item_Details_Workspace">
 
-    <div class="Picture_Item_Details_container">
-        <div class="main_view">
-
+    <div class="Media_Showcase_Panel">
+        <div class="Main_Display_Canvas">
+            <img id="primaryProductCanvas" src="@Model.ImageUrl" alt="@Model.Name" />
         </div>
         
-        <div class="view_selector">
+        <div class="Thumbnail_Selector_Strip">
+            <div class="Thumbnail_Card active-thumb" style="background-image: url('@Model.ImageUrl');" 
+                 onclick="document.getElementById('primaryProductCanvas').src='@Model.ImageUrl'"></div>
 
-            <div class="Picture"></div>
-
-            <div class="Picture"></div>
-
-            <div class="Picture"></div>
-
+            @if (!string.IsNullOrEmpty(Model.Imageurl2))
+            {
+                <div class="Thumbnail_Card" style="background-image: url('@Model.Imageurl2');" 
+                     onclick="document.getElementById('primaryProductCanvas').src='@Model.Imageurl2'"></div>
+            }
         </div>
-
     </div>
 
-    <div class="Desciption_Picture_Item_Details_container">
+    <div class="Product_Configuration_Panel">
 
-        <div class="Texts">
-            <h5>Everything Starts Anew</h5>
-            <p>₱(price)</p>
+        <div class="Product_Header_Block">
+            <h1 class="Product_Main_Title">@Model.Name</h1>
+            <p class="Product_Main_Price">₱@Model.Price</p>
         </div>
 
-        <div class="Color_Choice">
-            <button class="Color_Button">
-                <img src="#"/> 
+        <div class="Variant_Selector_Group">
+            <span class="Selector_Label">Color: <span class="Active_Label_Value">@(string.IsNullOrEmpty(Model.Color) ? "Standard" : Model.Color)</span></span>
+            <div class="Color_Bubbles_Row">
+                @if (ViewData["Variants"] != null)
+                {
+                    var variantList = (List<haru.market.Models.ProductViewModel>)ViewData["Variants"]!;
+                    foreach (var variant in variantList)
+                    {
+                        var isCurrentlySelected = variant.Id == Model.Id;
+                        
+                        string bubbleHex = "#cccccc";
+                        if (!string.IsNullOrEmpty(variant.Color))
+                        {
+                            switch (variant.Color.ToLower().Trim())
+                            {
+                                case "black": bubbleHex = "#1a1a1a"; break;
+                                case "white": bubbleHex = "#ffffff"; break;
+                                case "stitched": bubbleHex = "#2b2526"; break;
+                                case "pink": bubbleHex = "#FFBCCB"; break;
+                            }
+                        }
 
-            </button>
-            <button class="Color_Button">
-                <img src="#"/>
-            </button>
+                        <a href="@Url.Action("Index", "Item_Details", new { id = variant.Id })" 
+                           class="Color_Swatch_Circle @(isCurrentlySelected ? "active-swatch" : "")" 
+                           style="background-color: @bubbleHex; border: 1px solid @(bubbleHex.ToLower() == "#ffffff" ? "#ddd" : "transparent");"
+                           title="Switch color to @variant.Color">
+                        </a>
+                    }
+                }
+            </div>
         </div>
 
-        <div class="size_choice">
-            <button class="Size_Button">S</button>
-            <button class="Size_Button">M</button>
-            <button class="Size_Button">L</button>
-            <button class="Size_Button">XL</button>
-            <button class="Size_Button">XLL</button>
+        <div class="Variant_Selector_Group">
+            <span class="Selector_Label">Select Size</span>
+            <div class="Size_Buttons_Grid">
+                <button class="Size_Button">S</button>
+                <button class="Size_Button active">M</button>
+                <button class="Size_Button">L</button>
+                <button class="Size_Button">XL</button>
+                <button class="Size_Button">XXL</button>
+            </div>
+            <a href="#" class="Size_Guide_Link">View Measurement Size Guide</a>
         </div>
 
-        <a href="#">View Size Guide</a>
-
-        <div class="Item_Counter">
-            <div class="Quantity_Counter">
-                <button type="button" id="minusBtn">−</button>
-
-                <input type="text" id="quantity" name="Quantity" value="1" readonly>
-
-                <button type="button" id="plusBtn">+</button>
+        <div class="Purchase_Execution_Row">
+            <div class="Quantity_Selector_Widget">
+                <button type="button" id="minusBtn" class="Qty_Control_Btn">&minus;</button>
+                <input type="text" id="quantity" name="Quantity" value="1" readonly class="Qty_Display_Input">
+                <button type="button" id="plusBtn" class="Qty_Control_Btn">+</button>
             </div>
 
+            <div class="Action_Buttons_Wrapper">
+                <button class="Haru_Primary_Bag_Btn">Add to Bag</button>
+                
+                <input type="checkbox" id="fav1" hidden>
+                <label for="fav1" class="Haru_Heart_Wish_Label">
+                    <svg class="heart-icon" viewBox="0 0 24 24" width="26" height="26">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </label>
+            </div>
         </div>
-
-        <div class="Addto_Choice">
-
-            
-            <input type="checkbox" id="fav1" hidden >
-            <label for="fav1" class="Heart_Button">
-                ♥
-            </label>
-            
-            <a class="addtobag">Add to Bag</a>
-
-        </div>
-
-        <div class="Dropdown_container"></div>
-        <div class="Dropdown"></div>
-        <div class="Dropdown"></div>
-
-        
 
     </div>
-
 
 </section>

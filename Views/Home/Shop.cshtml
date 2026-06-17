@@ -1,20 +1,99 @@
+@using System.Text.Encodings.Web
 @model IEnumerable<haru.market.Models.ProductViewModel>
 @{
     ViewData["Title"] = "Shop";
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/costumer_page/Shop.css" />
+    <link rel="stylesheet" href="~/css/costumer_page/Shop.css" asp-append-version="true" />
     <style>
+        .haru-shop-workspace {
+            max-width: 1200px;
+            margin: 40px auto 80px auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .Filter_Container {
+            display: flex !important;
+            justify-content: flex-start !important;
+            width: 100% !important;
+            margin: 0 0 25px 0 !important;
+            padding: 0 !important;
+        }
+
+        .Filter_Button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #fff5f7;
+            border: 2px solid #f2d6dc;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-family: "Nunito", sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: #c96a7f;
+            cursor: pointer;
+            margin: 0 !important;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .Filter_Button:hover {
+            background-color: #EB899D;
+            border-color: #EB899D;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .Filter_Button img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+        
+        .Filter_Button:hover img {
+            filter: brightness(0) invert(1);
+        }
+
+        .Product_Container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 30px;
+            width: 100%;
+        }
+
+        .Product_Card {
+            display: flex;
+            flex-direction: column;
+            height: 100%; 
+            background: #ffffff;
+            border: 1px solid #f2d6dc;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+        }
+
+        .Product_Card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(201, 106, 127, 0.08);
+        }
+
         .Product_Image {
             position: relative;
             overflow: hidden;
-            border-radius: 12px;
+            border-radius: 8px;
             width: 100%;
+            aspect-ratio: 3 / 4; 
+            background-color: #fafafa;
         }
 
         .product-img-front {
             width: 100%;
+            height: 100%;
+            object-fit: cover;
             display: block;
             position: relative;
             z-index: 1;
@@ -23,6 +102,8 @@
 
         .product-img-back {
             width: 100%;
+            height: 100%;
+            object-fit: cover;
             display: block;
             position: absolute;
             top: 0;
@@ -32,60 +113,127 @@
             transition: opacity 0.3s ease-in-out, transform 0.4s ease-out;
         }
 
-        .Product_Card:hover .product-img-front {
-            opacity: 0;
+        .Product_Card:hover .product-img-front { opacity: 0; }
+        .Product_Card:hover .product-img-back { opacity: 1; }
+
+        .Product_Title_Wrap {
+            margin-top: 15px;
+            min-height: 52px; 
+            display: flex;
+            align-items: flex-start;
         }
 
-        .Product_Card:hover .product-img-back {
-            opacity: 1;
+        .Product_Card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            color: #111;
+            line-height: 1.3;
         }
-        
-        .Product_Card:hover .product-img-back,
-        .Product_Card:hover .product-img-front {
-            transform: scale(1.02);
+
+        .Product_Price {
+            font-size: 1.1rem;
+            color: #c96a7f;
+            font-weight: bold;
+            margin: 8px 0 0 0;
+        }
+
+        .Product_ColorSeletor {
+            display: flex;
+            gap: 10px;
+            margin: 12px 0 2px 0;
+            min-height: 20px;
+        }
+
+        .color-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .color-dot:hover, .color-dot.active-dot {
+            transform: scale(1.15);
+            border: 2px solid #c96a7f;
         }
     </style>
 }
 
-<section class="ShopSection">
+@{
+    var groupedProducts = (Model ?? Enumerable.Empty<haru.market.Models.ProductViewModel>())
+        .GroupBy(p => !string.IsNullOrEmpty(p.GroupKey) ? p.GroupKey.Trim().ToLower() : p.Id)
+        .ToList();
+
+    string GetColorHex(string colorName)
+    {
+        if (string.IsNullOrEmpty(colorName)) return "#cccccc";
+        switch (colorName.ToLower().Trim())
+        {
+            case "black": return "#000000";
+            case "white": return "#ffffff";
+            case "pink": return "#FFBCCB";
+            case "stitched": return "#141414";
+            default: return "#EB899D";
+        }
+    }
+}
+
+<div class="haru-shop-workspace">
+
     <div class="Filter_Container">
         <div class="Filter_Button">
-            <img src="~/images/Shop/Filter-icon.png" />
+            <img src="/images/Shop/Filter-icon.png" alt="Filters" />
             <span>Filter & Sort</span>
         </div>
     </div>
     
     <div class="Product_Container">
-        @if (Model != null && Model.Any())
+        @if (groupedProducts.Any())
         {
-            foreach (var product in Model)
+            foreach (var group in groupedProducts)
             {
-                <div class="Product_Card">
-                    <div class="Product_Image">
-                        <img class="product-img-front" 
-                             src="@product.ImageUrl" 
-                             alt="@product.Name" 
-                             onerror="this.src='https://placehold.co/300?text=Product+Image';" />
+                var variants = group.ToList();
+                var primary = variants.First();
+                
+                var uniqueColors = variants.Where(v => !string.IsNullOrEmpty(v.Color)).Select(v => v.Color.Trim()).Distinct().ToList();
+                var hasMultipleColors = uniqueColors.Count > 1;
+                var cardUniqueId = "prod_card_" + primary.Id;
 
-                        @if (!string.IsNullOrEmpty(product.Imageurl2))
+                <div class="Product_Card" id="@cardUniqueId" onclick="window.location.href='@Url.Action("Index", "Item_Details", new { id = primary.Id })'">
+                    
+                    <div class="Product_Image">
+                        <img class="product-img-front" src="@primary.ImageUrl" alt="@primary.Name" onerror="this.src='https://placehold.co/300x400?text=Haru+Market';" />
+                        @if (!string.IsNullOrEmpty(primary.Imageurl2))
                         {
-                            <img class="product-img-back" 
-                                 src="@product.Imageurl2" 
-                                 alt="@product.Name side view" />
+                            <img class="product-img-back" src="@primary.Imageurl2" alt="@primary.Name side view" />
                         }
                     </div>
 
                     <div class="Product_ColorSeletor">
-                        <div class="color-dot active">
-                            <img src="/images/Shop/MyDarling/Icon/Black.png" />
-                        </div>
-                        <div class="color-dot active">
-                            <img src="/images/Shop/MyDarling/Icon/White.png" />
-                        </div>
+                        @if (hasMultipleColors)
+                        {
+                            for (int i = 0; i < variants.Count; i++)
+                            {
+                                var variant = variants[i];
+                                var targetUrl = Url.Action("Index", "Item_Details", new { id = variant.Id });
+                                var hexColor = GetColorHex(variant.Color);
+
+                                <div class="color-dot @(i == 0 ? "active-dot" : "")" 
+                                     style="background-color: @hexColor;" 
+                                     title="@variant.Color"
+                                     onclick="swapProductCardVariant(event, '@cardUniqueId', '@targetUrl', '@variant.ImageUrl', '@variant.Imageurl2', '@variant.Price', '@JavaScriptEncoder.Default.Encode(variant.Name)', this)">
+                                </div>
+                            }
+                        }
                     </div>
                     
-                    <h3>@product.Name</h3>
-                    <p>₱@product.Price</p>
+                    <div class="Product_Title_Wrap">
+                        <h3 class="product-card-title">@primary.Name</h3>
+                    </div>
+                    <p class="Product_Price">₱@primary.Price</p>
                 </div>
             }
         }
@@ -93,22 +241,50 @@
         {
             <div class="Product_Card">
                 <div class="Product_Image">
-                    <img src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
+                    <img class="product-img-front" src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
                 </div>
-                <div class="Product_ColorSeletor">
-                    <div class="color-dot active">
-                        <img src="/images/Shop/MyDarling/Icon/Black.png" />
-                    </div>
-                    <div class="color-dot active">
-                        <img src="/images/Shop/MyDarling/Icon/White.png" />
-                    </div>
+                <div class="Product_ColorSeletor"></div>
+                <div class="Product_Title_Wrap">
+                    <h3>No Products Active</h3>
                 </div>
-                <h3>My Darling</h3>
-                <p>₱999</p>
+                <p class="Product_Price">₱0</p>
             </div>
         }
     </div> 
-</section>
+</div>
 
 @section Scripts {
+    <script>
+        function swapProductCardVariant(e, cardId, detailsUrl, frontImg, backImg, price, displayName, dotElement) {
+            e.stopPropagation(); 
+
+            const card = document.getElementById(cardId);
+            if (!card) return;
+
+            card.setAttribute('onclick', `window.location.href='${detailsUrl}'`);
+
+            const front = card.querySelector('.product-img-front');
+            if (front) front.src = frontImg;
+
+            const back = card.querySelector('.product-img-back');
+            if (back) {
+                if (backImg) {
+                    back.src = backImg;
+                    back.style.display = 'block';
+                } else {
+                    back.style.display = 'none';
+                }
+            }
+
+            const titleElement = card.querySelector('.product-card-title');
+            if (titleElement) titleElement.innerText = displayName;
+
+            const priceLabel = card.querySelector('.Product_Price');
+            if (priceLabel) priceLabel.innerText = '₱' + price;
+
+            const siblingDots = dotElement.parentElement.querySelectorAll('.color-dot');
+            siblingDots.forEach(d => d.classList.remove('active-dot'));
+            dotElement.classList.add('active-dot');
+        }
+    </script>
 }

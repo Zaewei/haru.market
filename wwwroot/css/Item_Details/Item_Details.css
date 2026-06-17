@@ -1,253 +1,314 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Piazzolla:wght@700;800;900&display=swap');
 
-.back_button {
-    height: 7vh;
-    padding-left:7%;
-
-    
-    display: flex;
-    align-items: center;
+.back_button_container {
+    max-width: 1200px;
+    margin: 40px auto 0 auto;
+    padding: 0 40px;
+    box-sizing: border-box;
 }
 
-.back_button a {
+.haru-back-link {
     text-decoration: none;
-    font-family: "nunito", sans-serif;
+    font-family: "Nunito", sans-serif;
     font-weight: 700;
-    font-size: 2.5vh;
-    color: black;
+    font-size: 0.95rem;
+    color: #888888;
+    transition: color 0.2s ease;
 }
 
-.Item_Details {
-    width: 100%;
-    height:90vh;
+.haru-back-link:hover {
+    color: #EB899D;
+}
+
+.Item_Details_Workspace {
     display: flex;
-    justify-content: center;
+    max-width: 1200px;
+    margin: 20px auto 100px auto;
+    padding: 0 40px;
+    gap: 8%;
+    box-sizing: border-box;
+    align-items: flex-start;
 }
 
-.Picture_Item_Details_container {
-    width:27%;
-    height: 80%;
+.Media_Showcase_Panel {
+    flex: 0 0 45%;
     display: flex;
     flex-direction: column;
-
+    gap: 20px;
+    width: 45%;
 }
 
-.main_view {
+.Main_Display_Canvas {
     width: 100%;
-    height: 70%;
-    border: .4vh solid #EB899D;
-    border-radius: 3vh;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-
-}
-
-.view_selector {
-    width: 100%;
-    height: 30%;
-    padding-top: 5%;
-    display: flex;
-    justify-content: space-between;
-    align-content: center;
-
-
-}
-
-.Picture {
-    width: 32%;
-    height: 100%;
-    border: .4vh solid #EB899D;
-    border-radius: 1.5vh;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); 
-
-}
-
-.Desciption_Picture_Item_Details_container {
-
-    width: 35%;
-    height: 80%;
-    border: 1px solid black;
-    padding-left: 5%;
-    padding-top: 1.5%;
-
-}
-
-.Texts {
-    width: 100%;
-    height:13%;
-    border: 1px solid black;
-    
-}
-
-.Texts h5 {
-    font-family: "Piazzolla", sans-serif;
-    font-weight: 900;
-    font-size: 3.4vh;
-
-}
-
-.Texts p {
-    font-family: "Nunito", sans-serif;
-    font-weight: 700;
-    font-size: 2.5vh;
-}
-
-.Color_Choice {
-    margin-top: 2vh;
-    width: 100%;
-    height: 10%;
-    border: 1px solid black;
-    display: flex;
-    align-content: center;
-    gap:3vh;
-}
-
-.Color_Button {
-    width: 5vh;
-    height: 5vh;
-    border-radius: 50%;
-    border: 1px solid transparent;
+    aspect-ratio: 3 / 4;
+    border-radius: 16px;
+    background-color: #ffffff;
     overflow: hidden;
+    border: 1px solid #f2d6dc;
+    box-shadow: 0 12px 30px rgba(201, 106, 127, 0.04);
+    padding: 20px; 
+    box-sizing: border-box;
 }
 
-.Color_Button img {
+.Main_Display_Canvas img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-
+    object-fit: contain; 
 }
 
-.Color_Button:hover {
-    border: 2px solid black;
-}
-
-.Color_Button.active {
-    border: 2px solid black;
-}
-
-.size_choice {
-    width: 100%;
-    height: 10%;
-    border: 1px solid black;
-
-}
-
-.Size_Button {
-    width: 6vh;
-    height: 6vh;
-    border-radius: 1vh;
-    font-family: "Nunito", sans-serif;
-    font-weight: 800;
-    border: 2px solid transparent;
-    background-color: #F8F6EE;
-
-}
-
-.Size_Button:hover {
-    border: 2px solid #EB899D;
-}
-
-.Size_Button.active {
-    border: 2px solid #EB899D;
-}
-
-.Desciption_Picture_Item_Details_container a {
-    color: black;
-    font-family: "Nunito", sans-serif;
-    text-underline-offset: .7vh;
-
-}
-
-.Item_Counter {
-    width: 100%;
-    height: 10%;
-    border: 1px solid black;
-    margin-top: 3vh;
-}
-
-
-.Quantity_Counter {
+.Thumbnail_Selector_Strip {
     display: flex;
-    align-items: center;
+    gap: 12px;
+}
 
-    width: 30%;
-    height: 40px;
-
-    border: 1px solid #000000;
+.Thumbnail_Card {
+    width: 70px;
+    height: 90px;
     border-radius: 8px;
-
-    overflow: hidden;
-}
-
-.Quantity_Counter button {
-    width: 33%;
-    height: 100%;
-
-    border: none;
-    background-color: white;
-
-    font-size: 3vh;
-    font-weight: 700;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #f2d6dc;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.Quantity_Counter button:hover {
-    background-color: #f8cbd5;
+.Thumbnail_Card:hover, .Thumbnail_Card.active-thumb {
+    border-color: #EB899D;
+    transform: translateY(-2px);
 }
 
-.Quantity_Counter input {
-    width: 6vh;
-    text-align: center;
-    border-left: .02vh solid black;
-    border-right: .02vh solid black;
-    border-top: none;
-    border-bottom: none;
-
-    font-size: 2.5vh;
-    font-weight: 500;
-    height: 100%;
-}
-
-.Addto_Choice {
-    width: 100%;
-    height: 10%;
-    border: 1px solid black;
-    margin-top: 1vh;
+.Product_Configuration_Panel {
+    flex: 1;
     display: flex;
-    gap: 4vh;
-
+    flex-direction: column;
+    width: 47%;
 }
 
-.Addto_Choice input {
+.Product_Header_Block {
+    border-bottom: 1px solid #f5e6e8;
+    padding-bottom: 25px;
+    margin-bottom: 30px;
+}
+
+.Product_Main_Title {
+    font-family: "Piazzolla", serif;
+    font-weight: 800;
+    font-size: 2.4rem;
+    color: #111111;
+    margin: 0 0 12px 0;
+    line-height: 1.15;
+}
+
+.Product_Main_Price {
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #c96a7f;
     margin: 0;
 }
 
-.Heart_Button {
-    font-size: 7vh;
-    position: relative;
-    top: -2.3vh;
-    color: #ccc;
-    cursor: pointer;
-    user-select: none;
-    padding: 0;
-    margin-left:1vh;
-    width: 5vh;
-    height: 100%;
-
+.Variant_Selector_Group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 35px;
 }
 
-#fav1:checked + .Heart_Button {
-    color: black;
-}
-
-.addtobag {
-    height: 80%;
-    width: 37%;
-    border: 1px solid black;
-    margin-top: 1%;
-    border-radius: 1vh;
-    text-align: center;
-    text-decoration: none;
-    padding-top: 1.5%;
+.Selector_Label {
     font-family: "Nunito", sans-serif;
     font-weight: 800;
-    background-color: #FFBCCB;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #888888;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+}
+
+.Active_Label_Value {
+    color: #111111;
+    text-transform: capitalize;
+}
+
+.Color_Bubbles_Row {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.Color_Swatch_Circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), outline 0.15s ease;
+}
+
+.Color_Swatch_Circle:hover {
+    transform: scale(1.12);
+}
+
+.Color_Swatch_Circle.active-swatch {
+    outline: 3px solid #EB899D;
+    outline-offset: 3px;
+}
+
+.Size_Buttons_Grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.Size_Button {
+    min-width: 54px;
+    height: 48px;
+    border: 2px solid #f2d6dc;
+    background-color: #ffffff;
+    border-radius: 8px;
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #444444;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.Size_Button:hover {
+    border-color: #EB899D;
+    color: #EB899D;
+    background-color: #fff5f7;
+}
+
+.Size_Button.active {
+    border-color: #EB899D;
+    background-color: #EB899D;
+    color: #ffffff;
+}
+
+.Size_Guide_Link {
+    font-family: "Nunito", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #c96a7f;
+    text-decoration: none;
+    margin-top: 12px;
+    width: max-content;
+}
+
+.Size_Guide_Link:hover {
+    text-decoration: underline;
+}
+
+.Purchase_Execution_Row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 10px;
+    border-top: 1px solid #f5e6e8;
+    padding-top: 35px;
+}
+
+.Quantity_Selector_Widget {
+    display: flex;
+    align-items: center;
+    width: 130px;
+    height: 50px;
+    border: 2px solid #f2d6dc;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+.Qty_Control_Btn {
+    width: 38px;
+    height: 100%;
+    border: none;
+    background-color: #fff5f7;
+    color: #c96a7f;
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.Qty_Control_Btn:hover {
+    background-color: #f8cbd5;
+}
+
+.Qty_Display_Input {
+    width: 54px;
+    height: 100%;
+    text-align: center;
+    border-left: 2px solid #f2d6dc;
+    border-right: 2px solid #f2d6dc;
+    border-top: none;
+    border-bottom: none;
+    font-family: "Nunito", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111111;
+}
+
+.Action_Buttons_Wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.Haru_Primary_Bag_Btn {
+    height: 50px;
+    flex: 1;
+    max-width: 260px;
+    border: none;
+    border-radius: 10px;
+    background-color: #EB899D;
+    color: #ffffff;
+    font-family: "Nunito", sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(235, 137, 157, 0.25);
+    transition: all 0.2s ease;
+}
+
+.Haru_Primary_Bag_Btn:hover {
+    background-color: #c96a7f;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(235, 137, 157, 0.35);
+}
+
+.Haru_Heart_Wish_Label {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #f2d6dc;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.Haru_Heart_Wish_Label .heart-icon {
+    fill: none;
+    stroke: #c96a7f;
+    stroke-width: 2;
+    transition: fill 0.2s, stroke 0.2s, transform 0.2s;
+}
+
+.Haru_Heart_Wish_Label:hover {
+    background-color: #fff5f7;
+    border-color: #EB899D;
+}
+
+#fav1:checked + .Haru_Heart_Wish_Label {
+    background-color: #fff5f7;
+    border-color: #EB899D;
+}
+
+#fav1:checked + .Haru_Heart_Wish_Label .heart-icon {
+    fill: #EB899D;
+    stroke: #EB899D;
+    transform: scale(1.08);
 }

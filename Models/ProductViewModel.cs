@@ -27,5 +27,10 @@ namespace haru.market.Models
         public string Imageurl2{ get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public string Color { get; set; } = "";
+        public string Size { get; set; } = "";
+
+        public string GroupKey { get; set; } = "";
     }
 }
