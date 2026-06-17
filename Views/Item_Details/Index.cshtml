@@ -1,0 +1,92 @@
+@section Styles {
+    <link rel="stylesheet" href="~/css/Item_Details/Item_Details.css" />
+}
+
+@section Scripts {
+    <script src="~/js/Item_Details/Item_Details.js"></script>
+}
+
+
+<div class="back_button">
+    <a href="@Url.Action("Shop", "Home")">&lt; Back</a>
+</div>
+
+<section class="Item_Details">
+
+    <div class="Picture_Item_Details_container">
+        <div class="main_view">
+
+        </div>
+        
+        <div class="view_selector">
+
+            <div class="Picture"></div>
+
+            <div class="Picture"></div>
+
+            <div class="Picture"></div>
+
+        </div>
+
+    </div>
+
+    <div class="Desciption_Picture_Item_Details_container">
+
+        <div class="Texts">
+            <h5>Everything Starts Anew</h5>
+            <p>₱(price)</p>
+        </div>
+
+        <div class="Color_Choice">
+            <button class="Color_Button">
+                <img src="#"/> 
+
+            </button>
+            <button class="Color_Button">
+                <img src="#"/>
+            </button>
+        </div>
+
+        <div class="size_choice">
+            <button class="Size_Button">S</button>
+            <button class="Size_Button">M</button>
+            <button class="Size_Button">L</button>
+            <button class="Size_Button">XL</button>
+            <button class="Size_Button">XLL</button>
+        </div>
+
+        <a href="#">View Size Guide</a>
+
+        <div class="Item_Counter">
+            <div class="Quantity_Counter">
+                <button type="button" id="minusBtn">−</button>
+
+                <input type="text" id="quantity" name="Quantity" value="1" readonly>
+
+                <button type="button" id="plusBtn">+</button>
+            </div>
+
+        </div>
+
+        <div class="Addto_Choice">
+
+            
+            <input type="checkbox" id="fav1" hidden >
+            <label for="fav1" class="Heart_Button">
+                ♥
+            </label>
+            
+            <a class="addtobag">Add to Bag</a>
+
+        </div>
+
+        <div class="Dropdown_container"></div>
+        <div class="Dropdown"></div>
+        <div class="Dropdown"></div>
+
+        
+
+    </div>
+
+
+</section>

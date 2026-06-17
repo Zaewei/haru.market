@@ -1,0 +1,382 @@
+
+
+.back_button {
+    height: 7vh;
+    padding-left:7%;
+
+    
+    display: flex;
+    align-items: center;
+}
+
+.back_button a {
+    text-decoration: none;
+    font-family: "nunito", sans-serif;
+    font-weight: 700;
+    font-size: 2.5vh;
+    color: black;
+}
+
+
+.Checkout_Main_Container {
+    display: flex;
+    gap: 5vh;
+
+    min-height: 100vh;
+    width: 100%;
+
+    padding: 0 20vh 10vh 20vh;
+
+}
+
+.Checkout_Details_Container {
+    height: 100vh;
+    width: 60%;
+
+    display: flex;
+    flex-direction: column;
+
+    border: .4vh solid black;
+    border-radius: 4vh;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+    overflow:hidden ;
+}
+
+.Checkout_Details_Title {
+    width: 100%;
+    height: 10%;
+    border: 1px solid black;
+    background-color: #F8CBD5;
+
+    display: flex;
+    justify-content: center;
+    align-items:center ;
+    
+}
+
+.Checkout_Details_Title h4 {
+    font-family: "Piazzolla", serif;
+    font-weight: 800;
+
+}
+
+.Checkout_Details_Form {
+    width: 100%;
+    height: 70%;
+    border: 1px solid black;
+
+    display: flex;
+    flex-direction: column;
+    padding: 1vh 5vh 1vh 5vh;
+
+}
+
+.Contact_Information_Form {
+    width: 100%;
+    height: 35%;
+
+}
+
+.Title_Contact_Information_Form {
+    width: 100%;
+    height: 40%;
+   
+
+    display: flex;
+    align-items: center;
+
+}
+
+.Title_Contact_Information_Form h5 {
+
+    font-family: "piazzolla", sans-serif ;
+    font-weight: 700;
+    font-size: 4vh;
+}
+
+.Name_Contact_Information_Form {
+    width: 100%;
+    height: 30%;
+
+}
+
+.Name_Contact_Information_Form input {
+    border: 1px solid #F8CBD5;
+    border-radius: 1vh;
+    padding:.5% 3%;
+
+}
+
+.Fname_input{
+    margin-right: 5%;
+    width: 47%;
+
+}
+
+.Lname_input {
+    width: 47%;
+}
+
+.Email_Contact_Information_Form input {
+    border: 1px solid #F8CBD5;
+    border-radius: 1vh;
+    padding:.5% 3%;
+    width: 80%;
+
+}
+
+.Email_Contact_Information_Form {
+    width: 100%;
+    height: 30%;
+
+
+}
+
+.Delivery_Details_Form {
+    width: 100%;
+    height: 40%;
+    
+}
+
+.Title_Delivery_Details_Form {
+    width: 100%;
+    height: 20%;
+
+    display: flex;
+    align-items: center;
+
+}
+
+.Title_Delivery_Details_Form h5 {
+    font-family: "piazzolla", sans-serif ;
+    font-weight: 700;
+    font-size: 4vh;
+
+}
+
+.Input_Delivery_Details_Form {
+    width: 100%;
+    height: 80%;
+}
+
+.Input_Delivery_Details_Form input {
+    border: 1px solid #F8CBD5;
+    border-radius: 1vh;
+    padding:.5% 3%;
+
+}
+
+
+.Address_input {
+    width: 100%;
+    margin: 1vh 0vh 2vh 0vh;
+}
+
+.City_input {
+    width: 60%;
+    margin: 0vh 4% 2vh 0vh;
+}
+
+.Postal_input {
+    width: 35%;
+
+}
+
+.Phonenum_input {
+    width: 60%;
+}
+
+
+
+.Payment_Method_Buttons {
+    width: 100%;
+    height: 25%;
+    
+}
+
+.Title_Payment_Method_Buttons {
+    width: 100%;
+    height: 20%;
+
+}
+
+.Title_Payment_Method_Buttons h6 {
+    font-family: "piazzolla", sans-serif ;
+    font-weight: 700;
+    font-size: 3vh;
+}
+
+.Buttons_Payment_Method {
+    width: 100%;
+    height: 80%;
+    padding-top: 2%;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: "Nunito", sans-serif;
+    font-size: 2vh;
+    cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #ee5677;
+}
+
+
+
+.Checkout_Details_Button {
+    width: 100%;
+    height: 20%;
+    border: 1px solid black;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.Checkout_Details_Button button {
+    width: 50%;
+    height: 35%;
+
+    border-radius: 1vh;
+    border: 1px solid black;
+    background-color: #FFBCCB;
+    font-weight: 600;
+    font-size: 2.5vh;
+    font-family: "Nunito", sans-serif;
+}
+
+
+.Checkout_Cart_Summary_Container {
+    height: 80vh;
+    width: 40%;
+    border: .4vh solid black;
+    border-radius: 4vh;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+
+}
+
+.Title_Checkout_Cart_Summary_Container {
+    width: 100%;
+    height: 20%;
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    padding: 5%;
+}
+
+.Title_Checkout_Cart_Summary_Container h5 {
+    font-family: "Piazzolla", sans-serif;
+    font-style: italic;
+    font-weight: 800;
+    font-size: 3.5vh;
+
+}
+
+.Content_Checkout_Cart_Summary_Container {
+    width: 100%;
+    height: 75%;
+    border: 1px solid black;
+    padding:7%;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+}
+
+.Content_Checkout_Cart_Summary_Container:hover {
+    scrollbar-width: thin; /* Firefox */
+}
+
+
+.Content_Checkout_Cart_Summary_Container:hover::-webkit-scrollbar-thumb {
+    background: #ee5677;
+    border-radius: 10px;
+}
+
+
+
+
+
+.Checkout_Product_Card {
+    width: 100%;
+    height: 40%;
+    padding: 5%;
+    border-bottom: 1px solid black;
+
+    display: flex;
+}
+
+.Picture_Checkout_Product_Card {
+    position: relative;
+    height: 100%;
+    width:30%;
+    flex-shrink: 0;
+
+}
+
+.Picture_Checkout_Product_Card img {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.Badge_Picture_Checkout_Product_Card {
+    position: absolute;
+    top: 3%;
+    left: -10%;
+
+    width: 25px;
+    height: 25px;
+
+    border-radius: 50%;
+    border: 1px solid black;
+
+    background-color: #ee5677;
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 14px;
+    font-weight: 700;
+    font-family: "Nunito", sans-serif;
+
+    z-index: 10;
+}
+
+.Badge_Picture_Checkout_Product_Card p {
+    margin: 0;
+}
+
+.Description_Checkout_Product_Card {
+    height: 100%;
+    width:70%;
+
+    padding-left: 3%;
+
+    overflow-wrap: break-word;
+    align-content: center;
+
+}
+
+.Description_Checkout_Product_Card h5 h6 p {
+    margin: 0;
+    font-family: "Nunito", sans-serif;
+}
+
+.Bottom_Space_Checkout_Cart_Summary_Container {
+    width: 100%;
+    height: 5%;
+    border: 1px solid black;
+}

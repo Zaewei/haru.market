@@ -1,51 +1,172 @@
-@model haru.market.Models.OrderPlacementViewModel
 
-<div class="container" style="max-width: 700px; padding: 40px 20px;">
-    <h2 style="font-weight: 700; margin-bottom: 5px;">Checkout</h2>
-    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 30px;" />
+@section Styles {
+    <link rel="stylesheet" href="~/css/checkout/checkout.css" />
+}
 
-    <form asp-action="ProcessCheckout" method="post">
-        <h4 style="margin-bottom: 20px; font-weight: 600;">Delivery Destination Form</h4>
-        
-        <div style="margin-bottom: 20px;">
-            <label asp-for="CustomerName" style="display:block; font-weight:600; margin-bottom:5px;">Recipient Full Name</label>
-            <input asp-for="CustomerName" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
-            <span asp-validation-for="CustomerName" style="color: red; font-size: 13px;"></span>
+<div class="back_button">
+    <a href="@Url.Action("Shop", "Home")">&lt; Back</a>
+
+
+</div>
+    
+<div class="Checkout_Main_Container">
+
+    <div class="Checkout_Details_Container">
+
+        <div class="Checkout_Details_Title">
+
+            <h4>Checkout Details</h4>
+
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <label asp-for="CustomerEmail" style="display:block; font-weight:600; margin-bottom:5px;">Contact Email Address</label>
-            <input asp-for="CustomerEmail" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
-            <span asp-validation-for="CustomerEmail" style="color: red; font-size: 13px;"></span>
-        </div>
+        <div class="Checkout_Details_Form">
 
-        <div style="margin-bottom: 30px;">
-            <label asp-for="ShippingAddress" style="display:block; font-weight:600; margin-bottom:5px;">Full Delivery Destination Location</label>
-            <input asp-for="ShippingAddress" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
-            <span asp-validation-for="ShippingAddress" style="color: red; font-size: 13px;"></span>
-        </div>
+            <div class="Contact_Information_Form">
+                <div class="Title_Contact_Information_Form">
 
-        <h4 style="margin-bottom: 20px; font-weight: 600;">Standardized Basket Summary</h4>
-        @for (int i = 0; i < Model.Items.Count; i++)
-        {
-            <div style="background: #fdfdfd; padding: 20px; border: 1px solid #eaeaea; border-radius: 6px; margin-bottom: 20px;">
-                <input type="hidden" asp-for="Items[i].ProductId" />
-                
-                <div style="margin-bottom: 10px;">
-                    <strong>Product:</strong> <input asp-for="Items[i].ProductName" readonly style="border:none; background:transparent; font-weight:500;" />
+                    <h5>Contact Information</h5>
+
                 </div>
-                <div style="margin-bottom: 10px;">
-                    <strong>Unit Price:</strong> $<input asp-for="Items[i].Price" readonly style="border:none; background:transparent;" />
+
+                <div class="Name_Contact_Information_Form">
+                    <input type="text" placeholder="First name" class="Fname_input">
+                    <input type="text" placeholder="Last name" class="Lname_input">
                 </div>
-                <div>
-                    <label style="font-weight: 500;">Checkout Quantity:</label>
-                    <input asp-for="Items[i].Quantity" type="number" style="width: 60px; padding: 5px; border:1px solid #ddd; border-radius:4px;" />
+
+                <div class="Email_Contact_Information_Form">
+                    <input type="text" placeholder="Email">
+                </div>                
+
+
+            </div>
+
+            <div class="Delivery_Details_Form">
+
+                <div class="Title_Delivery_Details_Form">
+                    
+                    <h5>Delivery Details</h5>
+
+                </div>
+
+                <div class="Input_Delivery_Details_Form">
+                    <input type="text" placeholder="Address" class="Address_input">
+                    <input type="text" placeholder="City" class="City_input">
+                    <input type="text" placeholder="Postal Code" class="Postal_input">
+                    <input type="text" placeholder="Phone Number" class="Phonenum_input">
                 </div>
             </div>
-        }
 
-        <button type="submit" style="background: #000; color: white; width: 100%; padding: 14px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 15px;">
-            Authorize & Process Order Fulfillment
-        </button>
-    </form>
+            <div class="Payment_Method_Buttons">
+                <div class="Title_Payment_Method_Buttons">
+                    <h6>Payment Methods</h6>
+
+                </div>
+
+                <div class="Buttons_Payment_Method">
+
+                    <label class="radio-option">
+                        <input type="radio" name="PaymentMethod" value="CashOnDelivery" checked>
+                        Cash on Delivery
+                    </label>
+
+                    <label class="radio-option">
+                        <input type="radio" name="PaymentMethod" value="GCash">
+                        GCash
+                    </label>
+
+                    <label class="radio-option">
+                        <input type="radio" name="PaymentMethod" value="Maya">
+                        Maya
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="Checkout_Details_Button">
+
+            <button>Checkout</button>
+
+        </div>
+
+    </div>
+
+
+    <div class="Checkout_Cart_Summary_Container">
+
+        <div class="Title_Checkout_Cart_Summary_Container">
+            <h5>My Bag</h5>
+        </div>
+
+        <div class="Content_Checkout_Cart_Summary_Container">
+
+            <div class="Checkout_Product_Card">
+
+                <div class="Picture_Checkout_Product_Card">
+
+                    <div class="Badge_Picture_Checkout_Product_Card">
+                        <p>(#)</p>
+                    </div>
+                    <img src="" alt="">
+
+                </div>
+
+                <div class="Description_Checkout_Product_Card">
+                    <h5>(Product Title)</h5>
+                    <h6>₱(price)</p>
+                    <p>Size: (size)</p>
+                    <p>(color)<p/>
+                </div>
+            </div>
+
+            <div class="Checkout_Product_Card">
+
+                <div class="Picture_Checkout_Product_Card">
+
+                    <div class="Badge_Picture_Checkout_Product_Card">
+                        <p>(#)</p>
+                    </div>
+                    <img src="" alt="">
+
+                </div>
+
+                <div class="Description_Checkout_Product_Card">
+                    <h5>(Product Title)</h5>
+                    <h6>₱(price)</p>
+                    <p>Size: (size)</p>
+                    <p>(color)<p/>
+                </div>
+            </div>
+
+            <div class="Checkout_Product_Card">
+
+                <div class="Picture_Checkout_Product_Card">
+
+                    <div class="Badge_Picture_Checkout_Product_Card">
+                        <p>(#)</p>
+                    </div>
+                    <img src="" alt="">
+
+                </div>
+
+                <div class="Description_Checkout_Product_Card">
+                    <h5>(Product Title)</h5>
+                    <h6>₱(price)</p>
+                    <p>Size: (size)</p>
+                    <p>(color)<p/>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="Bottom_Space_Checkout_Cart_Summary_Container">.
+
+        </div>
+
+
+    </div> 
+
+
 </div>
