@@ -3,21 +3,21 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using haru.market.Services;
 using haru.market.Models;
-using System.Collections.Generic; 
-using System.Linq; 
+using System.Collections.Generic;
+using System.Linq;
 
 namespace haru.market.Controllers
 {
     public class AdminController : Controller
     {
         private readonly ProductService _productService;
-        private readonly LookbookService _lookbookService; 
+        private readonly LookbookService _lookbookService;
         private readonly OrderService _orderService;
         private readonly UserService _userService;
 
         public AdminController(
-            ProductService productService, 
-            LookbookService lookbookService, 
+            ProductService productService,
+            LookbookService lookbookService,
             OrderService orderService,
             UserService userService)
         {
@@ -36,11 +36,11 @@ namespace haru.market.Controllers
 
             int liveLookbookViews = await _lookbookService.GetTotalLookbookViewsCountAsync();
             int liveProductViews = await _productService.GetTotalProductViewsCountAsync();
-            
+
             int combinedViewsCount = liveLookbookViews + liveProductViews;
 
             List<LookbookViewModel> lookbooksList = await _lookbookService.GetAllLookbooksAsync();
-        
+
             List<ProductViewModel> productsList = await _productService.GetAllProductsAsync();
 
             var topLookbooksList = lookbooksList
@@ -54,14 +54,13 @@ namespace haru.market.Controllers
                 TotalUsers = usersCount,
                 TotalLookbooks = lookbooksCount,
                 TotalViews = combinedViewsCount,
-                RecentLookbooks = lookbooksList, 
-                RecentProducts = productsList 
+                RecentLookbooks = lookbooksList,
+                RecentProducts = productsList
             };
 
             ViewData["TopLookbooks"] = topLookbooksList;
-
             ViewData["ChartLabels"] = lookbooksList.Select(l => l.ThemeTitle).ToArray();
-            ViewData["ChartData"] = lookbooksList.Select(l => l.Views).ToArray(); 
+            ViewData["ChartData"] = lookbooksList.Select(l => l.Views).ToArray();
 
             return View(viewModel);
         }
@@ -70,7 +69,7 @@ namespace haru.market.Controllers
         public async Task<IActionResult> Orders()
         {
             var liveOrders = await _orderService.GetAllOrdersAsync();
-            
+
             return View(liveOrders);
         }
 
@@ -80,6 +79,7 @@ namespace haru.market.Controllers
             return View();
         }
 
+        // From version 1: full implementation with sorted users via UserService
         [HttpGet]
         public async Task<IActionResult> Users()
         {
@@ -88,6 +88,37 @@ namespace haru.market.Controllers
             return View(sortedUsers);
         }
 
+        // From version 2: product management page
+        [HttpGet]
+        public async Task<IActionResult> ProductManagement()
+        {
+            try
+            {
+                List<ProductViewModel> productsList = await _productService.GetAllProductsAsync();
+                return View(productsList);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ProductManagement error: {ex.Message}");
+                return View(new List<ProductViewModel>());
+            }
+        }
+
+        // From version 2: add a new product
+        [HttpPost]
+        public async Task<IActionResult> AddProduct(ProductViewModel product)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["PMError"] = "Please check the product details and try again.";
+                return RedirectToAction("ProductManagement");
+            }
+
+            await _productService.AddProductAsync(product);
+            return RedirectToAction("ProductManagement");
+        }
+
+        // From version 1: update order status via JSON endpoint
         [HttpPost]
         public async Task<IActionResult> UpdateOrderStatus(string orderId, string status)
         {
@@ -101,7 +132,7 @@ namespace haru.market.Controllers
                 await _orderService.UpdateOrderStatusAsync(orderId, status, string.Empty);
                 return Json(new { success = true, message = "Firestore updated cleanly!" });
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
