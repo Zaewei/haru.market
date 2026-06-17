@@ -1,16 +1,88 @@
+.haru-cart-modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(26, 21, 22, 0.4) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.24s ease-in-out !important;
+}
+
+.haru-cart-modal-backdrop.show-popup-drawer {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.haru-cart-popup-window-shell {
+    width: 92% !important;
+    max-width: 1140px !important;
+    height: 84vh !important;
+    background-color: #ffffff !important;
+    border: 1px solid #f2d6dc !important;
+    border-radius: 24px !important;
+    box-shadow: 0 30px 70px rgba(201, 106, 127, 0.15) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important;
+    transform: scale(0.96) translateY(10px);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    padding: 30px 20px !important;
+    box-sizing: border-box !important;
+}
+
+.haru-cart-modal-backdrop.show-popup-drawer .haru-cart-popup-window-shell {
+    transform: scale(1) translateY(0) !important;
+}
+
+.haru-cart-global-close-x {
+    position: absolute !important;
+    top: 25px !important;
+    right: 35px !important;
+    background: none !important;
+    border: none !important;
+    font-size: 2.4rem !important;
+    color: #aaaaaa !important;
+    cursor: pointer !important;
+    line-height: 1 !important;
+    z-index: 110 !important;
+    transition: color 0.15s ease, transform 0.15s ease !important;
+}
+
+.haru-cart-global-close-x:hover {
+    color: #111111 !important;
+    transform: scale(1.05) !important;
+}
+
+.haru-cart-popup-card {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
 
 .Bag_Layout_Window {
     display: flex;
     justify-content: center;
-    width: 85%;
-    height: 85%;
-    gap: 1.5%;
+    align-items: stretch; 
+    width: 95%;
+    height: 90%;
+    gap: 3%;
+    padding-top: 15px; 
 }
 
 .Bag_Summary_Window {
     background-color: #F8F6EE;
-    width: 30%;
-    height: 70%;
+    width: 32%;
     display: flex;
     flex-direction: column;
     border-radius: 15px;
@@ -18,129 +90,192 @@
 }
 
 .Bag_Window {
-  width: 70%;
-  height: 100%;
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+}
+
+.Bag_Window h2 {
+    font-family: 'Piazzolla', serif;
+    font-style: italic;
+    font-weight: 800;
+    font-size: 2.2rem;
+    margin: 0 0 20px 15px;
+    color: #111;
+    padding-top: 12px; 
 }
 
 .Bag_Summary_Title_Card {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  background-color: #F8CBD5;
-  height: 20%;
-  border-bottom: 1.5px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-color: #F8CBD5;
+    height: 18%;
+    border-bottom: 1.5px solid black;
 }
 
 .Bag_Summary_Title_Card h4 {
-  font-family: "Piazzolla", serif;
-  font-weight: 700;
+    font-family: "Piazzolla", serif;
+    font-weight: 700;
+    margin: 0;
 }
-
 
 .Bag_Summary_Content {
-  display: flex;
-  justify-content: space-between;
-  align-content: end;
-  width: 100%;
-  height: 60%;
+    padding: 25px 0;
+    width: 100%;
+    height: 65%;
+    box-sizing: border-box;
+    display: block;
 }
 
-.Left_Table {
-  text-align: left;
-  margin: 3vh 0 3vh 10vh;
-  flex-grow: 1;
+.haru-boutique-summary-grid {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.Right_Table {
-  text-align: right;
-  margin: 3vh 10vh 3vh 0;
-  flex-grow: 1;
-
+.haru-boutique-summary-grid td {
+    padding: 8px 25px;
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: #333333;
 }
 
-table td th {
-  font-family: "Nunito", sans-serif;
-  font-weight: 700;
+.haru-boutique-summary-grid .summary-value {
+    text-align: right;
 }
 
-.Table_Space {
-  padding: .5vh 1vh 0 1vh;
-  background: #F8CBD5;
+.haru-boutique-summary-grid .text-bold {
+    font-weight: 800;
+    color: #000000;
 }
 
+.haru-boutique-summary-grid .haru-summary-total-highlight-row {
+    background-color: #F8CBD5;
+}
+
+.haru-boutique-summary-grid .haru-summary-total-highlight-row td {
+    padding: 12px 25px !important;
+    border-top: 1.5px solid #000;
+    border-bottom: 1.5px solid #000;
+}
 
 .Bag_Summary_Checkout_Card {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  height: 20%;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 20%;
+    align-items: center;
+    margin-top: auto;
 }
 
 .Bag_Summary_Checkout_Card a {
-  text-decoration: none;
+    text-decoration: none;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .Bag_Checkout_Button {
-  display: flex;
-  justify-content: center;
-  padding: 2%;
-  width: 75%;
-  height: 50%;
-  background-color: #F8CBD5;
-  border: .3vh solid black;
-  border-radius: 1vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    height: 48px;
+    background-color: #F8CBD5;
+    border: .3vh solid black;
+    border-radius: 1vh;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.Bag_Checkout_Button:hover {
+    background-color: #EB899D;
 }
 
 .Bag_Checkout_Button p {
-  font-family: 'Nunito', sans-serif;
-  color: #0f0f0f;
-  font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    color: #0f0f0f;
+    font-weight: 700;
+    margin: 0;
 }
 
 .Bag_Product_Container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    max-height: 52vh !important;
+    overflow-y: auto !important;
+    padding-right: 12px;
+}
 
-  max-height: 100%;
-  overflow-y: auto;
+.Bag_Product_Container::-webkit-scrollbar {
+    width: 6px;
+}
+.Bag_Product_Container::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+.Bag_Product_Container::-webkit-scrollbar-thumb {
+    background: #f2d6dc;
+    border-radius: 10px;
+}
+.Bag_Product_Container::-webkit-scrollbar-thumb:hover {
+    background: #EB899D;
 }
 
 .Bag_Product_Card {
-  max-width: 100%;
-  height: 25vh;
-  display: flex;
-  padding: 3vh;
-  margin: 0 3vh 0 3vh;
-  border-bottom: 2px solid black;
-  justify-content: space-between;
-  gap:2vh;
+    max-width: 100%;
+    height: 20vh;
+    display: flex;
+    padding: 2vh 0;
+    margin: 0 1vh;
+    border-bottom: 1.5px solid #111111;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2vh;
 }
 
 .Bag_Product_Image {
-  height: 100%;
-  width:15%;
+    height: 100%;
+    width: 18%;
 }
 
 .Bag_Product_Image img {
-  height: 100%;
-  width: 100%;
-  object-fit: contain;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
 }
 
 .Bag_Product_Description {
-  height: 100%;
-  width:55%;
+    height: 100%;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.Bag_Product_Description h3 h5 p {
-  font-family: "Nunito", sans-serif;
+.Bag_Product_Description h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.Bag_Product_Description h5 {
+    font-size: 0.95rem;
+    margin: 0 0 6px 0;
+    color: #c96a7f;
+}
+
+.Bag_Product_Description p {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0 0 2px 0;
 }
 
 .Bag_Product_Amount_Button {
     height: 100%;
-    width:15%;
+    width: 18%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -149,44 +284,51 @@ table td th {
 .quantity {
     display: flex;
     align-items: center;
-    gap: 5%;
+    justify-content: space-between;
     border: 1px solid #131212;
     width: 100%;
-    margin: 5px 10px;
     border-radius: 8px;
     overflow: hidden;
 }
 
 .quantity button {
     background-color: #F8F6EE;
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     border: none;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.quantity button:hover {
+    background-color: #F8CBD5;
 }
 
 .quantity span {
     min-width: 20px;
     text-align: center;
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
 }
 
 .Bag_Product_Delete_Button {
-  height: 100%;
-  width:15%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    height: 100%;
+    width: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .Bag_Product_Delete_Button_container {
-  width: 25%;
-  height: 25%;
-  object-fit: contain;
+    width: 28px !important;
+    height: 28px !important;
+    display: block !important;
 }
 
-.Bag_Product_Delete_Button_container img {
-  width: 100%;
-  height: 100%;
+.Bag_Product_Delete_Button_container img,
+.Bag_Product_Delete_Button_container svg {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
 }
-

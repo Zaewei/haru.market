@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="~/css/costumer_page/popup/Favorites.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/costumer_page/popup/User.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/costumer_page/popup/Cart.css" asp-append-version="true" />
+  
     <link rel="stylesheet" href="~/haru.market.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 
@@ -28,7 +29,7 @@
         <nav class="">
             <div class="TopNav">
                 <div class="Logo ">
-                        <img src="~/images/Layout/Black_logo.png"  alt="Logo">                
+                    <img src="~/images/Layout/Black_logo.png"  alt="Logo">                
                 </div>
                 <div class="Brand "><a href="/Home/Index">HARU</a></div>
                 <div class="TopMenu">
@@ -42,26 +43,15 @@
             </div>
             <div class="BottomNav">
                 <ul>
-                        <li>
-                            <a href="/Home/Index"
-                            class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
-                                Home
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="/Home/Shop"
-                            class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Shop" ? "active" : "")">
-                                Shop
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="/Home/Lookbook"
-                            class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Lookbook" ? "active" : "")">
-                                Lookbook
-                            </a>
-                        </li>    
+                    <li>
+                        <a href="/Home/Index" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">Home</a>
+                    </li>
+                    <li>
+                        <a href="/Home/Shop" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Shop" ? "active" : "")">Shop</a>
+                    </li>
+                    <li>
+                        <a href="/Home/Lookbook" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Lookbook" ? "active" : "")">Lookbook</a>
+                    </li>    
                 </ul>
             </div>
         </nav>
@@ -73,19 +63,72 @@
     </div>
 
     <footer class=" footer text-muted">
-        <div class="footer_container">
-            
-        </div>
-
+        <div class="footer_container"></div>
     </footer>
+
     <partial name="Popups/_Search_Popup_Page" />
     <partial name="Popups/_Favorites_Popup_Page" />
     <partial name="Popups/_User_Popup_Page" />
-    <partial name="Popups/_Cart_Popup_Page" />
+    
+    <div id="globalCartModalOverlay" class="haru-cart-modal-backdrop" onclick="closeCartModal(event)">
+        <div class="haru-cart-popup-window-shell">
+            <button type="button" class="haru-cart-global-close-x" onclick="forceCloseCartModal()">&times;</button>
+            <div id="haruLiveCartInnerContent" style="width:100%; height:100%;">
+                <partial name="Popups/_Cart_Popup_Page" model="new List<haru.market.Models.CartItemViewModel>()" />
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/Popup/cart.js"></script>
+    <script src="~/js/Popup/cart.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        function openCartModal() {
+            fetch('/Cart/GetCartPartial')
+                .then(response => {
+                    if (!response.ok) throw new Error("Network exception: " + response.status);
+                    return response.text();
+                })
+                .then(htmlContent => {
+                    const dataContainer = document.getElementById("haruLiveCartInnerContent");
+                    const overlayWrapper = document.getElementById("globalCartModalOverlay");
+                    
+                    if (dataContainer && overlayWrapper) {
+                        dataContainer.innerHTML = htmlContent;
+                        setTimeout(() => {
+                            overlayWrapper.classList.add("show-popup-drawer");
+                        }, 10);
+                    }
+                })
+                .catch(error => console.error("Cart retrieval paused:", error));
+        }
+
+        function closeCartModal(e) {
+            if (e && e.target && e.target.id === "globalCartModalOverlay") {
+                document.getElementById("globalCartModalOverlay").classList.remove("show-popup-drawer");
+            }
+        }
+
+        function forceCloseCartModal() {
+            const overlayWrapper = document.getElementById("globalCartModalOverlay");
+            if (overlayWrapper) {
+                overlayWrapper.classList.remove("show-popup-drawer");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const bagButton = document.getElementById("bagBtn");
+            if (bagButton) {
+                bagButton.setAttribute("href", "javascript:void(0)");
+                bagButton.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    openCartModal();
+                });
+            }
+        });
+    </script>
 </body>
 </html>

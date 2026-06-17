@@ -1,136 +1,106 @@
-<div id="bagPopup" class="Popup_Overlay">
-    <div class="Bag_Layout_Window">
+@model List<haru.market.Models.CartItemViewModel>
 
+@{
+    var activeItemsCollection = Model ?? new List<haru.market.Models.CartItemViewModel>();
+
+    int itemsCountSummary = activeItemsCollection.Sum(i => i.Quantity);
+    decimal itemsCostSubtotal = activeItemsCollection.Sum(i => i.Price * i.Quantity);
+    decimal systemShippingFee = itemsCostSubtotal > 0 ? 180.00m : 0.00m;
+    decimal targetedDiscount = itemsCostSubtotal > 0 ? 50.00m : 0.00m;
+    decimal absoluteNetTotal = itemsCostSubtotal + systemShippingFee - targetedDiscount;
+}
+
+<div class="haru-cart-popup-card">
+    
+    <div class="Bag_Layout_Window">
+        
         <div class="Bag_Summary_Window">
             <div class="Bag_Summary_Title_Card">
                 <h4>Bag Summary</h4>
             </div>
             
             <div class="Bag_Summary_Content">
-                <table class="Left_Table">
+                <table class="haru-boutique-summary-grid">
                     <tr>
-                        <th>Items</th>    
-                    </tr>
-                    <tr>
-                        <th>Sub Total</th>                        
+                        <td class="summary-label">Items</td>
+                        <td class="summary-value sum-qty">@itemsCountSummary</td>
                     </tr>
                     <tr>
-                        <th>Shipping</th>                    
+                        <td class="summary-label">Sub Total</td>
+                        <td class="summary-value sum-subtotal">₱@itemsCostSubtotal.ToString("N2")</td>
                     </tr>
                     <tr>
-                        <th>Discount</th>                        
-                    </tr>
-                    <tr>                            
-                        <th class="Table_Space">Total</th>
-                    </tr>
-                </table>
-
-                <table class="Right_Table"> 
-                    <tr>
-                        <th>4</th>    
+                        <td class="summary-label">Shipping</td>
+                        <td class="summary-value sum-shipping">₱@systemShippingFee.ToString("N2")</td>
                     </tr>
                     <tr>
-                        <th>₱2,600</th>                        
+                        <td class="summary-label">Discount</td>
+                        <td class="summary-value sum-discount">-₱@targetedDiscount.ToString("N2")</td>
                     </tr>
-                    <tr>
-                        <th>₱180</th>                    
-                    </tr>
-                    <tr>
-                        <th>₱50</th>                        
-                    </tr>
-                    <tr>                            
-                        <th class="Table_Space">₱2,730</th>                        
+                    <tr class="haru-summary-total-highlight-row">
+                        <td class="summary-label text-bold">Total</td>
+                        <td class="summary-value text-bold sum-total">₱@absoluteNetTotal.ToString("N2")</td>
                     </tr>
                 </table>
             </div>
 
             <div class="Bag_Summary_Checkout_Card">
-                <a href="#" class="Bag_Checkout_Button">
+                <a href="@Url.Action("Index", "Checkout")">
+                    <div class="Bag_Checkout_Button">
                         <p>Proceed To Checkout</p>
+                    </div>
                 </a>
             </div>
         </div>
 
         <div class="Bag_Window">
-            <div class="Popup_Window">
-                <div class="Popup_Title">
-                    <div class="Popup_Title_Card">
-                        <h3>My Bag</h3>
-                    </div>
-                    <div class="Popup_Exit_Card">
-                        <a href="#" id="closeBag">X</a>
-                    </div>
-                </div>
-                <div class="Popup_Content">
-
-                
-                    <div class="Bag_Product_Container" data-product-id="1" data-price="650">
-
-                        <div class="Bag_Product_Card">
-                            <div class="Bag_Product_Image ">
-                                <img src="\images\Shop\MyDarling\Transparent\Black_Front.png" />
+            <h2>My Bag</h2>
+            
+            <div class="Bag_Product_Container">
+                @if (activeItemsCollection.Any())
+                {
+                    foreach (var item in activeItemsCollection)
+                    {
+                        <div class="Bag_Product_Card" data-id="@item.ProductId" data-price="@item.Price">
+                            <div class="Bag_Product_Image">
+                                <img src="@item.ImageUrl" alt="@item.ProductName" onerror="this.src='https://placehold.co/100x130?text=Haru';" />
                             </div>
-                            <div class="Bag_Product_Description ">
-                                    <h3>(Product Name)</h3>
-                                    <h5 class"Price">₱650</h5>
-                                    <p>Size: (place here)</p>
-                                    <p>(color)</p>
+                            
+                            <div class="Bag_Product_Description">
+                                <h3>@item.ProductName</h3>
+                                <h5 style="color: #EB899D; font-weight: 700; font-size: 0.95rem; margin-bottom: 4px;">Haru Variant Apparel</h5>
+                                <p>Size: @item.Size</p>
+                                <p>Price: ₱@item.Price.ToString("N0")</p>
                             </div>
-                            <div class="Bag_Product_Amount_Button ">
+                            
+                            <div class="Bag_Product_Amount_Button">
                                 <div class="quantity">
-                                    <button class="qty-minus">-</button>
-                                        <span class="qty">1</span>
-                                    <button class="qty-plus">+</button>
+                                    <button type="button" class="qty-minus">&minus;</button>
+                                    <span class="qty">@item.Quantity</span>
+                                    <button type="button" class="qty-plus">+</button>
                                 </div>
                             </div>
+                            
                             <div class="Bag_Product_Delete_Button">
-
-                                <div class="Bag_Product_Delete_Button_container">
-                                    <a href="#" class="delete-btn">
-                                        <img src="\images\Layout\Popups\Bag\delete.png" alt="">
-                                    </a>
-                                </div>
+                                <button type="button" class="delete-btn" style="background: none; border: none; padding: 0; cursor: pointer;" title="Remove Item">
+                                    <div class="Bag_Product_Delete_Button_container">
+                                        <svg viewBox="0 0 24 24" fill="#555555" width="24" height="24">
+                                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                        </svg>
+                                    </div>
+                                </button>
                             </div>
                         </div>
+                    }
+                }
+                else
+                {
+                    <div style="text-align: center; padding: 100px 20px; width: 100%;">
+                        <p style="font-family: 'Nunito', sans-serif; font-size: 1.2rem; color: #888; font-weight: 600; margin: 0;">Your shopping bag is empty.</p>
                     </div>
-
-                    <div class="Bag_Product_Container" data-product-id="1" data-price="650">
-
-                        <div class="Bag_Product_Card">
-                            <div class="Bag_Product_Image ">
-                                <img src="\images\Shop\MyDarling\Transparent\Black_Front.png" />
-                            </div>
-                            <div class="Bag_Product_Description ">
-                                    <h3>(Product Name)</h3>
-                                    <h5 class"Price">₱650</h5>
-                                    <p>Size: (place here)</p>
-                                    <p>(color)</p>
-                            </div>
-                            <div class="Bag_Product_Amount_Button ">
-                                <div class="quantity">
-                                    <button class="qty-minus">-</button>
-                                        <span class="qty">1</span>
-                                    <button class="qty-plus">+</button>
-                                </div>
-                            </div>
-                            <div class="Bag_Product_Delete_Button">
-
-                                <div class="Bag_Product_Delete_Button_container">
-                                    <a href="#" class="delete-btn">
-                                        <img src="\images\Layout\Popups\Bag\delete.png" alt="">
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-
-                    
-
-                </div>
-            <div class="Bottom_Space"></div>
+                }
+            </div>
         </div>
+
     </div>
 </div>

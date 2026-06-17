@@ -1,6 +1,7 @@
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 string credentialPath = Path.Combine(Directory.GetCurrentDirectory(), "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json");
 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialPath);
@@ -8,29 +9,36 @@ var builder = WebApplication.CreateBuilder(args);
 
 if (FirebaseApp.DefaultInstance == null)
 {
-    // 1. Force the app to parse the file into an object ONCE while the environment variable is still active
     var googleCred = GoogleCredential.GetApplicationDefault();
 
-    // 2. Give that parsed memory object to Firebase
     builder.Services.AddSingleton(FirebaseApp.Create(new AppOptions()
     {
         Credential = googleCred 
     }));
 
-    // 3. Give the EXACT SAME parsed memory object to Firestore
     builder.Services.AddSingleton(provider =>
     {
         var firestoreBuilder = new FirestoreDbBuilder
         {
             ProjectId = "haru-market",
-            Credential = googleCred // Zero obsolete warnings, and the connection can never drop!
+            Credential = googleCred
         };
 
         return firestoreBuilder.Build();
     });
 }
+
 // Add services to the container
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login"; // Fallback redirection path for unauthorized gates
+        options.ExpireTimeSpan = TimeSpan.FromDays(7); // Keeps the user logged in for a week
+        options.SlidingExpiration = true; // Refreshes the week-long timer automatically while active
+        options.Cookie.HttpOnly = true;
+    });
 
 // Add session support for storing user authentication state and data
 builder.Services.AddDistributedMemoryCache();
@@ -58,15 +66,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Enables the serving of css, js, and image files from the wwwroot folder
 app.UseStaticFiles(); 
 
 app.UseRouting();
 
 app.UseSession();
-
-app.UseAuthorization();
+app.UseAuthentication(); // Identifies WHO the user is
+app.UseAuthorization();  // Evaluates WHAT the user can access
 
 app.MapStaticAssets();
 

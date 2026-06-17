@@ -13,6 +13,11 @@ namespace haru.market.Services
             _firestoreDb = firestoreDb;
         }
         
+        public FirestoreDb GetFirestoreDbInstance()
+        {
+            return _firestoreDb;
+        }
+        
         public async Task<string> AddProductAsync(ProductViewModel product)
         {
             CollectionReference collection = _firestoreDb.Collection("products");
@@ -221,6 +226,39 @@ namespace haru.market.Services
             await doc.SetAsync(cartData);
         }
 
-        
+        public async Task<List<CartItemViewModel>> GetCartItemsAsync(string uid)
+        {
+            var cartList = new List<CartItemViewModel>();
+
+            try
+            {
+                CollectionReference cartRef = _firestoreDb.Collection("users").Document(uid).Collection("cart");
+                QuerySnapshot snapshot = await cartRef.GetSnapshotAsync();
+
+                foreach (DocumentSnapshot doc in snapshot.Documents)
+                {
+                    if (doc.Exists)
+                    {
+                        var data = doc.ToDictionary();
+
+                        cartList.Add(new CartItemViewModel
+                        {
+                            ProductId = doc.Id,
+                            ProductName = data.ContainsKey("productName") ? data["productName"]?.ToString() ?? "" : "Unknown Item",
+                            Price = data.ContainsKey("price") ? Convert.ToDecimal(data["price"]) : 0.00m,
+                            ImageUrl = data.ContainsKey("imageUrl") ? data["imageUrl"]?.ToString() ?? "placeholder.png" : "placeholder.png",
+                            Quantity = data.ContainsKey("quantity") ? Convert.ToInt32(data["quantity"]) : 1,
+                            Size = data.ContainsKey("description") && data["description"]?.ToString() is string desc && desc.Contains("Size:") ? desc.Replace("Size:", "").Trim() : "M"
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error retrieving Firestore cart data segments: {ex.Message}");
+            }
+
+            return cartList;
+        }
     }
 }

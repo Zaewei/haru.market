@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using haru.market.Models;
 using haru.market.Services;
 using Google.Cloud.Firestore;
@@ -20,47 +24,11 @@ namespace haru.market.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            try
-            {
-                await _authService.RegisterUserAsync(
-                    model.Email, 
-                    model.Password, 
-                    model.FullName, 
-                    model.ContactDetails, 
-                    model.DeliveryAddress
-                );
-
-                return RedirectToAction("Login", "Account");
-            }
-            catch (System.Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, $"Registration aborted: {ex.Message}");
-                return View(model);
-            }
-        }
-
-        // us 03 customer login - GET
-        [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
-        // us 03 customer login - POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
@@ -77,10 +45,28 @@ namespace haru.market.Controllers
                 if (!string.IsNullOrEmpty(userUid))
                 {
                     HttpContext.Session.SetString("UserUid", userUid);
-
                     string userRole = await _productService.GetUserRoleAsync(model.Email);
-
                     HttpContext.Session.SetString("UserRole", userRole);
+
+                    var identityClaims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, model.Email),
+                        new Claim(ClaimTypes.NameIdentifier, userUid),
+                        new Claim(ClaimTypes.Role, userRole)
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(identityClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var authenticationProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                    };
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authenticationProperties
+                    );
 
                     if (userRole == "Admin")
                     {

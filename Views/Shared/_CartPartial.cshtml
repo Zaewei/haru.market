@@ -1,0 +1,93 @@
+@model List<haru.market.Models.CartItemViewModel>
+
+@{
+    int totalItemsCount = Model.Sum(i => i.Quantity);
+    decimal itemsSubTotal = Model.Sum(i => i.Price * i.Quantity);
+    decimal shippingCost = itemsSubTotal > 0 ? 180.00m : 0.00m;
+    decimal discountValue = itemsSubTotal > 0 ? 50.00m : 0.00m;
+    decimal netTotalSummary = itemsSubTotal + shippingCost - discountValue;
+}
+
+<div id="haruCartOverlayWrapper" class="haru-cart-overlay" onclick="closeHaruCartBag()">
+    <div class="haru-cart-container" onclick="event.stopPropagation()">
+        
+        <div class="haru-bag-summary-sidebar">
+            <div class="summary-header-banner">
+                <h3>Bag Summary</h3>
+            </div>
+            <div class="summary-body-rows">
+                <div class="summary-data-line">
+                    <span class="row-label">Items</span>
+                    <span class="row-val">@totalItemsCount</span>
+                </div>
+                <div class="summary-data-line">
+                    <span class="row-label">Sub Total</span>
+                    <span class="row-val">₱@itemsSubTotal.ToString("N0")</span>
+                </div>
+                <div class="summary-data-line">
+                    <span class="row-label">Shipping</span>
+                    <span class="row-val">₱@shippingCost.ToString("N0")</span>
+                </div>
+                <div class="summary-data-line">
+                    <span class="row-label">Discount</span>
+                    <span class="row-val">-₱@discountValue.ToString("N0")</span>
+                </div>
+                <div class="summary-total-highlight-row">
+                    <span class="total-label">Total</span>
+                    <span class="total-val">₱@netTotalSummary.ToString("N0")</span>
+                </div>
+                
+                <button type="button" class="haru-checkout-btn" onclick="window.location.href='/Checkout'">
+                    Proceed To Checkout
+                </button>
+            </div>
+        </div>
+
+        <div class="haru-bag-items-display-panel">
+            <div class="panel-header-row">
+                <h2>My Bag</h2>
+                <button type="button" class="panel-close-x" onclick="closeHaruCartBag()">&times;</button>
+            </div>
+
+            <div class="panel-scroll-items-list">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <div class="haru-cart-item-card" data-id="@item.ProductId">
+                            <div class="item-img-frame">
+                                <img src="@item.ImageUrl" alt="@item.ProductName" />
+                            </div>
+                            <div class="item-details-metadata">
+                                <h4>@item.ProductName</h4>
+                                <p class="item-card-price">₱@item.Price.ToString("N0")</p>
+                                <span class="item-attribute-badge">Size: @item.Size</span>
+                                <span class="item-attribute-badge">Color: @item.Size</span>
+                            </div>
+                            <div class="item-interactivity-controls">
+                                <div class="item-qty-spinner">
+                                    <button type="button" class="qty-spin-btn" onclick="updateBagQuantity('@item.ProductId', -1)">&minus;</button>
+                                    <span class="qty-spin-value">@item.Quantity</span>
+                                    <button type="button" class="qty-spin-btn" onclick="updateBagQuantity('@item.ProductId', 1)">+</button>
+                                </div>
+                                <button type="button" class="item-trash-delete-btn" onclick="removeItemFromBag('@item.ProductId')" title="Remove item">
+                                    <svg viewBox="0 0 24 24" width="20" height="20">
+                                        <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="haru-empty-bag-placeholder">
+                        <p>Your shopping bag is empty.</p>
+                        <a href="/Home/Shop" class="continue-shopping-link">Continue Shopping</a>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
