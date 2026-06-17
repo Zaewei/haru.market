@@ -544,107 +544,88 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // ── Product Management Page ───────────────────────────────
+    // ── Product Management Page ───────────────────────────────────────────
     if (document.getElementById('productTableBody')) {
 
-        var pmNextId = 16;
-        var pmEditingId = null;
+        var pmNextId     = 16;
+        var pmEditingId  = null;
         var pmDeletingId = null;
 
-        function pmOpenModal(id) {
-            var el = document.getElementById(id);
-            if (el) el.style.display = 'flex';
-        }
-        function pmCloseModal(id) {
-            var el = document.getElementById(id);
-            if (el) el.style.display = 'none';
-        }
+        function pmOpenModal(id)  { var el = document.getElementById(id); if (el) el.style.display = 'flex'; }
+        function pmCloseModal(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; }
 
-        // ── Image upload ──
-        var pmUploadArea   = document.getElementById('imageUploadArea');
-        var pmFileInput    = document.getElementById('productImageFile');
-        var pmPreviewImg   = document.getElementById('previewImage');
-        var pmPlaceholder  = document.getElementById('imagePlaceholder');
-        var pmImageActions = document.getElementById('imageActions');
-
-        function pmShowPreview(src) {
-            pmPreviewImg.src                  = src;
-            pmPreviewImg.style.display        = 'block';
-            pmPlaceholder.style.display       = 'none';
-            pmImageActions.style.display      = 'flex';
-        }
-        function pmClearPreview() {
-            pmPreviewImg.src                  = '';
-            pmPreviewImg.style.display        = 'none';
-            pmPlaceholder.style.display       = 'flex';
-            pmImageActions.style.display      = 'none';
-            pmFileInput.value                 = '';
+        // ── Add Product button ──
+        var addProductBtn = document.getElementById('addProductBtn');
+        if (addProductBtn) {
+            addProductBtn.addEventListener('click', function () {
+                var m = document.getElementById('addProductModal');
+                if (m) m.style.display = 'flex';
+            });
         }
 
-        pmUploadArea.addEventListener('click', function (e) {
-            if (e.target.closest('#imageActions')) return;
-            pmFileInput.click();
-        });
-
-        pmFileInput.addEventListener('change', function () {
-            var file = pmFileInput.files[0];
-            if (!file) return;
-            var reader = new FileReader();
-            reader.onload = function (e) { pmShowPreview(e.target.result); };
-            reader.readAsDataURL(file);
-        });
-
-        document.getElementById('changeImageBtn').addEventListener('click', function (e) {
-            e.stopPropagation();
-            pmFileInput.click();
-        });
-        document.getElementById('removeImageBtn').addEventListener('click', function (e) {
-            e.stopPropagation();
-            pmClearPreview();
-        });
-
-        // ── Reset form ──
-        function pmResetForm() {
-            document.getElementById('productName').value  = '';
-            document.getElementById('productColor').value = '';
-            document.getElementById('productSize').value  = '';
-            document.getElementById('productPrice').value = '';
-            document.getElementById('productStock').value = '';
-            pmClearPreview();
-            pmEditingId = null;
-        }
-
-        // ── Open Add modal ──
-        document.getElementById('addProductBtn').addEventListener('click', function () {
-            pmResetForm();
-            document.getElementById('productModalTitle').textContent = 'Add Product';
-            document.getElementById('modalDeleteBtn').style.display = 'none';
-            document.getElementById('saveProductBtn').textContent = 'Save Product';
-            pmOpenModal('productModal');
-        });
-
-        // ── Close modals ──
-        document.getElementById('closeProductModal').addEventListener('click',       function () { pmCloseModal('productModal'); });
-        document.getElementById('cancelProductModal').addEventListener('click',      function () { pmCloseModal('productModal'); });
-        document.getElementById('modalDeleteBtn').addEventListener('click', function () {
-            if (!pmEditingId) return;
-            var row = document.querySelector('.pm-row[data-id="' + pmEditingId + '"]');
-            if (row) row.remove();
-            pmRender();
-            pmCloseModal('productModal');
-            pmEditingId = null;
-        });
-        document.getElementById('closeDeleteProductModal').addEventListener('click', function () { pmCloseModal('deleteProductModal'); });
-        document.getElementById('cancelDeleteProduct').addEventListener('click',     function () { pmCloseModal('deleteProductModal'); });
-
-        // Close on overlay click
+        // ── Close modals on overlay click or Escape ──
         document.querySelectorAll('.pm-modal-overlay').forEach(function (overlay) {
             overlay.addEventListener('click', function (e) {
                 if (e.target === overlay) overlay.style.display = 'none';
             });
         });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.pm-modal-overlay').forEach(function (o) { o.style.display = 'none'; });
+            }
+        });
 
-        // ── Edit / Delete (delegated) ──
+        // ── Add Product modal – image upload ──
+        var addUploadArea  = document.getElementById('addImageUploadArea');
+        var addFileInput   = document.getElementById('addProductImageFile');
+        var addPreviewImg  = document.getElementById('addPreviewImage');
+        var addPlaceholder = document.getElementById('addImagePlaceholder');
+        var addImageHidden = document.getElementById('addImageUrlHidden');
+
+        function addShowPreview(src) {
+            if (!addPreviewImg) return;
+            addPreviewImg.src = src; addPreviewImg.style.display = 'block';
+            if (addPlaceholder) addPlaceholder.style.display = 'none';
+            if (addImageHidden) addImageHidden.value = src;
+        }
+        function addClearPreview() {
+            if (!addPreviewImg) return;
+            addPreviewImg.src = ''; addPreviewImg.style.display = 'none';
+            if (addPlaceholder) addPlaceholder.style.display = 'flex';
+            if (addFileInput)   addFileInput.value = '';
+            if (addImageHidden) addImageHidden.value = '';
+        }
+        if (addUploadArea) {
+            addUploadArea.addEventListener('click', function () { if (addFileInput) addFileInput.click(); });
+            addUploadArea.addEventListener('dragover', function (e) { e.preventDefault(); addUploadArea.style.borderColor = '#c96a7f'; addUploadArea.style.background = '#fde8ed'; });
+            addUploadArea.addEventListener('dragleave', function () { addUploadArea.style.borderColor = ''; addUploadArea.style.background = ''; });
+            addUploadArea.addEventListener('drop', function (e) {
+                e.preventDefault(); addUploadArea.style.borderColor = ''; addUploadArea.style.background = '';
+                var file = e.dataTransfer.files[0]; if (!file) return;
+                var reader = new FileReader(); reader.onload = function (ev) { addShowPreview(ev.target.result); }; reader.readAsDataURL(file);
+            });
+        }
+        if (addFileInput) {
+            addFileInput.addEventListener('change', function () {
+                var file = addFileInput.files[0]; if (!file) return;
+                var reader = new FileReader(); reader.onload = function (e) { addShowPreview(e.target.result); }; reader.readAsDataURL(file);
+            });
+        }
+
+        // ── Delete modal buttons ──
+        var _closeDel  = document.getElementById('closeDeleteProductModal');
+        var _cancelDel = document.getElementById('cancelDeleteProduct');
+        var _confirmDel = document.getElementById('confirmDeleteProduct');
+        if (_closeDel)   _closeDel.addEventListener('click',   function () { pmCloseModal('deleteProductModal'); });
+        if (_cancelDel)  _cancelDel.addEventListener('click',  function () { pmCloseModal('deleteProductModal'); });
+        if (_confirmDel) _confirmDel.addEventListener('click', function () {
+            if (!pmDeletingId) return;
+            var row = document.querySelector('.pm-row[data-id="' + pmDeletingId + '"]');
+            if (row) row.remove();
+            pmRender(); pmCloseModal('deleteProductModal'); pmDeletingId = null;
+        });
+
+        // ── Edit / Delete delegated click ──
         document.addEventListener('click', function (e) {
             var btn = e.target.closest('[data-action]');
             if (!btn) return;
@@ -654,175 +635,399 @@ document.addEventListener('DOMContentLoaded', function () {
             if (action === 'pm-edit') {
                 var row = document.querySelector('.pm-row[data-id="' + id + '"]');
                 if (!row) return;
-                pmResetForm();
                 pmEditingId = id;
                 var cells = row.querySelectorAll('td');
+
                 var imgEl = cells[0].querySelector('img');
-                if (imgEl) pmShowPreview(imgEl.src);
-                document.getElementById('productName').value  = cells[1].querySelector('.pm-name').textContent.trim();
-                document.getElementById('productColor').value = cells[2].querySelector('.pm-meta').textContent.trim();
-                document.getElementById('productSize').value  = cells[3].querySelector('.pm-meta').textContent.trim();
-                document.getElementById('productPrice').value = cells[4].querySelector('.pm-price').textContent.replace('₱', '').trim();
-                document.getElementById('productStock').value = cells[5].querySelector('.pm-meta').textContent.trim();
-                document.getElementById('productModalTitle').textContent = 'Edit Product';
-                document.getElementById('modalDeleteBtn').style.display = 'inline-flex';
-                document.getElementById('saveProductBtn').textContent = 'Save Changes';
-                pmOpenModal('productModal');
+                // Seed carousel with the row's existing image (slot 0)
+                pmCarouselImages = [];
+                if (imgEl && imgEl.src && !imgEl.src.endsWith('/')) {
+                    pmCarouselImages.push(imgEl.src);
+                }
+                pmCarouselIndex = 0;
+                pmRenderCarousel();
+
+                var nameInp  = document.getElementById('pmEditName');
+                var priceInp = document.getElementById('pmEditPrice');
+                if (nameInp)  nameInp.value  = cells[1].querySelector('.pm-name').textContent.trim();
+                if (priceInp) priceInp.value = cells[4].querySelector('.pm-price').textContent.replace('\u20b1','').replace(/,/g,'').trim();
+
+                var colorVal = cells[2].querySelector('.pm-meta').textContent.trim().toLowerCase();
+                document.querySelectorAll('.pm-edit-color').forEach(function (c) {
+                    c.classList.toggle('pm-edit-color--active', !!(c.dataset.color && c.dataset.color.toLowerCase() === colorVal));
+                });
+
+                var stockVal = cells[5].querySelector('.pm-meta').textContent.trim();
+                ['S','M','L','XL','XXL'].forEach(function (s) { var el = document.getElementById('pmStock-' + s); if (el) el.textContent = stockVal; });
+
+                var panel = document.getElementById('pmEditPanel');
+                var table = document.getElementById('pmTableView');
+                if (panel) panel.style.display = 'block';
+                if (table) table.style.display = 'none';
             }
 
             if (action === 'pm-delete') {
                 pmDeletingId = id;
                 var row  = document.querySelector('.pm-row[data-id="' + id + '"]');
                 var name = row ? row.querySelector('.pm-name').textContent.trim() : 'this product';
-                document.getElementById('deleteProductName').textContent = name;
+                var nameEl = document.getElementById('deleteProductName');
+                if (nameEl) nameEl.textContent = name;
                 pmOpenModal('deleteProductModal');
             }
         });
 
-        // ── Save (Add or Edit) ──
-        document.getElementById('saveProductBtn').addEventListener('click', function () {
-            var name   = document.getElementById('productName').value.trim();
-            var color  = document.getElementById('productColor').value.trim();
-            var size   = document.getElementById('productSize').value;
-            var price  = document.getElementById('productPrice').value.trim();
-            var stock  = document.getElementById('productStock').value.trim();
-            var imgSrc = pmPreviewImg.style.display !== 'none' ? pmPreviewImg.src : '';
+        // ── Inline edit: Back ──
+        var pmBackBtn = document.getElementById('pmEditBackBtn');
+        if (pmBackBtn) {
+            pmBackBtn.addEventListener('click', function () {
+                var panel = document.getElementById('pmEditPanel');
+                var table = document.getElementById('pmTableView');
+                if (panel) panel.style.display = 'none';
+                if (table) table.style.display = '';
+                pmEditingId = null;
+            });
+        }
 
-            if (!name || !color || !size || !price || !stock) {
-                alert('Please fill in all fields.'); return;
-            }
-
-            if (pmEditingId) {
-                var row   = document.querySelector('.pm-row[data-id="' + pmEditingId + '"]');
-                if (row) {
-                    var cells = row.querySelectorAll('td');
-                    pmUpdateThumbCell(cells[0], imgSrc);
-                    cells[1].querySelector('.pm-name').textContent  = name;
-                    cells[2].querySelector('.pm-meta').textContent  = color;
-                    cells[3].querySelector('.pm-meta').textContent  = size;
-                    cells[4].querySelector('.pm-price').textContent = '₱' + price;
-                    cells[5].querySelector('.pm-meta').textContent  = stock;
-                }
-            } else {
-                var newId  = pmNextId++;
-                var tbody  = document.getElementById('productTableBody');
-                var tr     = document.createElement('tr');
-                tr.className = 'pm-row';
-                tr.setAttribute('data-id', newId);
-                tr.innerHTML = pmBuildRowHTML(newId, imgSrc, name, color, size, price, stock);
-                tbody.appendChild(tr);
+        // ── Inline edit: Save Changes ──
+        var pmEditSaveBtn = document.getElementById('pmEditSaveBtn');
+        if (pmEditSaveBtn) {
+            pmEditSaveBtn.addEventListener('click', function () {
+                if (!pmEditingId) return;
+                var row = document.querySelector('.pm-row[data-id="' + pmEditingId + '"]');
+                if (!row) return;
+                var cells    = row.querySelectorAll('td');
+                var newName  = document.getElementById('pmEditName').value.trim();
+                var newPrice = document.getElementById('pmEditPrice').value.trim();
+                var activeColorEl = document.querySelector('.pm-edit-color--active');
+                var newColor = activeColorEl ? activeColorEl.dataset.color : '';
+                var stockEl  = document.getElementById('pmStock-S');
+                var newStock = stockEl ? stockEl.textContent : '';
+                if (newName)  cells[1].querySelector('.pm-name').textContent  = newName;
+                if (newColor) cells[2].querySelector('.pm-meta').textContent  = newColor;
+                if (newPrice) cells[4].querySelector('.pm-price').textContent = '\u20b1' + parseInt(newPrice).toLocaleString();
+                if (newStock) cells[5].querySelector('.pm-meta').textContent  = newStock;
+                if (pmCarouselImages.length > 0) pmUpdateThumbCell(cells[0], pmCarouselImages[0]);
+                var panel = document.getElementById('pmEditPanel');
+                var table = document.getElementById('pmTableView');
+                if (panel) panel.style.display = 'none';
+                if (table) table.style.display = '';
+                pmEditingId = null;
                 pmRender();
+            });
+        }
+
+        // ── Inline edit: stock +/- ──
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('.pm-stock-btn');
+            if (!btn) return;
+            var el = document.getElementById('pmStock-' + btn.dataset.size);
+            if (!el) return;
+            var val = parseInt(el.textContent) + parseInt(btn.dataset.dir);
+            el.textContent = Math.max(0, val);
+        });
+
+        // ── Inline edit: color swatches (delegated so new ones work too) ──
+        var pmColorsContainer = document.querySelector('.pm-edit-colors');
+        if (pmColorsContainer) {
+            pmColorsContainer.addEventListener('click', function (e) {
+                var swatch = e.target.closest('.pm-edit-color');
+                if (!swatch) return;
+                pmColorsContainer.querySelectorAll('.pm-edit-color').forEach(function (x) {
+                    x.classList.remove('pm-edit-color--active');
+                });
+                swatch.classList.add('pm-edit-color--active');
+            });
+        }
+
+        // ── Inline edit: add a new color swatch ──
+        var pmAddColorBtn = document.querySelector('.pm-edit-color-add');
+        var pmColorPickerInput = document.getElementById('pmColorPickerInput');
+        var pmColorConfirmPopover = document.getElementById('pmColorConfirmPopover');
+        var pmColorPreviewDot = document.getElementById('pmColorPreviewDot');
+        var pmColorPreviewHex = document.getElementById('pmColorPreviewHex');
+
+        if (pmAddColorBtn && pmColorPickerInput && pmColorConfirmPopover) {
+            pmAddColorBtn.addEventListener('click', function () {
+                pmColorPickerInput.click();
+            });
+
+            // While picking, just update the live preview — do NOT add the swatch yet
+            pmColorPickerInput.addEventListener('input', function () {
+                var hex = this.value;
+                pmColorPreviewDot.style.background = hex;
+                pmColorPreviewHex.textContent = hex;
+                pmColorConfirmPopover.style.display = 'flex';
+            });
+
+            // Confirm: actually add the swatch
+            document.getElementById('pmColorConfirmBtn').addEventListener('click', function () {
+                var hex = pmColorPickerInput.value;
+                var swatch = document.createElement('div');
+                swatch.className = 'pm-edit-color pm-edit-color--custom';
+                swatch.style.background = hex;
+                swatch.style.borderColor = hex;
+                swatch.dataset.color = hex;
+                swatch.title = hex;
+                swatch.innerHTML = '<span class="pm-color-remove-x" data-action="pm-color-remove">&times;</span>';
+                pmColorsContainer.insertBefore(swatch, pmAddColorBtn);
+                pmColorsContainer.querySelectorAll('.pm-edit-color').forEach(function (x) {
+                    x.classList.remove('pm-edit-color--active');
+                });
+                swatch.classList.add('pm-edit-color--active');
+                pmColorConfirmPopover.style.display = 'none';
+            });
+
+            // Cancel: discard, no swatch added
+            document.getElementById('pmColorCancelBtn').addEventListener('click', function () {
+                pmColorConfirmPopover.style.display = 'none';
+            });
+        }
+
+        // ── Inline edit: remove a color (with confirmation) ──
+        var pmColorRemoveConfirmPopover = document.getElementById('pmColorRemoveConfirmPopover');
+        var pmColorRemoveConfirmBtn     = document.getElementById('pmColorRemoveConfirmBtn');
+        var pmColorRemoveCancelBtn      = document.getElementById('pmColorRemoveCancelBtn');
+        var pmSwatchPendingRemoval      = null;
+
+        if (pmColorsContainer && pmColorRemoveConfirmPopover) {
+            pmColorsContainer.addEventListener('click', function (e) {
+                var xBtn = e.target.closest('.pm-color-remove-x');
+                if (!xBtn) return;
+                e.stopPropagation(); // don't also trigger swatch selection
+                pmSwatchPendingRemoval = xBtn.closest('.pm-edit-color');
+                pmColorRemoveConfirmPopover.style.display = 'flex';
+            });
+
+            pmColorRemoveConfirmBtn.addEventListener('click', function () {
+                if (pmSwatchPendingRemoval) {
+                    pmSwatchPendingRemoval.remove();
+                    pmSwatchPendingRemoval = null;
+                }
+                pmColorRemoveConfirmPopover.style.display = 'none';
+            });
+
+            pmColorRemoveCancelBtn.addEventListener('click', function () {
+                pmSwatchPendingRemoval = null;
+                pmColorRemoveConfirmPopover.style.display = 'none';
+            });
+        }
+
+        // ── Carousel state ──
+        var pmCarouselImages = []; // array of image src strings
+        var pmCarouselIndex  = 0;
+
+        function pmRenderCarousel() {
+            var mainImg  = document.getElementById('pmEditMainImg');
+            var mainPH   = document.getElementById('pmEditMainPlaceholder');
+            var prevBtn  = document.getElementById('pmCarouselPrev');
+            var nextBtn  = document.getElementById('pmCarouselNext');
+            var dotsEl   = document.getElementById('pmCarouselDots');
+            var thumbsEl = document.getElementById('pmEditThumbs');
+            var addBtn   = document.getElementById('pmThumbAddBtn');
+
+            var imgs = pmCarouselImages;
+            var idx  = pmCarouselIndex;
+
+            // Main viewer
+            if (imgs.length > 0) {
+                if (mainImg) { mainImg.src = imgs[idx]; mainImg.style.display = 'block'; }
+                if (mainPH)  mainPH.style.display = 'none';
+            } else {
+                if (mainImg) { mainImg.src = ''; mainImg.style.display = 'none'; }
+                if (mainPH)  mainPH.style.display = 'flex';
             }
-            pmCloseModal('productModal');
+
+            // Arrows
+            if (prevBtn) prevBtn.disabled = (imgs.length <= 1);
+            if (nextBtn) nextBtn.disabled = (imgs.length <= 1);
+
+            // Dots
+            if (dotsEl) {
+                dotsEl.innerHTML = '';
+                imgs.forEach(function(_, i) {
+                    var d = document.createElement('span');
+                    d.className = 'pm-carousel-dot' + (i === idx ? ' pm-carousel-dot--active' : '');
+                    (function(dotIdx) {
+                        d.addEventListener('click', function() { pmCarouselIndex = dotIdx; pmRenderCarousel(); });
+                    })(i);
+                    dotsEl.appendChild(d);
+                });
+            }
+
+            // Remove Photo button visibility
+            var removePhotoBtn = document.getElementById('pmRemovePhotoBtn');
+            if (removePhotoBtn) {
+                removePhotoBtn.style.display = 'inline-flex';
+                removePhotoBtn.disabled = imgs.length === 0;
+            }
+
+            // Thumbnail strip
+            if (thumbsEl) {
+                Array.from(thumbsEl.querySelectorAll('.pm-edit-thumb:not(.pm-edit-thumb--add)')).forEach(function(el) { el.remove(); });
+                imgs.forEach(function(src, i) {
+                    var thumb = document.createElement('div');
+                    thumb.className = 'pm-edit-thumb' + (i === idx ? ' pm-edit-thumb--active' : '');
+                    thumb.draggable = true;
+                    thumb.dataset.index = i;
+
+                    var img = document.createElement('img');
+                    img.src = src;
+                    thumb.appendChild(img);
+
+                    // Click to set active
+                    (function(clickIdx) {
+                        thumb.addEventListener('click', function() {
+                            pmCarouselIndex = clickIdx;
+                            pmRenderCarousel();
+                        });
+                    })(i);
+
+                    // Drag-and-drop
+                    thumb.addEventListener('dragstart', function(e) {
+                        e.dataTransfer.setData('text/plain', this.dataset.index);
+                        this.classList.add('pm-edit-thumb--dragging');
+                    });
+                    thumb.addEventListener('dragend', function() {
+                        this.classList.remove('pm-edit-thumb--dragging');
+                        if (thumbsEl) thumbsEl.querySelectorAll('.pm-edit-thumb').forEach(function(t) { t.classList.remove('pm-edit-thumb--dragover'); });
+                    });
+                    thumb.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        if (thumbsEl) thumbsEl.querySelectorAll('.pm-edit-thumb').forEach(function(t) { t.classList.remove('pm-edit-thumb--dragover'); });
+                        this.classList.add('pm-edit-thumb--dragover');
+                    });
+                    thumb.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        var fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                        var toIdx   = parseInt(this.dataset.index);
+                        if (fromIdx === toIdx || isNaN(fromIdx) || isNaN(toIdx)) return;
+                        var moved = pmCarouselImages.splice(fromIdx, 1)[0];
+                        pmCarouselImages.splice(toIdx, 0, moved);
+                        pmCarouselIndex = toIdx;
+                        pmRenderCarousel();
+                    });
+
+                    if (addBtn) thumbsEl.insertBefore(thumb, addBtn);
+                    else thumbsEl.appendChild(thumb);
+                });
+            }
+        }
+
+        // Arrow navigation
+        var pmPrevBtn = document.getElementById('pmCarouselPrev');
+        var pmNextBtn = document.getElementById('pmCarouselNext');
+        if (pmPrevBtn) pmPrevBtn.addEventListener('click', function() {
+            if (pmCarouselImages.length <= 1) return;
+            pmCarouselIndex = (pmCarouselIndex - 1 + pmCarouselImages.length) % pmCarouselImages.length;
+            pmRenderCarousel();
+        });
+        if (pmNextBtn) pmNextBtn.addEventListener('click', function() {
+            if (pmCarouselImages.length <= 1) return;
+            pmCarouselIndex = (pmCarouselIndex + 1) % pmCarouselImages.length;
+            pmRenderCarousel();
         });
 
-        // ── Confirm Delete ──
-        document.getElementById('confirmDeleteProduct').addEventListener('click', function () {
-            if (!pmDeletingId) return;
-            var row = document.querySelector('.pm-row[data-id="' + pmDeletingId + '"]');
-            if (row) row.remove();
-            pmRender();
-            pmCloseModal('deleteProductModal');
-            pmDeletingId = null;
-        });
+        // Remove current photo
+        var pmRemovePhotoBtn = document.getElementById('pmRemovePhotoBtn');
+        if (pmRemovePhotoBtn) {
+            pmRemovePhotoBtn.addEventListener('click', function() {
+                if (!pmCarouselImages.length) return;
+                pmCarouselImages.splice(pmCarouselIndex, 1);
+                if (pmCarouselIndex >= pmCarouselImages.length) pmCarouselIndex = Math.max(0, pmCarouselImages.length - 1);
+                pmRenderCarousel();
+            });
+        }
 
-        // ── Pagination ──
+        // ── Inline edit: image upload (multi-file) ──
+        var pmEditImageFile = document.getElementById('pmEditImageFile');
+        if (pmEditImageFile) {
+            pmEditImageFile.addEventListener('change', function () {
+                var files = Array.from(this.files);
+                if (!files.length) return;
+                var loaded = 0;
+                files.forEach(function(file) {
+                    var reader = new FileReader();
+                    reader.onload = function(ev) {
+                        pmCarouselImages.push(ev.target.result);
+                        loaded++;
+                        if (loaded === files.length) {
+                            pmCarouselIndex = pmCarouselImages.length - files.length;
+                            pmRenderCarousel();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+                pmEditImageFile.value = '';
+            });
+        }
+
+
+                // ── Pagination ──
         var pmCurrentPage = 1;
-        var pmPerPage     = 5;
+        var pmPerPage = 5;
 
-        function pmGetAllRows() {
-            return Array.from(document.querySelectorAll('#productTableBody .pm-row'));
-        }
-
-        function pmTotalPages() {
-            return Math.max(1, Math.ceil(pmGetAllRows().length / pmPerPage));
-        }
+        function pmGetAllRows() { return Array.from(document.querySelectorAll('#productTableBody .pm-row')); }
 
         function pmRender() {
             var rows  = pmGetAllRows();
             var total = Math.max(1, Math.ceil(rows.length / pmPerPage));
             if (pmCurrentPage > total) pmCurrentPage = total;
+            rows.forEach(function (r, i) { r.style.display = (Math.floor(i / pmPerPage) + 1 === pmCurrentPage) ? '' : 'none'; });
 
-            // Show/hide rows
-            rows.forEach(function (row, i) {
-                var page = Math.floor(i / pmPerPage) + 1;
-                row.style.display = (page === pmCurrentPage) ? '' : 'none';
-            });
-
-            // Rebuild pagination bar
             var bar = document.getElementById('pmPaginationBar');
             if (!bar) return;
             bar.innerHTML = '';
 
-            // Previous
             var prev = document.createElement('button');
-            prev.className   = 'pm-page-btn';
-            prev.textContent = 'Previous';
-            prev.disabled    = pmCurrentPage === 1;
+            prev.className = 'pm-page-btn'; prev.textContent = 'Previous'; prev.disabled = (pmCurrentPage === 1);
             prev.addEventListener('click', function () { pmGoTo(pmCurrentPage - 1); });
             bar.appendChild(prev);
 
-            // Page numbers
             for (var p = 1; p <= total; p++) {
-                (function(page) {
+                (function (page) {
                     var btn = document.createElement('button');
-                    btn.className   = 'pm-page-num' + (page === pmCurrentPage ? ' active' : '');
+                    btn.className = 'pm-page-num' + (page === pmCurrentPage ? ' active' : '');
                     btn.textContent = page;
                     btn.addEventListener('click', function () { pmGoTo(page); });
                     bar.appendChild(btn);
                 })(p);
             }
 
-            // Next
             var next = document.createElement('button');
-            next.className   = 'pm-page-btn';
-            next.textContent = 'Next';
-            next.disabled    = pmCurrentPage === total;
+            next.className = 'pm-page-btn'; next.textContent = 'Next'; next.disabled = (pmCurrentPage === total);
             next.addEventListener('click', function () { pmGoTo(pmCurrentPage + 1); });
             bar.appendChild(next);
         }
 
         function pmGoTo(page) {
-            var total = pmTotalPages();
-            pmCurrentPage = Math.max(1, Math.min(page, total));
+            pmCurrentPage = Math.max(1, Math.min(page, Math.max(1, Math.ceil(pmGetAllRows().length / pmPerPage))));
             pmRender();
         }
 
         pmRender();
 
         function pmBuildRowHTML(id, imgSrc, name, color, size, price, stock) {
-            var thumbHTML = imgSrc
-                ? '<img src="' + imgSrc + '" class="pm-thumb" alt="' + name + '" />'
-                : '<div class="pm-thumb pm-thumb-placeholder"><span style="color:#b8929f;font-size:0.6rem;font-family:\'Times New Roman\',serif;">IMG</span></div>';
-            return '<td><div class="pm-thumb-wrap">' + thumbHTML + '</div></td>'
+            var thumb = imgSrc ? '<img src="' + imgSrc + '" class="pm-thumb" alt="' + name + '" />' : '<div class="pm-thumb pm-thumb-placeholder">No Image</div>';
+            return '<td><div class="pm-thumb-wrap">' + thumb + '</div></td>'
                 + '<td><span class="pm-name">' + name + '</span></td>'
                 + '<td><span class="pm-meta">' + color + '</span></td>'
                 + '<td><span class="pm-meta">' + size + '</span></td>'
-                + '<td><span class="pm-price">₱' + price + '</span></td>'
+                + '<td><span class="pm-price">\u20b1' + price + '</span></td>'
                 + '<td><span class="pm-meta">' + stock + '</span></td>'
-                + '<td class="pm-actions">'
+                + '<td class="pm-actions pm-actions--stack">'
                 + '<button class="btn-edit" data-action="pm-edit" data-id="' + id + '">Edit</button>'
+                + '<button class="btn-delete" data-action="pm-delete" data-id="' + id + '">Delete</button>'
                 + '</td>';
         }
 
         function pmUpdateThumbCell(cell, imgSrc) {
-            var wrap = cell.querySelector('.pm-thumb-wrap');
-            if (!wrap) return;
-            if (imgSrc) {
-                var existing = wrap.querySelector('img.pm-thumb');
-                if (existing) {
-                    existing.src = imgSrc;
-                } else {
-                    wrap.innerHTML = '<img src="' + imgSrc + '" class="pm-thumb" alt="" />';
-                }
-            } else {
-                // Image was removed — show placeholder
-                wrap.innerHTML = '<div class="pm-thumb pm-thumb-placeholder"><span style="color:#b8929f;font-size:0.6rem;">IMG</span></div>';
-            }
+            var wrap = cell ? cell.querySelector('.pm-thumb-wrap') : null; if (!wrap) return;
+            if (imgSrc) { var ex = wrap.querySelector('img'); if (ex) ex.src = imgSrc; else wrap.innerHTML = '<img src="' + imgSrc + '" class="pm-thumb" alt="" />'; }
+            else wrap.innerHTML = '<div class="pm-thumb pm-thumb-placeholder">No Image</div>';
         }
 
     }
-    // ── End Product Management ────────────────────────────────
+    // ── End Product Management ────────────────────────────────────
 
     // ── Shared order data (used by Orders page AND Users page) ──
     var allOrders = window.allOrders || [];
@@ -1103,16 +1308,29 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Users Page ────────────────────────────────────────────
     if (document.getElementById('usersBody')) {
 
-        var allUsers = window.allUsers || [];
+        var allUsers = [
+            { id: 'harumarket001', name: 'Chini Drew Ante', email: 'chinidrewante@gmail.com', phone: '09123456789', address: 'Kl. Kemang Raya No. 20, Jakarta Selatan 12390, Indonesia', joined: 'May 23, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 15, 2026', orders: 10, lookbooks: 5, products: 5, spent: '₱1,350', wishlist: 15 },
+            { id: 'harumarket002', name: 'Ana Cruz',         email: 'anacruz@gmail.com',       phone: '09187654321', address: '456 Rizal Ave, Manila',                                   joined: 'May 20, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Apr 10, 2026', orders: 3,  lookbooks: 2, products: 3, spent: '₱1,980', wishlist: 4  },
+            { id: 'harumarket003', name: 'Marco Reyes',      email: 'marcoreyes@gmail.com',    phone: '09111222333', address: '789 Bonifacio St, Davao',                                 joined: 'May 19, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 1, 2026',  orders: 7,  lookbooks: 8, products: 7, spent: '₱4,200', wishlist: 9  },
+            { id: 'harumarket004', name: 'Lea Santos',       email: 'leasantos@gmail.com',     phone: '09222333444', address: '321 Luna St, Iloilo',                                    joined: 'May 18, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Mar 5, 2026',  orders: 1,  lookbooks: 1, products: 1, spent: '₱550',   wishlist: 2  },
+            { id: 'harumarket005', name: 'Rico Dela Cruz',   email: 'ricodc@gmail.com',        phone: '09333444555', address: '55 Magsaysay Blvd, Quezon City',                         joined: 'May 15, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'May 10, 2026', orders: 5,  lookbooks: 3, products: 5, spent: '₱2,750', wishlist: 7  },
+            { id: 'harumarket006', name: 'Sofia Lim',        email: 'sofialim@gmail.com',      phone: '09444555666', address: '12 Kalayaan Ave, Makati',                                joined: 'May 12, 2026', lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'Apr 20, 2026', orders: 4,  lookbooks: 6, products: 4, spent: '₱2,100', wishlist: 11 },
+            { id: 'harumarket007', name: 'Ben Torres',       email: 'bentorres@gmail.com',     phone: '09555666777', address: '8 Sampaguita St, Cebu City',                             joined: 'May 10, 2026', lastActive: 'Today, 10:30 AM', role: 'admin',    status: 'active',   pwChange: 'May 5, 2026',  orders: 12, lookbooks: 4, products: 12, spent: '₱6,800', wishlist: 6  },
+            { id: 'harumarket008', name: 'Nina Flores',      email: 'ninaflores@gmail.com',    phone: '09666777888', address: '3 Pampanga Rd, Angeles City',                            joined: 'May 8, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'inactive', pwChange: 'Feb 14, 2026', orders: 2,  lookbooks: 0, products: 2, spent: '₱900',   wishlist: 3  },
+            { id: 'harumarket009', name: 'Carl Mendoza',     email: 'carlm@gmail.com',         phone: '09777888999', address: '77 Mayon St, Naga City',                                 joined: 'May 5, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'May 3, 2026',  orders: 6,  lookbooks: 2, products: 5, spent: '₱3,300', wishlist: 8  },
+            { id: 'harumarket010', name: 'Dana Reyes',       email: 'danareyes@gmail.com',     phone: '09888999000', address: '101 Sunset Blvd, Batangas',                              joined: 'May 1, 2026',  lastActive: 'Today, 10:30 AM', role: 'customer', status: 'active',   pwChange: 'Apr 28, 2026', orders: 8,  lookbooks: 7, products: 8, spent: '₱4,500', wishlist: 14 },
+        ];
 
         var usrPageSize    = 10;
         var usrCurrentPage = 1;
 
+        // ── Update user stat cards from allUsers data ──
         function usrUpdateStats() {
             var total    = allUsers.length;
             var active   = allUsers.filter(function(u) { return u.status === 'active'; }).length;
             var inactive = allUsers.filter(function(u) { return u.status === 'inactive'; }).length;
 
+            // "New this month" = joined in the same month/year as the most recent join date
             var months = allUsers.map(function(u) { return u.joined; }).sort().reverse();
             var latestMonth = months.length ? months[0].split(' ').slice(0,2).join(' ') : '';
             var newThisMonth = allUsers.filter(function(u) {
@@ -1209,6 +1427,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // intentionally empty — handled by delegated listener below
         }
 
+        // Delegated click for View buttons — runs once, always works
         document.addEventListener('click', function(e) {
             var viewBtn = e.target.closest('.btn-usr-view');
             if (viewBtn) {
@@ -1218,33 +1437,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // ── User Detail Panel ─────────────────────────────────
-       function usrOpenDetail(idx) {
-            var u = allUsers[idx]; //
-
-            var userOrders = allOrders.filter(function(o) { 
-                return o.email && u.email && o.email.toLowerCase() === u.email.toLowerCase(); 
-            });
-
-            var totalSpentVal = userOrders.reduce(function(sum, o) {
-                var n = parseFloat(String(o.total).replace(/[^0-9.]/g, '')) || 0;
-                return sum + n;
-            }, 0);
-
-            document.getElementById('detailName').textContent       = u.name; //
-            document.getElementById('detailEmail').textContent      = u.email; //
-            document.getElementById('detailPhone').textContent      = u.phone; //
-            document.getElementById('detailAddress').textContent    = u.address; //
-            document.getElementById('detailJoined').textContent     = 'Joined on ' + u.joined; //
-            document.getElementById('detailUserId').textContent     = u.id; //
-            document.getElementById('detailRole').textContent       = u.role.charAt(0).toUpperCase() + u.role.slice(1); //
-            document.getElementById('detailLastActive').textContent = u.lastActive; //
-            document.getElementById('detailPwChange').textContent   = u.pwChange; //
-            document.getElementById('detailOrders').textContent     = userOrders.length;
-            document.getElementById('detailSpent').textContent      = '\u20b1' + totalSpentVal.toLocaleString();
-            
-            document.getElementById('detailLookbooks').textContent  = u.lookbooks; //
-            document.getElementById('detailProducts').textContent   = u.products; //
-            document.getElementById('detailWishlist').textContent   = u.wishlist; //
+        function usrOpenDetail(idx) {
+            var u = allUsers[idx];
+            // populate fields
+            document.getElementById('detailName').textContent       = u.name;
+            document.getElementById('detailEmail').textContent      = u.email;
+            document.getElementById('detailPhone').textContent      = u.phone;
+            document.getElementById('detailAddress').textContent    = u.address;
+            document.getElementById('detailJoined').textContent     = 'Joined on ' + u.joined;
+            document.getElementById('detailUserId').textContent     = u.id;
+            document.getElementById('detailRole').textContent       = u.role.charAt(0).toUpperCase() + u.role.slice(1);
+            document.getElementById('detailLastActive').textContent = u.lastActive;
+            document.getElementById('detailPwChange').textContent   = u.pwChange;
+            document.getElementById('detailOrders').textContent     = u.orders;
+            document.getElementById('detailLookbooks').textContent  = u.lookbooks;
+            document.getElementById('detailProducts').textContent   = u.products;
+            document.getElementById('detailSpent').textContent      = u.spent;
+            document.getElementById('detailWishlist').textContent   = u.wishlist;
 
             // status badge
             var statusBadge = document.getElementById('detailStatus');
@@ -1257,9 +1466,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 : '<span class="usr-badge usr-badge--inactive">Inactive</span>';
 
             // past orders — built from allOrders filtered by this user's name
-            var userOrders = allOrders.filter(function(o) { 
-                return o.email && u.email && o.email.toLowerCase() === u.email.toLowerCase(); 
-            });
+            var userOrders = allOrders.filter(function(o) { return o.name === u.name; });
             var list = document.getElementById('detailOrdersList');
             if (userOrders.length === 0) {
                 list.innerHTML = '<p style="font-family:\'Poppins\',sans-serif;font-size:0.85rem;color:#b8929f;padding:1rem 0;">No orders found for this user.</p>';
@@ -1286,6 +1493,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     '</div>';
                 }).join('');
 
+                // Wire up each View Order button to open the order view modal
                 list.querySelectorAll('.usr-btn-view-order').forEach(function(btn) {
                     btn.addEventListener('click', function() {
                         var idx = parseInt(this.getAttribute('data-ord-idx'));
@@ -1323,6 +1531,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('closeDetailBtn').addEventListener('click', usrCloseDetail);
         document.getElementById('goBackBtn').addEventListener('click', usrCloseDetail);
 
+        // Close the order view modal
         function usrCloseOrderModal() {
             var modal = document.getElementById('usrOrderViewModal');
             if (modal) modal.classList.remove('ord-modal-overlay--open');
@@ -1346,16 +1555,19 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Dashboard Page ────────────────────────────────────────
     if (document.getElementById('dashProducts') || document.getElementById('dashLookbooks')) {
         function dashUpdate() {
+            // Products: count rows in productTableBody if on same page, else use stored count
             var productRows = document.querySelectorAll('#productTableBody .pm-row');
             var productCount = productRows.length > 0
                 ? productRows.length
                 : parseInt(sessionStorage.getItem('haruProductCount') || '0');
 
+            // Lookbooks: count list items if present
             var lookbookItems = document.querySelectorAll('.lb-list-item');
             var lookbookCount = lookbookItems.length > 0
                 ? lookbookItems.length
                 : parseInt(sessionStorage.getItem('haruLookbookCount') || '0');
 
+            // Users: count user rows if present
             var userRows = document.querySelectorAll('.users-table-row');
             var userCount = userRows.length > 0
                 ? userRows.length
