@@ -34,7 +34,6 @@
     width: 12.5% !important; 
     height: 100% !important;
     background-size: cover;
-    /* 🚀 ADJUSTED: Shifts the image crop down to keep faces/heads in frame */
     background-position: center 20%; 
     background-repeat: no-repeat;
 }
