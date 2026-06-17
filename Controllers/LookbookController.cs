@@ -21,7 +21,8 @@ namespace haru.market.Controllers
         {
             var lookbooks = await _lookbookService.GetAllLookbooksAsync();
 
-            ViewBag.HeroBannerUrl = await _lookbookService.GetShuffledHeroBannersAsync();
+            // 🚀 FIXED: Changed to plural 'HeroBannerUrls' to match what your Index and Lookbook views loop through!
+            ViewBag.HeroBannerUrls = await _lookbookService.GetShuffledHeroBannersAsync();
             
             return View(lookbooks);
         }

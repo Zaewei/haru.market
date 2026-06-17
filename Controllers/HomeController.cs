@@ -28,7 +28,6 @@ namespace haru.market.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // 🚀 Change this to pass the entire collection of randomized slide links
             ViewBag.HeroBannerUrls = await _lookbookService.GetShuffledHeroBannersAsync();
 
             var lookbooks = await _lookbookService.GetAllLookbooksAsync();
@@ -51,12 +50,15 @@ namespace haru.market.Controllers
         }
 
         // gets home/lookbook
+        [HttpGet]
         public async Task<IActionResult> Lookbook()
         {
             ViewBag.HeroBannerUrls = await _lookbookService.GetShuffledHeroBannersAsync();
-
-            var activeLookbooks = await _lookbookService.GetAllLookbooksAsync();
-            return View(activeLookbooks);
+            
+            var lookbooks = await _lookbookService.GetAllLookbooksAsync();
+            var ordered = lookbooks.OrderByDescending(l => l.IsFeatured).ToList();
+            
+            return View(ordered);
         }
     }
 }

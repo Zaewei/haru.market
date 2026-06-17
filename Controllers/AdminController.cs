@@ -73,13 +73,79 @@ namespace haru.market.Controllers
             return View(liveOrders);
         }
 
-        [HttpGet]
-        public IActionResult Lookbooks()
+       [HttpGet]
+        public async Task<IActionResult> Lookbooks()
         {
-            return View();
+            var lookbooks = await _lookbookService.GetAllLookbooksAsync();
+            var ordered = lookbooks.OrderByDescending(l => l.IsFeatured).ToList();
+            return View(ordered);
         }
 
-       
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetFeatured(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return Json(new { success = false, message = "Invalid campaign tracking entry identification identifier." });
+            }
+
+            try
+            {
+                await _lookbookService.SetFeaturedLookbookAsync(id);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadLookbook(LookbookViewModel lookbook)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Please check all fields and fill them out correctly." });
+            }
+
+            try
+            {
+                string newId = await _lookbookService.AddLookbookAsync(lookbook);
+                return Json(new { 
+                    success = true, 
+                    id = newId, 
+                    themeTitle = lookbook.ThemeTitle, 
+                    description = lookbook.Description, 
+                    mediaUrl = lookbook.MediaUrl 
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteLookbook(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return Json(new { success = false, message = "Invalid campaign tracking entry identification identifier." });
+            }
+
+            try
+            {
+                await _lookbookService.DeleteLookbookAsync(id);
+                return Json(new { success = true });
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> Users()
         {

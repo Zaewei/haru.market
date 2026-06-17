@@ -21,5 +21,7 @@ namespace haru.market.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public int Views { get; set; }
+
+        public bool IsFeatured { get; set; }
     }
 }

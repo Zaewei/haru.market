@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
 using haru.market.Models;
+using System.Linq;
 
 namespace haru.market.Services
 {
-    // us 12 lookbook service
     public class LookbookService
     {
         private readonly FirestoreDb _firestoreDb;
@@ -26,8 +26,6 @@ namespace haru.market.Services
                 Credential = credential
             }.Build();
         }
-
-        // writing into the lookbook collection
         public async Task<string> AddLookbookAsync(LookbookViewModel lookbook)
         {
             CollectionReference collection = _firestoreDb.Collection("lookbooks");
@@ -36,62 +34,56 @@ namespace haru.market.Services
             {
                 { "themeTitle", lookbook.ThemeTitle },
                 { "description", lookbook.Description },
-                { "mediaUrl", lookbook.MediaUrl },
-                { "createdAt", Timestamp.FromDateTime(DateTime.UtcNow) }
+                { "views", 0 },
+                { "createdAt", Timestamp.FromDateTime(DateTime.UtcNow) },
+                { "mediaUrl", lookbook.MediaUrl ?? "" },
+                { "mediaUrls", new List<string> { lookbook.MediaUrl ?? "" } },
+                { "isFeatured", false }
             };
 
             DocumentReference docRef = await collection.AddAsync(lookbookData);
             return docRef.Id;
         }
 
-        // retrieving the lookbooks
         public async Task<List<LookbookViewModel>> GetAllLookbooksAsync()
-{
-    var lookbooksList = new List<LookbookViewModel>();
-    CollectionReference collection = _firestoreDb.Collection("lookbooks");
-    QuerySnapshot snapshot = await collection.GetSnapshotAsync();
-
-    foreach (DocumentSnapshot document in snapshot.Documents)
-    {
-        if (document.Exists)
         {
-            Dictionary<string, object> data = document.ToDictionary();
+            var lookbooksList = new List<LookbookViewModel>();
+            CollectionReference collection = _firestoreDb.Collection("lookbooks");
+            QuerySnapshot snapshot = await collection.GetSnapshotAsync();
 
-            lookbooksList.Add(new LookbookViewModel
+            foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                Id = document.Id,
-                ThemeTitle = data.ContainsKey("themeTitle") ? data["themeTitle"].ToString()! : "Untitled",
-                Description = data.ContainsKey("description") ? data["description"].ToString()! : "",
-                MediaUrl = data.ContainsKey("mediaUrl") ? data["mediaUrl"].ToString()! : "placeholder.png",
-                
-                Views = data.ContainsKey("views") ? Convert.ToInt32(data["views"]) : 0,
+                if (document.Exists)
+                {
+                    Dictionary<string, object> data = document.ToDictionary();
+                    var lookbook = new LookbookViewModel
+                    {
+                        Id = document.Id,
+                        ThemeTitle = data.ContainsKey("themeTitle") ? data["themeTitle"].ToString()! : "Untitled",
+                        Description = data.ContainsKey("description") ? data["description"].ToString()! : "",
+                        Views = data.ContainsKey("views") ? Convert.ToInt32(data["views"]) : 0,
+                        CreatedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts ? ts.ToDateTime() : DateTime.UtcNow,
+                        MediaUrl = "",
+                        
+                        IsFeatured = data.ContainsKey("isFeatured") && Convert.ToBoolean(data["isFeatured"])
+                    };
 
-                CreatedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts
-                    ? ts.ToDateTime()
-                    : DateTime.UtcNow
-            });
-        }
-    }
+                    if (data.ContainsKey("mediaUrl"))
+                    {
+                        lookbook.MediaUrl = data["mediaUrl"].ToString()!;
+                    }
+                    else if (data.ContainsKey("mediaUrls") && data["mediaUrls"] is List<object> arrayList && arrayList.Any())
+                    {
+                        lookbook.MediaUrl = arrayList.First().ToString()!;
+                    }
 
-    return lookbooksList;
-}
-        public async Task SaveToWishlistAsync(string uid, LookbookViewModel lookbook)
-        {
-            DocumentReference doc = _firestoreDb.Collection("users").Document(uid).Collection("wishlist").Document(lookbook.Id);
+                    lookbooksList.Add(lookbook);
+                }
+            }
 
-            var wishlistData = new Dictionary<string, object>
-            {
-                { "lookbookId", lookbook.Id ?? "" },
-                { "themeTitle", lookbook.ThemeTitle },
-                { "description", lookbook.Description },
-                { "mediaUrl", lookbook.MediaUrl },
-                { "savedAt", Timestamp.FromDateTime(DateTime.UtcNow) }
-            };
-
-            await doc.SetAsync(wishlistData);
+            return lookbooksList;
         }
 
-        // retrieving a single lookbook by its ID
         public async Task<LookbookViewModel?> GetLookbookAsync(string lookbookId)
         {
             DocumentSnapshot doc = await _firestoreDb.Collection("lookbooks").Document(lookbookId).GetSnapshotAsync();
@@ -100,37 +92,26 @@ namespace haru.market.Services
                 return null;
 
             var data = doc.ToDictionary();
-
-            return new LookbookViewModel
+            var lookbook = new LookbookViewModel
             {
                 Id = doc.Id,
-                ThemeTitle = data["themeTitle"]?.ToString() ?? "",
-                Description = data["description"]?.ToString() ?? "",
-                MediaUrl = data["mediaUrl"]?.ToString() ?? "",
+                ThemeTitle = data.ContainsKey("themeTitle") ? data["themeTitle"].ToString()! : "",
+                Description = data.ContainsKey("description") ? data["description"].ToString()! : "",
+                MediaUrl = "",
+                
+                IsFeatured = data.ContainsKey("isFeatured") && Convert.ToBoolean(data["isFeatured"])
             };
-        }
 
-        // US-15 retrieving the wishlist for a specific user
-        public async Task<List<WishlistItemViewModel>>GetWishlistAsync(string uid)
-        {
-            var wishlist = new List<WishlistItemViewModel>();
-
-            QuerySnapshot snapshot =await _firestoreDb.Collection("users").Document(uid).Collection("wishlist").GetSnapshotAsync();
-
-            foreach (var doc in snapshot.Documents)
+            if (data.ContainsKey("mediaUrl"))
             {
-                var data = doc.ToDictionary();
-
-                wishlist.Add(new WishlistItemViewModel
-                {
-                    LookbookId = data["lookbookId"]?.ToString() ?? "",
-                    ThemeTitle = data["themeTitle"]?.ToString() ?? "",
-                    Description = data["description"]?.ToString() ?? "",
-                    MediaUrl = data["mediaUrl"]?.ToString() ?? ""
-                });
+                lookbook.MediaUrl = data["mediaUrl"].ToString()!;
+            }
+            else if (data.ContainsKey("mediaUrls") && data["mediaUrls"] is List<object> arrayList && arrayList.Any())
+            {
+                lookbook.MediaUrl = arrayList.First().ToString()!;
             }
 
-            return wishlist;
+            return lookbook;
         }
 
         public async Task<int> GetTotalLookbooksCountAsync()
@@ -141,20 +122,15 @@ namespace haru.market.Services
                 AggregateQuerySnapshot snapshot = await collection.Count().GetSnapshotAsync();
                 return (int)(snapshot.Count ?? 0);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching lookbook aggregates: {ex.Message}");
-                return 0;
-            }
+            catch (Exception) { return 0; }
         }
 
-       public async Task<int> GetTotalLookbookViewsCountAsync()
+        public async Task<int> GetTotalLookbookViewsCountAsync()
         {
             try
             {
                 CollectionReference collection = _firestoreDb.Collection("lookbooks");
                 QuerySnapshot snapshot = await collection.GetSnapshotAsync();
-
                 int totalViews = 0;
 
                 foreach (DocumentSnapshot document in snapshot.Documents)
@@ -164,14 +140,9 @@ namespace haru.market.Services
                         totalViews += Convert.ToInt32(document.GetValue<object>("views"));
                     }
                 }
-
                 return totalViews;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching total lookbook views: {ex.Message}");
-                return 0;
-            }
+            catch (Exception) { return 0; }
         }
 
         public async Task<List<string>> GetShuffledHeroBannersAsync()
@@ -184,11 +155,9 @@ namespace haru.market.Services
                 if (snapshot.Exists)
                 {
                     Dictionary<string, object> data = snapshot.ToDictionary();
-
                     if (data.ContainsKey("imageurls") && data["imageurls"] is List<object> arrayList)
                     {
                         List<string> images = arrayList.Select(img => img.ToString()!).ToList();
-
                         if (images.Any())
                         {
                             Random rand = new Random();
@@ -197,13 +166,80 @@ namespace haru.market.Services
                     }
                 }
             }
-            catch (Exception)
-            {
-                // fallback catch loop
-            }
-
-            // Default fallback list if database is unreachable
+            catch (Exception) { }
             return new List<string> { "/images/banners/default-hero.jpg" };
+        }
+        
+        public async Task SaveToWishlistAsync(string userId, LookbookViewModel lookbook)
+        {
+            try
+            {
+                DocumentReference docRef = _firestoreDb.Collection("wishlists").Document(userId);
+                var data = new Dictionary<string, object>
+                {
+                    { "itemIds", FieldValue.ArrayUnion(lookbook.Id ?? "") }
+                };
+                await docRef.SetAsync(data, SetOptions.MergeAll);
+            }
+            catch (Exception) { }
+        }
+
+        public async Task SaveToWishlistAsync(string userId, string itemId)
+        {
+            try
+            {
+                DocumentReference docRef = _firestoreDb.Collection("wishlists").Document(userId);
+                var data = new Dictionary<string, object>
+                {
+                    { "itemIds", FieldValue.ArrayUnion(itemId) }
+                };
+                await docRef.SetAsync(data, SetOptions.MergeAll);
+            }
+            catch (Exception) { }
+        }
+
+        public async Task<List<string>> GetWishlistAsync(string userId)
+        {
+            try
+            {
+                DocumentReference docRef = _firestoreDb.Collection("wishlists").Document(userId);
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+                if (snapshot.Exists)
+                {
+                    var data = snapshot.ToDictionary();
+                    if (data.ContainsKey("itemIds") && data["itemIds"] is List<object> list)
+                    {
+                        return list.Select(x => x.ToString()!).ToList();
+                    }
+                }
+            }
+            catch (Exception) { }
+            return new List<string>();
+        }
+
+        public async Task DeleteLookbookAsync(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                await _firestoreDb.Collection("lookbooks").Document(id).DeleteAsync();
+            }
+        }
+        public async Task SetFeaturedLookbookAsync(string id)
+        {
+            var collection = _firestoreDb.Collection("lookbooks");
+            var snapshot = await collection.GetSnapshotAsync();
+
+            foreach (var doc in snapshot.Documents)
+            {
+                if (doc.Exists)
+                {
+                    var updateData = new Dictionary<string, object>
+                    {
+                        { "isFeatured", doc.Id == id }
+                    };
+                    await doc.Reference.UpdateAsync(updateData);
+                }
+            }
         }
     }
 }

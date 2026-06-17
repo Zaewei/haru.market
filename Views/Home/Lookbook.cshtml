@@ -1,8 +1,7 @@
 @using System.Text.Encodings.Web
-
 @model IEnumerable<haru.market.Models.LookbookViewModel>
 @{
-    ViewData["Title"] = "Lookbook";
+    ViewData["Title"] = "Lookbook Experience";
     var campaignsList = Model?.ToList() ?? new List<haru.market.Models.LookbookViewModel>();
     var initialCampaign = campaignsList.FirstOrDefault();
 }
@@ -12,81 +11,77 @@
 }
 
 <section class="LookbookSection">
-    @* preview container *@
     <div class="LookBookPreview_container">
         @if (ViewBag.HeroBannerUrls != null)
         {
             foreach (var url in (List<string>)ViewBag.HeroBannerUrls)
             {
-                <div class="slide" style="background-image: url('@url'); background-size: cover; background-position: center;"></div>
+                <div class="slide" style="background-image: url('@url');"></div>
             }
-        }
-    </div>
-
-    <div class="LookbookSets_Container">
-        @if (campaignsList.Any() && initialCampaign != null)
-        {
-            <div class="Sets_Container" style="margin-bottom: 30px;">
-                <div class="Item_Container">
-                    
-                    @* side navigation *@
-                    <div class="Side_Image" style="display: flex; flex-direction: column; gap: 10px;">
-                        @for (int i = 0; i < campaignsList.Count; i++)
-                        {
-                            var camp = campaignsList[i];
-                            <div class="FeaturedImage_Card @(i == 0 ? "active" : "")" 
-                                 style="background-image: url('@camp.MediaUrl'); background-size: cover; background-position: center; width: 80px; height: 80px; cursor: pointer; border: 2px solid @(i == 0 ? "#000" : "transparent"); border-radius: 4px;"
-                                 onclick="switchCampaign(this, '@camp.MediaUrl', '@JavaScriptEncoder.Default.Encode(camp.ThemeTitle)', '@JavaScriptEncoder.Default.Encode(camp.Description)')">
-                            </div>
-                        }
-                    </div>
-                    
-                    @* main text cennter *@
-                    <div class="Main_Image" style="background-color: #f4f4f4; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px; min-height: 500px; max-height: 650px;">
-                        <img id="mainLookbookImage" src="@initialCampaign.MediaUrl" alt="@initialCampaign.ThemeTitle" style="width: 100%; height: 100%; object-fit: cover;" />
-                    </div>
-                    
-                    @* dynamic text block *@
-                    <div class="About_Text">
-                        <h2 id="mainLookbookTitle">@initialCampaign.ThemeTitle</h2>
-                        <p id="mainLookbookDescription">@initialCampaign.Description</p>
-                        <a href="/Home/Shop" style="text-decoration: none;">
-                            <div class="About_Text_Button">View in shop</div>
-                        </a>
-                    </div>
-
-                </div>
-            </div>
-        }
-        else
-        {
-            <div class="Sets_Container">
-                <div class="Item_Container">
-                    <div class="Main_Image">
-                        <img src="https://placehold.co/600x800?text=No+Active+Campaigns" />
-                    </div>
-                    <div class="About_Text">
-                        <h2>No Active Campaigns</h2>
-                        <p>Please publish a collection theme via the administrator control panel module pipeline.</p>
-                    </div>
-                </div>
-            </div>
         }
     </div>
 </section>
 
-@* ui switch *@
+<div class="haru-storefront-sets-wrap">
+    @if (campaignsList.Any() && initialCampaign != null)
+    {
+        <div class="haru-storefront-grid">
+            
+            <div class="haru-thumb-stack">
+                @for (int i = 0; i < campaignsList.Count; i++)
+                {
+                    var camp = campaignsList[i];
+                    <div class="haru-thumb-item @(i == 0 ? "active-thumb" : "")" 
+                         style="background-image: url('@camp.MediaUrl');"
+                         onclick="switchStorefrontCampaign(this, '@camp.MediaUrl', '@JavaScriptEncoder.Default.Encode(camp.ThemeTitle)', '@JavaScriptEncoder.Default.Encode(camp.Description)', '@camp.Id')">
+                    </div>
+                }
+            </div>
+            
+            <div class="haru-main-display-frame">
+                <img id="mainLookbookImage" src="@initialCampaign.MediaUrl" alt="@initialCampaign.ThemeTitle" />
+            </div>
+            
+            <div class="haru-narrative-panel">
+                <h2 id="mainLookbookTitle" class="haru-narrative-title">@initialCampaign.ThemeTitle</h2>
+                <p id="mainLookbookDescription" class="haru-narrative-desc">@initialCampaign.Description</p>
+                
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <a href="/Home/Shop" class="haru-action-btn-primary">
+                        View in shop
+                    </a>
+                    
+                    <form asp-controller="Lookbook" asp-action="SaveToWishlist" method="post" style="display: inline;">
+                        <input type="hidden" name="lookbookId" id="wishlistLookbookId" value="@initialCampaign.Id" />
+                        <button type="submit" class="haru-action-btn-heart">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="haru-storefront-grid" style="justify-content: center; text-align: center;">
+            <div style="padding: 50px 20px;">
+                <h2 style="font-family: 'Times New Roman', serif; font-size: 2.2rem; margin: 0 0 10px 0;">Collections Coming Soon</h2>
+                <p style="color: #666; margin: 0;">Our design track team is currently assembling the next seasonal capsule catalog drops. Check back shortly!</p>
+            </div>
+        </div>
+    }
+</div>
+
 <script>
-    function switchCampaign(thumbnailElement, mediaUrl, title, description) {
+    function switchStorefrontCampaign(thumbnailElement, mediaUrl, title, description, id) {
         document.getElementById('mainLookbookImage').src = mediaUrl;
         document.getElementById('mainLookbookTitle').innerText = title;
         document.getElementById('mainLookbookDescription').innerText = description;
+        document.getElementById('wishlistLookbookId').value = id;
         
-        const thumbnails = document.querySelectorAll('.FeaturedImage_Card');
-        thumbnails.forEach(t => {
-            t.style.borderColor = 'transparent';
-        });
-        
-        thumbnailElement.style.borderColor = '#000';
+        const thumbnails = document.querySelectorAll('.haru-thumb-item');
+        thumbnails.forEach(t => t.classList.remove('active-thumb'));
+        thumbnailElement.classList.add('active-thumb');
     }
 </script>

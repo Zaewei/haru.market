@@ -478,3 +478,252 @@
     .lb-media-grid  { grid-template-columns: repeat(2,1fr); }
     .lb-cover-section { height: 180px; }
 }
+
+.haru-admin-container {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Nunito', sans-serif;
+}
+
+.haru-card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #f2d6dc;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(201, 106, 127, 0.04);
+    margin-bottom: 30px;
+}
+
+.haru-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.haru-header-title {
+    font-family: 'Times New Roman', serif;
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 0;
+    color: #111;
+}
+
+.haru-header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.haru-flex-layout {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+.haru-featured-img-wrap {
+    width: 240px;
+    height: 320px;
+    overflow: hidden;
+    border-radius: 6px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    border: 1px solid #f2d6dc;
+}
+
+.haru-featured-info {
+    flex-grow: 1;
+    padding-top: 10px;
+}
+
+.haru-featured-title {
+    font-family: 'Times New Roman', serif;
+    font-size: 2.4rem;
+    font-weight: bold;
+    margin: 0 0 15px 0;
+    color: #111;
+    line-height: 1.2;
+}
+
+.haru-featured-desc {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 0 0 30px 0;
+    white-space: pre-line;
+}
+
+.haru-action-row {
+    border-top: 1px solid #f2d6dc;
+    padding-top: 20px;
+}
+
+.haru-creator-layout {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.haru-preview-box {
+    width: 130px;
+    height: 175px;
+    background: #fff;
+    border: 1px solid #f2d6dc;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    color: #c96a7f;
+}
+
+.haru-fields-vertical {
+    flex-grow: 1;
+    flex-basis: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.haru-creator-title-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #f2d6dc;
+    border-radius: 6px;
+    font-family: 'Times New Roman', serif;
+    font-size: 1.3rem;
+}
+
+.haru-creator-textarea {
+    padding: 12px;
+    border: 1px solid #f2d6dc;
+    border-radius: 6px;
+    width: 100%;
+    resize: none;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.haru-creator-url-input {
+    padding: 11px;
+    border: 1px solid #f2d6dc;
+    border-radius: 6px;
+    width: 100%;
+    font-size: 13px;
+    color: #c96a7f;
+}
+
+.haru-history-title {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-bottom: 2px solid #fff5f7;
+    padding-bottom: 10px;
+    margin-top: 50px; 
+    
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.haru-history-card {
+    display: flex;
+    background: #fff;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #f2d6dc;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(201,106,127,0.02);
+}
+
+.haru-history-thumb {
+    width: 60px;
+    height: 80px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-right: 20px;
+    border: 1px solid #f2d6dc;
+    flex-shrink: 0;
+}
+
+.haru-history-split-row {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.haru-btn-primary {
+    background: #c96a7f;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.haru-btn-primary:hover {
+    background: #b55d71;
+}
+
+.haru-btn-outline {
+    background: #fff;
+    color: #c96a7f;
+    border: 1px solid #c96a7f;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.haru-btn-outline:hover {
+    background: #fff5f7;
+}
+
+.haru-btn-danger {
+    background: #fff5f6;
+    color: #bd3a54;
+    border: 1px solid #f2d6dc;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.haru-btn-danger:hover {
+    background: #bd3a54;
+    color: #fff;
+}
+
+.haru-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+}
+
+.haru-modal {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 450px;
+    border: 1px solid #f2d6dc;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    text-align: center;
+}
