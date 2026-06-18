@@ -4,6 +4,10 @@
     ViewData["Title"] = "Lookbook Experience";
     var campaignsList = Model?.ToList() ?? new List<haru.market.Models.LookbookViewModel>();
     var initialCampaign = campaignsList.FirstOrDefault();
+
+    var wishlistIds = ViewBag.WishlistIds as List<string> ?? new List<string>();
+
+    bool isWishlisted = initialCampaign != null && wishlistIds.Contains(initialCampaign.Id ?? "");
 }
 
 @section Styles {
@@ -53,8 +57,8 @@
                     
                     <form asp-controller="Lookbook" asp-action="SaveToWishlist" method="post" style="display: inline;">
                         <input type="hidden" name="lookbookId" id="wishlistLookbookId" value="@initialCampaign.Id" />
-                        <button type="submit" class="haru-action-btn-heart">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        <button type="submit" class="haru-action-btn-heart @(isWishlisted ? "wishlisted" : "")">
+                            <svg id="wishlistHeart" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="@(isWishlisted ? "#C96A7F" : "none")" stroke="@(isWishlisted ? "#C96A7F" : "currentColor")" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                         </button>
                     </form>
                 </div>
@@ -74,12 +78,27 @@
 </div>
 
 <script>
-    function switchStorefrontCampaign(thumbnailElement, mediaUrl, title, description, id) {
+    const wishlistIds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(wishlistIds));
+
+    function switchStorefrontCampaign(thumbnailElement, mediaUrl, title, description, id)
+    {
         document.getElementById('mainLookbookImage').src = mediaUrl;
         document.getElementById('mainLookbookTitle').innerText = title;
         document.getElementById('mainLookbookDescription').innerText = description;
         document.getElementById('wishlistLookbookId').value = id;
-        
+
+        const heart = document.getElementById('wishlistHeart');
+        if (wishlistIds.includes(id))
+        {
+            heart.setAttribute('fill', '#C96A7F');
+            heart.setAttribute('stroke', '#C96A7F');
+        }
+        else
+        {
+            heart.setAttribute('fill', 'none');
+            heart.setAttribute('stroke', 'currentColor');
+        }
+
         const thumbnails = document.querySelectorAll('.haru-thumb-item');
         thumbnails.forEach(t => t.classList.remove('active-thumb'));
         thumbnailElement.classList.add('active-thumb');
