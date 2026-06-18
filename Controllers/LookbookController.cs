@@ -63,7 +63,7 @@ namespace haru.market.Controllers
 
             await _lookbookService.SaveToWishlistAsync(uid, lookbook);
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Lookbook", "Home");
         }
 
         // wishlist page
