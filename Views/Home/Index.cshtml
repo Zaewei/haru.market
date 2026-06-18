@@ -20,39 +20,49 @@
     </div>
 
     <div class="LookBookSection_text">
-        <h2><a href="/Home/Lookbook">Explore Lookbook</a></h2>
+        <a href="/Lookbook" class="lookbook-link">Explore Lookbook</a>
     </div>
 </section>
 
 <section class="FeaturedSection">
-    <div class="FeaturedSection_container text-center">
+    <div class="FeaturedSection_container">
         <h2>FEATURED</h2>
-    
+        
+        <!-- This container handles the sliding -->
         <div class="FeaturedItem_Container">
-            @if (ViewData.Model.Products != null)
-            {
-                var featuredProducts = ((IEnumerable<ProductViewModel>)ViewData.Model.Products).Take(5);
-                foreach (var product in featuredProducts)
+            <div class="infinite-scroll-wrapper">
+                @if (ViewData.Model.Products != null)
                 {
-                    <div class="FeaturedItem_card" style="cursor: pointer; background: #fff; border: 1px solid #eee; padding: 10px; display: inline-block; width: 150px; margin: 5px;">
-                        <img src="@product.ImageUrl" style="width: 100%; height: 120px; object-fit: cover;" onerror="this.src='https://placehold.co/150?text=Product';" />
-                        <h6 style="margin-top: 10px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@product.Name</h6>
-                        <p style="color: #666; font-size: 13px; margin: 0;">₱@product.Price</p>
-                    </div>
+                    var featuredProducts = ((IEnumerable<ProductViewModel>)ViewData.Model.Products).Take(5).ToList();
+                    
+                    <!-- Loop 1 -->
+                    @foreach (var product in featuredProducts)
+                    {
+                        <div class="FeaturedItem_card">
+                            <img src="@product.ImageUrl" onerror="this.src='https://placehold.co/150?text=Product';" />
+                            <h6>@product.Name</h6>
+                            <p>₱@product.Price</p>
+                        </div>
+                    }
+                    <!-- Loop 2 -->
+                    @foreach (var product in featuredProducts)
+                    {
+                        <div class="FeaturedItem_card">
+                            <img src="@product.ImageUrl" onerror="this.src='https://placehold.co/150?text=Product';" />
+                            <h6>@product.Name</h6>
+                            <p>₱@product.Price</p>
+                        </div>
+                    }
                 }
-            }
-            else
-            {
-                <div class="FeaturedItem_card">1</div>
-                <div class="FeaturedItem_card">2</div>
-                <div class="FeaturedItem_card">3</div>
-                <div class="FeaturedItem_card">4</div>
-                <div class="FeaturedItem_card">5</div>
-            }
+            </div>
         </div>
 
-        <a href="/Home/Shop"><div class="Shop_Button d-flex justify-content-center align-items-center"><h2>View Shop</h2></div></a>
-
+        <!-- Button sits below the slider -->
+        <a href="/Home/Shop" class="Shop_Button">
+            <h2>VIEW SHOP</h2>
+        </a>
+    </div>
+</section>
         <div class="FeaturedImage_Container">
              <img src="/images/Home/FeaturedImage.jpg"/>
         </div>
