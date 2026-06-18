@@ -184,18 +184,30 @@ namespace haru.market.Services
             catch (Exception) { }
         }
 
-        public async Task SaveToWishlistAsync(string userId, string itemId)
+        public async Task RemoveFromWishlistAsync(string uid, string lookbookId)
         {
-            try
+            DocumentReference wishlistDoc = _firestoreDb.Collection("wishlists").Document(uid);
+
+            await wishlistDoc.UpdateAsync("itemIds", FieldValue.ArrayRemove(lookbookId));
+        }
+
+        public async Task<bool> IsWishlistedAsync(string uid, string lookbookId)
+        {
+            DocumentSnapshot snapshot = await _firestoreDb.Collection("wishlists").Document(uid).GetSnapshotAsync();
+
+            if (!snapshot.Exists)
             {
-                DocumentReference docRef = _firestoreDb.Collection("wishlists").Document(userId);
-                var data = new Dictionary<string, object>
-                {
-                    { "itemIds", FieldValue.ArrayUnion(itemId) }
-                };
-                await docRef.SetAsync(data, SetOptions.MergeAll);
+                return false;
             }
-            catch (Exception) { }
+
+            if (!snapshot.ContainsField("itemIds"))
+            {
+                return false;
+            }
+
+            List<string> itemIds = snapshot.GetValue<List<string>>("itemIds");
+
+            return itemIds.Contains(lookbookId);
         }
 
         public async Task<List<string>> GetWishlistAsync(string userId)
