@@ -38,80 +38,78 @@ nav {
     background-color: #F8CBD5;
     display: flex;
     flex-direction: column;
-    align-items: center; /* This forces the BottomNav to center horizontally */
+    align-items: center;
     width: 100%;
-    padding-bottom: 10px; /* Add a little breathing room below the links */
-    height: auto; /* Change from fixed height to auto to prevent squishing */
+    padding-bottom: 10px;
+    height: auto; 
 }
 
 .TopNav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 1rem; /* Add a little breathing room on the sides */
+    padding: 0 1rem;
     width: 100%;
     height: 8vh;
 }
 
-/* Force all 3 containers to share space equally */
 .Logo, .Brand, .TopMenu {
-    flex: 1; /* This is the magic key for centering */
+    flex: 1;
     display: flex;
     align-items: center;
 }
 
 .Logo {
     display: flex;
-    justify-content: flex-start; /* Aligns content to the left */
+    justify-content: flex-start;
     align-items: center;
-    flex: 1; /* Takes up 1/3 of the space */
+    flex: 1;
     padding-left: 20px;
 }
 
 .Brand {
     display: flex;
-    justify-content: center; /* Forces the text to the absolute center */
+    justify-content: center; 
     align-items: center;
-    flex: 1; /* Takes up 1/3 of the space */
+    flex: 1; 
 }
 
 .TopMenu {
     display: flex;
-    justify-content: flex-end; /* Pushes icons to the right */
+    justify-content: flex-end;
     align-items: center;
-    flex: 1; /* Takes up 1/3 of the space */
+    flex: 1;
     padding-right: 20px;
 }
 
-/* Ensure the Logo image doesn't explode in size */
+
 .Logo img {
-    width: 50px; /* Use a fixed pixel size instead of vh to keep it stable */
+    width: 50px;
     height: auto;
 }
-/* Clean up the Brand text */
+
 .Brand a {
     font-family: "Piazzolla", serif;
     font-weight: 700;
     text-decoration: none;
     color: #0f0f0f;
-    font-size: 2.5rem; /* Slightly larger for emphasis */
+    font-size: 2.5rem;
     letter-spacing: 2px;
 }
 .TopMenu {
     display: flex;
-    justify-content: flex-end; /* Aligns icons to the right */
+    justify-content: flex-end;
     align-items: center;
-    flex: 1; /* Takes up 1/3 of the row */
+    flex: 1;
     padding-right: 20px;
-    gap: 20px; /* Consistent spacing between the icons */
+    gap: 20px;
 }
 
-/* Ensure icons are uniform */
 .TopMenu_search img, 
 .TopMenu_user img, 
 .TopMenu_heart img, 
 .TopMenu_bag img {
-    width: 30px; /* Set a consistent size */
+    width: 30px;
     height: auto;
     cursor: pointer;
 }
@@ -155,25 +153,24 @@ nav {
 
 .BottomNav {
     display: flex;
-    justify-content: center; /* Forces the internal list to the center */
+    justify-content: center;
     width: 100%;
-    margin-top: 10px; /* Space between logo and links */
+    margin-top: 10px;
     padding: 0;
 }
 
 .BottomNav ul {
     display: flex;
-    justify-content: center; /* Centers the LI items */
-    gap: 40px;               /* Consistent spacing between links */
+    justify-content: center;
+    gap: 40px;             
     list-style: none;
     padding: 0;
     margin: 0;
-    width: auto;             /* Keeps the list width constrained to its items */
+    width: auto;
 }
 
-/* Ensure the links themselves are centered and balanced */
 .BottomNav li a {
-    font-family: 'Piazzolla', serif; /* Matching your brand font */
+    font-family: 'Piazzolla', serif;
     text-transform: uppercase;
     text-decoration: none;
     color: #0f0f0f;
@@ -186,7 +183,7 @@ nav {
 .BottomNav li a.active {
     text-decoration: none;
     color: #000;
-    border-bottom: 2px solid #000; /* Subtle underline effect */
+    border-bottom: 2px solid #000;
 }
 
 .footer {

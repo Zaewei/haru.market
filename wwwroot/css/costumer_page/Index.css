@@ -69,7 +69,7 @@
 
 .FeaturedSection_container > h2 {
     color: rgb(0, 0, 0);
-    font-family: 'Piazzolla', serif; /* Or your preferred heading font */
+    font-family: 'Piazzolla', serif;
     font-weight: bold;
     font-size: 2rem;
     letter-spacing: 6px;
@@ -79,7 +79,6 @@
     margin-bottom: 30px;
 }
 
-/* Add a decorative line under the title */
 .FeaturedSection_container h2::after {
     content: '';
     position: absolute;
@@ -87,16 +86,15 @@
     bottom: 0;
     width: 60px;
     height: 2px;
-    background-color: #FFBCCB; /* Your signature Haru pink */
+    background-color: #FFBCCB;
     transform: translateX(-50%);
 }
 
 .FeaturedItem_Container {
     display: flex;
-    overflow: hidden; /* Hide the scrollbar, we are animating now */
+    overflow: hidden;
     width: 100%;
     margin: 0 auto;
-    /* This creates the fade on the left and right */
     mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
@@ -104,7 +102,7 @@
 .infinite-scroll-wrapper {
     display: flex;
     gap: 30px;
-    animation: auto-scroll 20s linear infinite; /* Adjust speed by changing 20s */
+    animation: auto-scroll 20s linear infinite;
 }
 
 .FeaturedItem_Container:hover .infinite-scroll-wrapper {
@@ -113,19 +111,19 @@
 
 @keyframes auto-scroll {
     from { transform: translateX(0); }
-    to { transform: translateX(-50%); } /* Scrolls exactly halfway (since we duplicated the items) */
+    to { transform: translateX(-50%); }
 }
 
 .FeaturedSection_container {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centers everything horizontally */
+    align-items: center;
     padding-top: 5vh;
     padding-bottom: 5vh;
     gap: 20px;
     width: 100%;
-    max-width: 1200px; /* Limits the container so it doesn't get too wide on big monitors */
-    margin: 0 auto;    /* Centers the whole section on the page */
+    max-width: 1200px;
+    margin: 0 auto; 
 }
 
 .FeaturedSection_container h2{
@@ -139,17 +137,17 @@
 }
 
 .FeaturedItem_card:hover {
-    transform: translateY(-5px); /* Gentle lift on hover */
+    transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .FeaturedItem_card {
-    min-width: 280px; /* Consistent width */
-    height: 400px;    /* Fixed height for image + text */
+    min-width: 280px;
+    height: 400px;
     background: #ffffff;
-    border: 1px solid #f0f0f0; /* Subtle light grey border */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Soft, modern shadow */
-    border-radius: 12px; /* Smoother corners */
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
     flex: 0 0 auto;
     scroll-snap-align: start;
     transition: transform 0.3s ease;
@@ -160,9 +158,9 @@
 
 .FeaturedItem_card img {
     width: 100%;
-    height: 250px; /* Adjust this to make your cards taller/shorter */
-    object-fit: cover; /* This makes sure the image crops nicely instead of stretching */
-    border-radius: 8px 8px 0 0; /* Rounds only the top corners */
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
     display: block;
 }
 
@@ -181,7 +179,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    align-self: center; /* THIS IS THE FIX: Stops the button from stretching */
+    align-self: center;
     padding: 15px 40px;
     background-color: #FFBCCB;
     border: none;
@@ -190,10 +188,10 @@
     margin-top: 40px;
     cursor: pointer;
     transition: background 0.3s ease, transform 0.2s ease;
-    width: fit-content; /* THIS IS THE FIX: Button only takes up the width of its text */
+    width: fit-content;
 }
 .Shop_Button h2 {
-    font-size: 1.1rem; /* Slightly smaller, more elegant */
+    font-size: 1.1rem;
     margin: 0;
     color: #333;
     font-family: 'Nunito', sans-serif;
@@ -204,29 +202,38 @@
 
 .Shop_Button:hover {
     background-color: #f7a8b9;
-    transform: scale(1.05); /* Tiny pop on hover */
+    transform: scale(1.05);
+}
+
+.FeaturedImage_Container {
+    width: 90%; 
+    max-width: 1000px; 
+    margin: 40px auto;    
+    display: flex;      
+    justify-content: center;
 }
 
 .FeaturedImage_Container img {
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    height: auto;  
+    display: block;
+    border-radius: 12px;
 }
 
 .lookbook-link {
     display: inline-block;
     padding: 8px 20px;
-    border: 1px solid #ffffff; /* White border for visibility on the image */
+    border: 1px solid #ffffff;
     color: #ffffff;
     text-decoration: none;
     font-family: 'Nunito', sans-serif;
     font-size: 1.1rem;
     letter-spacing: 1px;
-    border-radius: 50px; /* Pill shape */
+    border-radius: 50px;
     transition: all 0.3s ease;
 }
 
 .lookbook-link:hover {
     background-color: #ffffff;
-    color: #333; /* Dark text on white background when hovered */
+    color: #333;
 }
