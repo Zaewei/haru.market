@@ -2,57 +2,214 @@
     display: none;
     flex-direction: column;
     position: fixed;
-    top: 3%;
-    left: 82%;
-    width: 10%;
-    height: 18vh;
-
-    justify-content: center;
-    align-items: center;
-
+    top: 70px; 
+    right: 3%; 
     z-index: 8500;
 }
 
-.User_Popup_Window {
-    background-color: #F8F6EE;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid black;
-    overflow: hidden;
-    border-radius: 8px;
-
-    width: 100%;
-    height: 100%;
-
+.User_Exit_Window {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+    color: transparent; 
+    border: none;
+    cursor: default;
+    z-index: -1; 
 }
 
+.User_Popup_Window {
+    position: relative; 
+    background-color: #fcf9f2;
+    border: 1px solid #000;
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 160px;
+    min-height: 80px;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+}
 
 .User_Popup_Content {
-  width: 100%;
-  height: 100%;
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
-  padding-top: 6%;
-}
-
-.User_Popup_Content a {
-    text-decoration: none;
-}
-
-.User_Popup_Content a p {
-    margin-top: 1px;
-    font-size: 2.3vh;
-    font-weight: 600;
-    color: black;
-    align-self: center;
-    justify-self: center;
-    font-family: "Nunito", sans-serif;
-
-}
-
-.User_Exit_Window {
+    border-bottom: 1px solid #000;
     width: 100%;
+}
+.User_Popup_Content:last-child {
+    border-bottom: none;
+}
+
+.haru-dropdown-btn, 
+.User_Popup_Content a {
+    display: flex;
+    align-items: center;
+    background: transparent;
     border: none;
+    padding: 15px 20px; 
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    color: #000;
+    font-family: 'Nunito', serif;
+    font-size: 16px;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+    min-height: 45px;
+}
+
+.haru-dropdown-btn:hover, 
+.User_Popup_Content a:hover {
+    background-color: #f0ebe1;
+}
+
+.haru-dropdown-btn p, 
+.User_Popup_Content a p {
+    margin: 0;
+    padding: 0;
+}
+
+.haru-center-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.haru-center-modal-box {
+    background-color: #ffffff;
+    padding: 35px 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    position: relative;
+}
+
+.haru-modal-title {
+    font-family: 'Piazzolla', 'Nunito', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+.haru-modal-text {
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    color: #444;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.haru-profile-details {
+    text-align: left;
+    background-color: #fafafa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid #eee;
+}
+
+.haru-profile-details p {
+    font-family: 'Nunito', sans-serif;
+    margin: 8px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.haru-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.haru-btn {
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.haru-btn-primary {
+    background-color: #f6ced8;
+    color: #000;
+    border: none;
+}
+
+.haru-btn-primary:hover {
+    background-color: #f1b5c4;
+    transform: translateY(-1px);
+}
+
+.haru-btn-secondary {
     background-color: transparent;
-    height: 5vh;
+    color: #000;
+    border: 1px solid #ccc;
+}
+
+.haru-btn-secondary:hover {
+    background-color: #f8f8f8;
+    border-color: #aaa;
+}
+
+.haru-modal-close-x {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #888;
+}
+.haru-modal-close-x:hover { color: #000; }
+
+.haru-input-group {
+    text-align: left;
+    margin-bottom: 12px;
+}
+
+.haru-input-group label {
+    display: block;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 4px;
+}
+
+.haru-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.haru-input:focus {
+    border-color: #f6ced8;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(246, 206, 216, 0.3);
+}
+
+.haru-cart-global-close-x {
+    display: none; 
+}
+
+.show-popup-drawer .haru-cart-global-close-x {
+    display: block; 
 }

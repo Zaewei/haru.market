@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using haru.market.Models;
 using haru.market.Services;
 using Google.Cloud.Firestore;
+using FirebaseAdmin.Auth;
 
 namespace haru.market.Controllers
 {
@@ -86,6 +87,115 @@ namespace haru.market.Controllers
 
             ModelState.AddModelError(string.Empty, "Invalid login credentials detected.");
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+
+            // if standard aspnet doesn't work uncomment below to replace
+            // await _signInManager.SignOutAsync();
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(haru.market.Models.RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var userArgs = new FirebaseAdmin.Auth.UserRecordArgs
+                {
+                    Email = model.Email,
+                    Password = model.Password,
+                    DisplayName = model.FullName
+                };
+                var userRecord = await FirebaseAdmin.Auth.FirebaseAuth.DefaultInstance.CreateUserAsync(userArgs);
+
+                var db = Google.Cloud.Firestore.FirestoreDb.Create("haru-market"); 
+                var docRef = db.Collection("users").Document(userRecord.Uid);
+                
+                var userData = new Dictionary<string, object>
+                {
+                    { "FullName", model.FullName },
+                    { "Email", model.Email },
+                    { "DeliveryAddress", model.DeliveryAddress },
+                    { "ContactDetails", model.ContactDetails },
+                    { "Role", "customer" },
+                    { "Status", "active" },
+                    { "JoinedAt", Google.Cloud.Firestore.Timestamp.GetCurrentTimestamp() }
+                };
+                
+                await docRef.SetAsync(userData);
+
+                return RedirectToAction("Login", "Account");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Registration failed: " + ex.Message);
+                return View(model);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserProfile()
+        {
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(uid)) 
+            {
+                return Unauthorized("User ID not found in claims.");
+            }
+
+            var db = Google.Cloud.Firestore.FirestoreDb.Create("haru-market");
+            var docRef = db.Collection("users").Document(uid);
+            var snapshot = await docRef.GetSnapshotAsync();
+
+            if (snapshot.Exists)
+            {
+                return Json(new {
+                    fullName = snapshot.GetValue<string>("FullName"),
+                    address = snapshot.GetValue<string>("DeliveryAddress"),
+                    contact = snapshot.GetValue<string>("ContactDetails")
+                });
+            }
+            return NotFound("User document not found.");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(string fullName, string deliveryAddress, string contactDetails)
+        {
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(uid)) return Unauthorized();
+
+            var db = Google.Cloud.Firestore.FirestoreDb.Create("haru-market");
+            var docRef = db.Collection("users").Document(uid);
+
+            var updates = new Dictionary<string, object>
+            {
+                { "FullName", fullName },
+                { "DeliveryAddress", deliveryAddress },
+                { "ContactDetails", contactDetails }
+            };
+
+            await docRef.UpdateAsync(updates);
+
+            return Json(new { success = true });
         }
     }
 }
