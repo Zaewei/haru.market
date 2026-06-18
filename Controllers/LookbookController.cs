@@ -59,9 +59,18 @@ namespace haru.market.Controllers
                 return NotFound();
             }
 
-            await _lookbookService.SaveToWishlistAsync(uid, lookbook);
+            bool alreadyWishlisted = await _lookbookService.IsWishlistedAsync(uid, lookbookId);
 
-            return RedirectToAction(nameof(Index));
+            if (alreadyWishlisted)
+            {
+                await _lookbookService.RemoveFromWishlistAsync(uid, lookbookId);
+            }
+            else
+            {
+                await _lookbookService.SaveToWishlistAsync(uid, lookbook);
+            }
+
+            return RedirectToAction("Lookbook", "Home");
         }
 
         // wishlist page
