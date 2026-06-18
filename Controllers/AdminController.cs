@@ -186,6 +186,20 @@ namespace haru.market.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> DeleteProduct(string id)
+        {
+            try 
+            {
+                await _productService.DeleteProductAsync(id);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> UpdateOrderStatus(string orderId, string status, string? paymentChannel = null)
         {
             if (string.IsNullOrWhiteSpace(orderId) || string.IsNullOrWhiteSpace(status))
@@ -229,6 +243,40 @@ namespace haru.market.Controllers
             
             var stats = await _orderService.GetUserActivityAsync(email);
             return Json(stats);
+        }
+
+        public class UpdateProductRequest 
+        {
+            public string Id { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+            public decimal Price { get; set; }
+            public string Color { get; set; } = string.Empty;
+            public Dictionary<string, int> StockQuantity { get; set; } = new Dictionary<string, int>();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Id))
+            {
+                return Json(new { success = false, message = "Product ID is missing." });
+            }
+
+            try
+            {
+                await _productService.UpdateProductAsync(
+                    request.Id, 
+                    request.Name, 
+                    request.Price, 
+                    request.Color, 
+                    request.StockQuantity
+                );
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

@@ -616,13 +616,38 @@ document.addEventListener('DOMContentLoaded', function () {
         var _closeDel  = document.getElementById('closeDeleteProductModal');
         var _cancelDel = document.getElementById('cancelDeleteProduct');
         var _confirmDel = document.getElementById('confirmDeleteProduct');
+        
         if (_closeDel)   _closeDel.addEventListener('click',   function () { pmCloseModal('deleteProductModal'); });
         if (_cancelDel)  _cancelDel.addEventListener('click',  function () { pmCloseModal('deleteProductModal'); });
+        
+        // The updated confirmation button that talks to the database
         if (_confirmDel) _confirmDel.addEventListener('click', function () {
             if (!pmDeletingId) return;
-            var row = document.querySelector('.pm-row[data-id="' + pmDeletingId + '"]');
-            if (row) row.remove();
-            pmRender(); pmCloseModal('deleteProductModal'); pmDeletingId = null;
+
+            var btn = this;
+            btn.textContent = "Deleting...";
+            btn.disabled = true;
+
+            fetch('/Admin/DeleteProduct?id=' + encodeURIComponent(pmDeletingId), {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var row = document.querySelector('.pm-row[data-id="' + pmDeletingId + '"]');
+                    if (row) row.remove();
+                    pmRender(); 
+                    pmCloseModal('deleteProductModal'); 
+                    pmDeletingId = null;
+                } else {
+                    alert("Failed to delete product: " + data.message);
+                }
+            })
+            .catch(err => console.error(err))
+            .finally(() => {
+                btn.textContent = "Delete";
+                btn.disabled = false;
+            });
         });
 
         // ── Edit / Delete delegated click ──
@@ -639,13 +664,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 var cells = row.querySelectorAll('td');
 
                 var imgEl = cells[0].querySelector('img');
-                // Seed carousel with the row's existing image (slot 0)
                 pmCarouselImages = [];
                 if (imgEl && imgEl.src && !imgEl.src.endsWith('/')) {
                     pmCarouselImages.push(imgEl.src);
                 }
                 pmCarouselIndex = 0;
                 pmRenderCarousel();
+
+                var stockData = JSON.parse(row.getAttribute('data-stock') || '{}');
 
                 var nameInp  = document.getElementById('pmEditName');
                 var priceInp = document.getElementById('pmEditPrice');
@@ -657,8 +683,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     c.classList.toggle('pm-edit-color--active', !!(c.dataset.color && c.dataset.color.toLowerCase() === colorVal));
                 });
 
-                var stockVal = cells[5].querySelector('.pm-meta').textContent.trim();
-                ['S','M','L','XL','XXL'].forEach(function (s) { var el = document.getElementById('pmStock-' + s); if (el) el.textContent = stockVal; });
+                ['S','M','L','XL','XXL'].forEach(function (s) { 
+                    var el = document.getElementById('pmStock-' + s); 
+                    if (el) el.textContent = stockData[s] || 0; 
+                });
 
                 var panel = document.getElementById('pmEditPanel');
                 var table = document.getElementById('pmTableView');
@@ -693,51 +721,63 @@ document.addEventListener('DOMContentLoaded', function () {
         if (pmEditSaveBtn) {
             pmEditSaveBtn.addEventListener('click', function () {
                 if (!pmEditingId) return;
-                var row = document.querySelector('.pm-row[data-id="' + pmEditingId + '"]');
-                if (!row) return;
-                var cells    = row.querySelectorAll('td');
-                var newName  = document.getElementById('pmEditName').value.trim();
+
+                var stockDict = {
+                    "S": parseInt(document.getElementById('pmStock-S').textContent) || 0,
+                    "M": parseInt(document.getElementById('pmStock-M').textContent) || 0,
+                    "L": parseInt(document.getElementById('pmStock-L').textContent) || 0,
+                    "XL": parseInt(document.getElementById('pmStock-XL').textContent) || 0,
+                    "XXL": parseInt(document.getElementById('pmStock-XXL').textContent) || 0
+                };
+
+                var newName = document.getElementById('pmEditName').value.trim();
                 var newPrice = document.getElementById('pmEditPrice').value.trim();
                 var activeColorEl = document.querySelector('.pm-edit-color--active');
                 var newColor = activeColorEl ? activeColorEl.dataset.color : '';
-                var stockEl  = document.getElementById('pmStock-S');
-                var newStock = stockEl ? stockEl.textContent : '';
-                if (newName)  cells[1].querySelector('.pm-name').textContent  = newName;
-                if (newColor) cells[2].querySelector('.pm-meta').textContent  = newColor;
-                if (newPrice) cells[4].querySelector('.pm-price').textContent = '\u20b1' + parseInt(newPrice).toLocaleString();
-                if (newStock) cells[5].querySelector('.pm-meta').textContent  = newStock;
-                if (pmCarouselImages.length > 0) pmUpdateThumbCell(cells[0], pmCarouselImages[0]);
-                var panel = document.getElementById('pmEditPanel');
-                var table = document.getElementById('pmTableView');
-                if (panel) panel.style.display = 'none';
-                if (table) table.style.display = '';
-                pmEditingId = null;
-                pmRender();
+
+                fetch('/Admin/UpdateProduct', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: pmEditingId,
+                        name: newName,
+                        price: parseFloat(newPrice) || 0,
+                        color: newColor,
+                        stockQuantity: stockDict
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        var total = Object.values(stockDict).reduce((a, b) => a + b, 0);
+                        var row = document.querySelector('.pm-row[data-id="' + pmEditingId + '"]');
+                        if (row) row.querySelectorAll('td')[5].querySelector('.pm-meta').textContent = total;
+                        
+                        document.getElementById('pmEditPanel').style.display = 'none';
+                        document.getElementById('pmTableView').style.display = '';
+                        pmEditingId = null;
+                    } else {
+                        alert("Save failed: " + data.message);
+                    }
+                });
             });
         }
 
         // ── Inline edit: stock +/- ──
-        document.addEventListener('click', function (e) {
+       document.addEventListener('click', function (e) {
             var btn = e.target.closest('.pm-stock-btn');
             if (!btn) return;
-            var el = document.getElementById('pmStock-' + btn.dataset.size);
-            if (!el) return;
-            var val = parseInt(el.textContent) + parseInt(btn.dataset.dir);
-            el.textContent = Math.max(0, val);
-        });
+            var container = btn.closest('.pm-edit-stock-ctrl');
+            var valEl = container ? container.querySelector('.pm-stock-val') : null;
+            
+            if (!valEl) return;
 
-        // ── Inline edit: color swatches (delegated so new ones work too) ──
-        var pmColorsContainer = document.querySelector('.pm-edit-colors');
-        if (pmColorsContainer) {
-            pmColorsContainer.addEventListener('click', function (e) {
-                var swatch = e.target.closest('.pm-edit-color');
-                if (!swatch) return;
-                pmColorsContainer.querySelectorAll('.pm-edit-color').forEach(function (x) {
-                    x.classList.remove('pm-edit-color--active');
-                });
-                swatch.classList.add('pm-edit-color--active');
-            });
-        }
+            var currentVal = parseInt(valEl.textContent) || 0;
+            var dir = parseInt(btn.dataset.dir);
+            
+            var newVal = Math.max(0, currentVal + dir);
+            valEl.textContent = newVal;
+        });
 
         // ── Inline edit: add a new color swatch ──
         var pmAddColorBtn = document.querySelector('.pm-edit-color-add');
@@ -751,7 +791,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 pmColorPickerInput.click();
             });
 
-            // While picking, just update the live preview — do NOT add the swatch yet
             pmColorPickerInput.addEventListener('input', function () {
                 var hex = this.value;
                 pmColorPreviewDot.style.background = hex;
@@ -759,7 +798,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 pmColorConfirmPopover.style.display = 'flex';
             });
 
-            // Confirm: actually add the swatch
             document.getElementById('pmColorConfirmBtn').addEventListener('click', function () {
                 var hex = pmColorPickerInput.value;
                 var swatch = document.createElement('div');
@@ -777,7 +815,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 pmColorConfirmPopover.style.display = 'none';
             });
 
-            // Cancel: discard, no swatch added
             document.getElementById('pmColorCancelBtn').addEventListener('click', function () {
                 pmColorConfirmPopover.style.display = 'none';
             });
@@ -793,7 +830,7 @@ document.addEventListener('DOMContentLoaded', function () {
             pmColorsContainer.addEventListener('click', function (e) {
                 var xBtn = e.target.closest('.pm-color-remove-x');
                 if (!xBtn) return;
-                e.stopPropagation(); // don't also trigger swatch selection
+                e.stopPropagation();
                 pmSwatchPendingRemoval = xBtn.closest('.pm-edit-color');
                 pmColorRemoveConfirmPopover.style.display = 'flex';
             });

@@ -47,7 +47,7 @@
                 {
                     @foreach (var product in Model)
                     {
-                        <tr class="pm-row" data-id="@product.Id">
+                        <tr class="pm-row" data-id="@product.Id" data-stock='@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(product.StockQuantity))'>
                             <td>
                                 <div class="pm-thumb-wrap">
                                     <div class="pm-thumb">
@@ -66,7 +66,7 @@
                             <td><span class="pm-meta">@(string.IsNullOrEmpty(product.Color) ? "—" : product.Color)</span></td>
                             <td><span class="pm-meta">@(string.IsNullOrEmpty(product.Size) ? "—" : product.Size)</span></td>
                             <td><span class="pm-price">₱@product.Price.ToString("N0")</span></td>
-                            <td><span class="pm-meta">@product.StockQuantity</span></td>
+                            <td><span class="pm-meta">@product.TotalStock</span></td>
                             <td class="pm-actions pm-actions--stack">
                                 <button class="btn-edit"   data-action="pm-edit"   data-id="@product.Id">Edit</button>
                                 <button class="btn-delete" data-action="pm-delete" data-id="@product.Id">Delete</button>

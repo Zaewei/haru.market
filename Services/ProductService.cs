@@ -1,6 +1,10 @@
 using Google.Cloud.Firestore;
 using Google.Apis.Auth.OAuth2;
 using haru.market.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System;
+using System.Threading.Tasks;
 
 namespace haru.market.Services
 {
@@ -21,37 +25,43 @@ namespace haru.market.Services
         public async Task<string> AddProductAsync(ProductViewModel product)
         {
             CollectionReference collection = _firestoreDb.Collection("products");
-
-            Dictionary<string, object> productData = new Dictionary<string, object>
+            var productData = new Dictionary<string, object>
             {
                 { "name", product.Name },
-                { "description", product.Description },
-                { "price", (double)product.Price }, 
+                { "description", product.Description ?? "" },
+                { "price", (double)product.Price },
                 { "stockQuantity", product.StockQuantity },
+                { "color", product.Color ?? "" },
+                { "size", product.Size ?? "" },
                 { "imageUrl", string.IsNullOrEmpty(product.ImageUrl) ? "placeholder.png" : product.ImageUrl },
                 { "createdAt", Timestamp.FromDateTime(DateTime.UtcNow) }
             };
+            return (await collection.AddAsync(productData)).Id;
+        }
 
-            DocumentReference docRef = await collection.AddAsync(productData);
-            return docRef.Id;
+        public async Task DeleteProductAsync(string id)
+        {
+            DocumentReference docRef = _firestoreDb.Collection("products").Document(id);
+            await docRef.DeleteAsync();
         }
 
         public async Task<List<ProductViewModel>> GetAllProductsAsync()
         {
             var productsList = new List<ProductViewModel>();
-            
-            // targets the collection named "products" in the firebase db
             CollectionReference collection = _firestoreDb.Collection("products");
-            
-            // grabs everything in that collection
             QuerySnapshot snapshot = await collection.GetSnapshotAsync();
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
                 if (document.Exists)
                 {
-                    // extract the data
                     Dictionary<string, object> data = document.ToDictionary();
+
+                    var stockDict = new Dictionary<string, int>();
+                    if (data.ContainsKey("stockQuantity") && data["stockQuantity"] is Dictionary<string, object> rawStock)
+                    {
+                        stockDict = rawStock.ToDictionary(k => k.Key, v => Convert.ToInt32(v.Value));
+                    }
 
                     productsList.Add(new ProductViewModel
                     {
@@ -59,7 +69,7 @@ namespace haru.market.Services
                         Name = data.ContainsKey("name") ? data["name"].ToString()! : "Unknown Product",
                         Description = data.ContainsKey("description") ? data["description"].ToString()! : "",
                         Price = data.ContainsKey("price") ? Convert.ToDecimal(data["price"]) : 0.00m,
-                        StockQuantity = data.ContainsKey("stockQuantity") ? Convert.ToInt32(data["stockQuantity"]) : 0,
+                        StockQuantity = stockDict, 
                         ImageUrl = data.ContainsKey("imageUrl") ? data["imageUrl"].ToString()! : "placeholder.png",
                         Imageurl2 = data.ContainsKey("imageurl2") ? data["imageurl2"].ToString()! : "",
                         CreatedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts ? ts.ToDateTime() : DateTime.Now,
@@ -68,29 +78,61 @@ namespace haru.market.Services
                     });
                 }
             }
-
             return productsList;
+        }
+
+        public async Task<ProductViewModel?> GetProductAsync(string productId)
+        {
+            DocumentSnapshot doc = await _firestoreDb.Collection("products").Document(productId).GetSnapshotAsync();
+
+            if (!doc.Exists) return null;
+
+            var data = doc.ToDictionary();
+            
+            var stockDict = new Dictionary<string, int>();
+            if (data.ContainsKey("stockQuantity") && data["stockQuantity"] is Dictionary<string, object> rawStock)
+            {
+                stockDict = rawStock.ToDictionary(k => k.Key, v => Convert.ToInt32(v.Value));
+            }
+
+            return new ProductViewModel
+            {
+                Id = doc.Id,
+                Name = data.ContainsKey("name") ? data["name"]?.ToString() ?? "" : "",
+                Description = data.ContainsKey("description") ? data["description"]?.ToString() ?? "" : "",
+                Price = data.ContainsKey("price") ? Convert.ToDecimal(data["price"]) : 0.00m,
+                StockQuantity = stockDict,
+                ImageUrl = data.ContainsKey("imageUrl") ? data["imageUrl"]?.ToString() ?? "" : "",
+                Imageurl2 = data.ContainsKey("imageurl2") ? data["imageurl2"]?.ToString() ?? "" : "",
+                GroupKey = data.ContainsKey("groupKey") ? data["groupKey"].ToString()! : "",
+                Color = data.ContainsKey("color") ? data["color"].ToString()! : ""
+            };
+        }
+
+        public async Task UpdateProductAsync(string id, string name, decimal price, string color, Dictionary<string, int> stockQuantity)
+        {
+            DocumentReference docRef = _firestoreDb.Collection("products").Document(id);
+            
+            Dictionary<string, object> updates = new Dictionary<string, object>
+            {
+                { "name", name },
+                { "price", (double)price },
+                { "color", color ?? "" },
+                { "stockQuantity", stockQuantity } 
+            };
+
+            await docRef.UpdateAsync(updates);
         }
 
         public async Task<string> GetUserRoleAsync(string email)
         {
             try
             {
-                // user's role is stored in the users collection in firestore
                 DocumentReference docRef = _firestoreDb.Collection("users").Document(email);
                 DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
-
-                if (snapshot.Exists && snapshot.ContainsField("role"))
-                {
-                    return snapshot.GetValue<string>("role");
-                }
+                if (snapshot.Exists && snapshot.ContainsField("role")) return snapshot.GetValue<string>("role");
             }
-            catch (Exception ex)
-            {
-                // fallback error
-                Console.WriteLine($"Error fetching user role: {ex.Message}");
-            }
-
+            catch (Exception ex) { Console.WriteLine($"Error fetching user role: {ex.Message}"); }
             return "Customer";
         }
 
@@ -100,21 +142,13 @@ namespace haru.market.Services
             {
                 Query query = _firestoreDb.Collection("users").WhereEqualTo("fullname", fullName).Limit(1);
                 QuerySnapshot snapshot = await query.GetSnapshotAsync();
-
                 if (snapshot.Documents.Count > 0)
                 {
                     DocumentSnapshot userDoc = snapshot.Documents[0];
-                    if (userDoc.ContainsField("email"))
-                    {
-                        return userDoc.GetValue<string>("email");
-                    }
+                    if (userDoc.ContainsField("email")) return userDoc.GetValue<string>("email");
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error finding email by name tracking: {ex.Message}");
-            }
-
+            catch (Exception ex) { Console.WriteLine($"Error finding email by name tracking: {ex.Message}"); }
             return null;
         }
 
@@ -126,12 +160,9 @@ namespace haru.market.Services
                 AggregateQuerySnapshot snapshot = await collection.Count().GetSnapshotAsync();
                 return (int)(snapshot.Count ?? 0);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching product aggregates: {ex.Message}");
-                return 0;
-            }
+            catch (Exception ex) { Console.WriteLine($"Error: {ex.Message}"); return 0; }
         }
+
         public async Task<int> GetTotalUsersCountAsync()
         {
             try
@@ -140,11 +171,7 @@ namespace haru.market.Services
                 AggregateQuerySnapshot snapshot = await collection.Count().GetSnapshotAsync();
                 return (int)(snapshot.Count ?? 0);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching user aggregates: {ex.Message}");
-                return 0;
-            }
+            catch (Exception ex) { Console.WriteLine($"Error: {ex.Message}"); return 0; }
         }
 
         public async Task<int> GetTotalProductViewsCountAsync()
@@ -153,83 +180,43 @@ namespace haru.market.Services
             {
                 CollectionReference collection = _firestoreDb.Collection("products");
                 QuerySnapshot snapshot = await collection.GetSnapshotAsync();
-
                 int totalViews = 0;
-
                 foreach (DocumentSnapshot document in snapshot.Documents)
                 {
                     if (document.Exists && document.ContainsField("views"))
-                    {
                         totalViews += Convert.ToInt32(document.GetValue<object>("views"));
-                    }
                 }
-
                 return totalViews;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching total product views: {ex.Message}");
-                return 0;
-            }
-        }
-
-        public async Task<ProductViewModel?> GetProductAsync(string productId)
-        {
-            DocumentSnapshot doc = await _firestoreDb.Collection("products").Document(productId).GetSnapshotAsync();
-
-            if (!doc.Exists)
-                return null;
-
-            var data = doc.ToDictionary();
-
-            return new ProductViewModel
-            {
-                Id = doc.Id,
-                Name = data["name"]?.ToString() ?? "",
-                Description = data["description"]?.ToString() ?? "",
-                Price = Convert.ToDecimal(data["price"]),
-                StockQuantity = Convert.ToInt32(data["stockQuantity"]),
-                ImageUrl = data["imageUrl"]?.ToString() ?? "",
-                Imageurl2 = data.ContainsKey("imageurl2") ? data["imageurl2"]?.ToString() ?? "" : "",
-                GroupKey = data.ContainsKey("groupKey") ? data["groupKey"].ToString()! : "",
-                Color = data.ContainsKey("color") ? data["color"].ToString()! : ""
-
-            };
-            
+            catch (Exception ex) { Console.WriteLine($"Error: {ex.Message}"); return 0; }
         }
 
         public async Task AddToCartAsync(string uid, ProductViewModel product)
         {
             DocumentReference doc = _firestoreDb.Collection("users").Document(uid).Collection("cart").Document(product.Id);
-
             DocumentSnapshot existing = await doc.GetSnapshotAsync();
-
             if (existing.Exists)
             {
                 int currentQty = existing.GetValue<int>("quantity");
-
                 await doc.UpdateAsync("quantity", currentQty + 1);
-
                 return;
             }
 
             var cartData = new Dictionary<string, object>
-                {
-                    { "productId", product.Id ?? "" },
-                    { "productName", product.Name },
-                    { "price", (double)product.Price },
-                    { "imageUrl", product.ImageUrl },
-                    { "quantity", 1 },
-                    { "addedAt", Timestamp.FromDateTime(DateTime.UtcNow) }
-                };
-
+            {
+                { "productId", product.Id ?? "" },
+                { "productName", product.Name },
+                { "price", (double)product.Price },
+                { "imageUrl", product.ImageUrl },
+                { "quantity", 1 },
+                { "addedAt", Timestamp.FromDateTime(DateTime.UtcNow) }
+            };
             await doc.SetAsync(cartData);
         }
 
         public async Task<List<CartItemViewModel>> GetCartItemsAsync(string uid)
         {
             var cartList = new List<CartItemViewModel>();
-
             try
             {
                 CollectionReference cartRef = _firestoreDb.Collection("users").Document(uid).Collection("cart");
@@ -240,7 +227,6 @@ namespace haru.market.Services
                     if (doc.Exists)
                     {
                         var data = doc.ToDictionary();
-
                         cartList.Add(new CartItemViewModel
                         {
                             ProductId = doc.Id,
@@ -253,11 +239,7 @@ namespace haru.market.Services
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving Firestore cart data segments: {ex.Message}");
-            }
-
+            catch (Exception ex) { Console.WriteLine($"Error: {ex.Message}"); }
             return cartList;
         }
     }

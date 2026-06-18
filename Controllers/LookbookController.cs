@@ -20,11 +20,9 @@ namespace haru.market.Controllers
         public async Task<IActionResult> Index()
         {
             var lookbooks = await _lookbookService.GetAllLookbooksAsync();
-
-            // 🚀 FIXED: Changed to plural 'HeroBannerUrls' to match what your Index and Lookbook views loop through!
             ViewBag.HeroBannerUrls = await _lookbookService.GetShuffledHeroBannersAsync();
             
-            return View(lookbooks);
+            return View("~/Views/Home/Lookbook.cshtml", lookbooks); 
         }
 
         // lookbook upload
