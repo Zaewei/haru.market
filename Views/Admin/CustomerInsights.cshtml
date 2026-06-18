@@ -1,0 +1,471 @@
+@model haru.market.Models.CustomerInsightViewModel
+
+@{
+    ViewData["Title"] = "Customer Insights";
+
+    var zoneLabels  = Model.DeliveryZoneDistribution.Keys.ToArray();
+    var zoneValues  = Model.DeliveryZoneDistribution.Values.ToArray();
+    var trendLabels = Model.RegistrationTrend.Keys.ToArray();
+    var trendValues = Model.RegistrationTrend.Values.ToArray();
+
+    var statusLabels = Model.StatusDistribution.Keys.ToArray();
+    var statusValues = Model.StatusDistribution.Values.ToArray();
+
+    int totalZoneOrders = Model.TopDeliveryZones.Any()
+        ? (int)Model.TopDeliveryZones.Sum(z => z.OrderCount + z.CustomerCount)
+        : 1;
+}
+
+<link rel="stylesheet" href="~/css/admin/dashboard.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/admin/customer-insights.css" asp-append-version="true" />
+
+<div class="ci-header">
+    <div>
+        <h1>Customer Insights</h1>
+        <p class="ci-subtitle">Geographic distribution & demographic analysis of your customer base</p>
+    </div>
+    <span class="ci-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        Reporting Module
+    </span>
+</div>
+
+<div class="stat-grid">
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+        </div>
+        <div class="stat-label">Total Customers</div>
+        <div class="stat-value">@Model.TotalCustomers.ToString("N0")</div>
+        <div class="stat-change up">Registered accounts</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+        </div>
+        <div class="stat-label">Active Customers</div>
+        <div class="stat-value">@Model.ActiveCustomers.ToString("N0")</div>
+        <div class="stat-change up">
+            @(Model.TotalCustomers > 0
+                ? Math.Round((double)Model.ActiveCustomers / Model.TotalCustomers * 100, 1)
+                : 0)% of total
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+            </svg>
+        </div>
+        <div class="stat-label">Unique Delivery Zones</div>
+        <div class="stat-value">@Model.UniqueDeliveryZones</div>
+        <div class="stat-change up">Active destination clusters</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+        </div>
+        <div class="stat-label">Top Delivery Zone</div>
+        <div class="stat-value ci-top-zone">@Model.TopDeliveryZone</div>
+        <div class="stat-change up">Highest order volume</div>
+    </div>
+
+</div>
+
+<div class="dash-row ci-row" style="margin-bottom:1rem;">
+
+    <div class="dash-card ci-chart-card">
+        <h2>
+            Active Delivery Destination Clusters
+            <span class="ci-chart-note">Ranked by order &amp; registration volume</span>
+        </h2>
+        <div class="chart-container" style="position:relative; height:280px; width:100%;">
+            <canvas id="geoChart"
+                    data-labels='@Json.Serialize(zoneLabels)'
+                    data-values='@Json.Serialize(zoneValues)'>
+            </canvas>
+            @if (!Model.DeliveryZoneDistribution.Any())
+            {
+                <div class="ci-empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    <p>No delivery address data available yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="dash-card">
+        <h2>
+            Top Delivery Zones
+            <span class="ci-chart-note">By combined volume</span>
+        </h2>
+
+        @if (Model.TopDeliveryZones.Any())
+        {
+            <div class="ci-zone-list">
+                @foreach (var zone in Model.TopDeliveryZones)
+                {
+                    <div class="ci-zone-item">
+                        <div class="ci-zone-meta">
+                            <div class="ci-zone-name">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                @zone.Zone
+                            </div>
+                            <div class="ci-zone-pct">@zone.Percentage%</div>
+                        </div>
+                        <div class="ci-zone-bar-wrap">
+                            <div class="ci-zone-bar" style="width:@zone.Percentage%;"></div>
+                        </div>
+                        <div class="ci-zone-counts">
+                            <span>@zone.OrderCount order@(zone.OrderCount != 1 ? "s" : "")</span>
+                            <span>@zone.CustomerCount customer@(zone.CustomerCount != 1 ? "s" : "")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div style="text-align:center; padding:2rem; color:#a0a0a0; font-family:'Times New Roman',serif; font-size:0.88rem;">
+                No geographic data recorded yet.
+            </div>
+        }
+    </div>
+
+</div>
+
+<div class="dash-row ci-row" style="margin-bottom:1rem;">
+
+    <div class="dash-card ci-chart-card">
+        <h2>
+            Customer Registration Trend
+            <span class="ci-chart-note">Last 6 months</span>
+        </h2>
+        <div class="chart-container" style="position:relative; height:220px; width:100%;">
+            <canvas id="trendChart"
+                    data-labels='@Json.Serialize(trendLabels)'
+                    data-values='@Json.Serialize(trendValues)'>
+            </canvas>
+        </div>
+    </div>
+
+    <div class="dash-card">
+        <h2>
+            Account Status Breakdown
+            <span class="ci-chart-note">All registered users</span>
+        </h2>
+        <div class="users-overview">
+            <div class="donut-wrap">
+                <div style="position:relative; height:140px; width:140px;">
+                    <canvas id="statusChart"
+                            data-labels='@Json.Serialize(statusLabels)'
+                            data-values='@Json.Serialize(statusValues)'>
+                    </canvas>
+                </div>
+                <div class="donut-center">
+                    <div class="donut-total">@Model.TotalCustomers</div>
+                    <div class="donut-label">Customers</div>
+                </div>
+            </div>
+            <div class="users-legend">
+                @{
+                    var palette = new[] { "#c96a7f", "#e8b4be", "#f2d0d7", "#a04f62", "#d49aaa" };
+                    int pi = 0;
+                }
+                @foreach (var kv in Model.StatusDistribution)
+                {
+                    double pct = Model.TotalCustomers > 0
+                        ? Math.Round((double)kv.Value / Model.TotalCustomers * 100, 1)
+                        : 0;
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:@palette[pi % palette.Length]"></span>
+                        <span class="legend-text">@kv.Key</span>
+                        <span class="legend-val">@kv.Value (@pct%)</span>
+                    </div>
+                    pi++;
+                }
+                @if (!Model.StatusDistribution.Any())
+                {
+                    <div style="color:#a0a0a0; font-size:0.82rem; font-family:'Times New Roman',serif;">
+                        No status data available.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="dash-row ci-full-row" style="margin-bottom:1.5rem;">
+    <div class="dash-card">
+        <h2>
+            Recent Customer Registrations
+            <a class="btn-create" asp-controller="Admin" asp-action="Users">View All</a>
+        </h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Email</th>
+                    <th>Delivery Zone</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.RecentCustomers != null && Model.RecentCustomers.Any())
+                {
+                    foreach (var customer in Model.RecentCustomers)
+                    {
+                        <tr>
+                            <td>
+                                <div class="ci-customer-cell">
+                                    <div class="ci-avatar">@(customer.Name.Length > 0 ? customer.Name[0].ToString().ToUpper() : "?")</div>
+                                    @customer.Name
+                                </div>
+                            </td>
+                            <td style="font-size:0.82rem; color:#888;">@customer.Email</td>
+                            <td>
+                                <span class="ci-zone-pill">
+                                    @{
+                                        var zone = ExtractZoneDisplay(customer.Address);
+                                    }
+                                    @zone
+                                </span>
+                            </td>
+                            <td>
+                                @if (customer.Status?.ToLower() == "active")
+                                {
+                                    <span class="badge-published">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="ci-badge-inactive">@(customer.Status ?? "Unknown")</span>
+                                }
+                            </td>
+                            <td style="font-size:0.82rem; color:#888;">@customer.JoinedAt.ToString("MMM d, yyyy")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding:2rem; color:#a0a0a0;">
+                            No customer records found.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@functions {
+    private static string ExtractZoneDisplay(string address)
+    {
+        if (string.IsNullOrWhiteSpace(address) ||
+            address.Contains("No address", StringComparison.OrdinalIgnoreCase))
+            return "—";
+
+        var parts = address
+            .Split(',', System.StringSplitOptions.RemoveEmptyEntries)
+            .Select(p => p.Trim())
+            .Where(p => !string.IsNullOrWhiteSpace(p) && !p.All(c => char.IsDigit(c) || c == '-' || c == ' '))
+            .ToList();
+
+        if (parts.Count >= 2) return parts[^2];
+        if (parts.Count == 1) return parts[0];
+        return "—";
+    }
+}
+
+@section Scripts {
+<script>
+(function () {
+    function loadChartJs(cb) {
+        if (window.Chart) { cb(); return; }
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+        s.onload = cb;
+        document.head.appendChild(s);
+    }
+
+    var COLORS = ['#c96a7f','#e8b4be','#d49aaa','#a04f62','#f2d0d7','#b87085','#e0a0ae','#9a3e55'];
+
+    loadChartJs(function () {
+
+        var geoCanvas = document.getElementById('geoChart');
+        if (geoCanvas && !geoCanvas.dataset.rendered) {
+            geoCanvas.dataset.rendered = '1';
+            var labels = JSON.parse(geoCanvas.dataset.labels || '[]');
+            var values = JSON.parse(geoCanvas.dataset.values || '[]');
+
+            if (labels.length === 0) {
+                labels = ['No Data']; values = [0];
+            }
+
+            new Chart(geoCanvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: labels.map(function(_, i) {
+                            return COLORS[i % COLORS.length];
+                        }),
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ' ' + ctx.parsed.x + ' customers';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#b8929f',
+                                font: { family: 'Poppins, sans-serif', size: 11 },
+                                stepSize: 1
+                            },
+                            grid: { color: 'rgba(240,214,219,0.4)' }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#2a2a2a',
+                                font: { family: 'Times New Roman, serif', size: 12 }
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        var trendCanvas = document.getElementById('trendChart');
+        if (trendCanvas && !trendCanvas.dataset.rendered) {
+            trendCanvas.dataset.rendered = '1';
+            var tLabels = JSON.parse(trendCanvas.dataset.labels || '[]');
+            var tValues = JSON.parse(trendCanvas.dataset.values || '[]');
+
+            new Chart(trendCanvas, {
+                type: 'bar',
+                data: {
+                    labels: tLabels,
+                    datasets: [{
+                        label: 'New Customers',
+                        data: tValues,
+                        backgroundColor: 'rgba(201,106,127,0.15)',
+                        borderColor: '#c96a7f',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ' ' + ctx.parsed.y + ' new customer' + (ctx.parsed.y !== 1 ? 's' : '');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#b8929f',
+                                font: { family: 'Poppins, sans-serif', size: 11 },
+                                stepSize: 1,
+                                precision: 0
+                            },
+                            grid: { color: 'rgba(240,214,219,0.4)' }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#2a2a2a',
+                                font: { family: 'Times New Roman, serif', size: 11 }
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        var statusCanvas = document.getElementById('statusChart');
+        if (statusCanvas && !statusCanvas.dataset.rendered) {
+            statusCanvas.dataset.rendered = '1';
+            var sLabels = JSON.parse(statusCanvas.dataset.labels || '[]');
+            var sValues = JSON.parse(statusCanvas.dataset.values || '[]');
+
+            if (sLabels.length === 0) {
+                sLabels = ['No Data']; sValues = [1];
+            }
+
+            new Chart(statusCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: sLabels,
+                    datasets: [{
+                        data: sValues,
+                        backgroundColor: COLORS.slice(0, sLabels.length),
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    cutout: '72%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    });
+})();
+</script>
+}
