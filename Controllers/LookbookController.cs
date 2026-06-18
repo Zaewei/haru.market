@@ -21,7 +21,6 @@ namespace haru.market.Controllers
         {
             var lookbooks = await _lookbookService.GetAllLookbooksAsync();
 
-            // 🚀 FIXED: Changed to plural 'HeroBannerUrls' to match what your Index and Lookbook views loop through!
             ViewBag.HeroBannerUrls = await _lookbookService.GetShuffledHeroBannersAsync();
             
             return View(lookbooks);
@@ -61,9 +60,18 @@ namespace haru.market.Controllers
                 return NotFound();
             }
 
-            await _lookbookService.SaveToWishlistAsync(uid, lookbook);
+            bool alreadyWishlisted = await _lookbookService.IsWishlistedAsync(uid, lookbookId);
 
-            return RedirectToAction(nameof(Index));
+            if (alreadyWishlisted)
+            {
+                await _lookbookService.RemoveFromWishlistAsync(uid, lookbookId);
+            }
+            else
+            {
+                await _lookbookService.SaveToWishlistAsync(uid, lookbook);
+            }
+
+            return RedirectToAction("Lookbook", "Home");
         }
 
         // wishlist page
