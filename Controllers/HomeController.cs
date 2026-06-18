@@ -54,10 +54,21 @@ namespace haru.market.Controllers
         public async Task<IActionResult> Lookbook()
         {
             ViewBag.HeroBannerUrls = await _lookbookService.GetShuffledHeroBannersAsync();
-            
+
             var lookbooks = await _lookbookService.GetAllLookbooksAsync();
             var ordered = lookbooks.OrderByDescending(l => l.IsFeatured).ToList();
-            
+
+            string? uid = HttpContext.Session.GetString("UserUid");
+
+            if (!string.IsNullOrEmpty(uid))
+            {
+                ViewBag.WishlistIds = await _lookbookService.GetWishlistAsync(uid);
+            }
+            else
+            {
+                ViewBag.WishlistIds = new List<string>();
+            }
+
             return View(ordered);
         }
     }
