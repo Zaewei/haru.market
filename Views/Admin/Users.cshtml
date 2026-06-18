@@ -4,12 +4,10 @@
 
 <link rel="stylesheet" href="~/css/admin/users.css" asp-append-version="true" />
 
-<!-- Page Header -->
 <div class="page-header">
     <h1>Users</h1>
 </div>
 
-<!-- ── Stat Cards ── -->
 <div class="usr-stat-grid">
     <div class="usr-stat-card">
         <div class="usr-stat-icon usr-stat-icon--total">
@@ -41,7 +39,6 @@
     </div>
 </div>
 
-<!-- ── Filter Toolbar ── -->
 <div class="usr-toolbar">
     <div class="usr-search-wrap">
         <svg class="usr-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -62,7 +59,6 @@
     </div>
 </div>
 
-<!-- ── Users Table ── -->
 <div class="admin-card usr-table-card">
     <table class="data-table usr-table">
         <thead>
@@ -81,24 +77,18 @@
     <div class="usr-empty" id="usrEmpty" style="display:none;">No users match your filters.</div>
 </div>
 
-<!-- Pagination -->
 <div class="usr-pagination" id="usrPagination"></div>
 
 
-<!-- ══════════════════════════════════════
-     USER DETAILS PANEL (slide-in overlay)
-     ══════════════════════════════════════ -->
 <div class="usr-detail-overlay" id="userDetailOverlay">
     <div class="usr-detail-panel" id="userDetailPanel">
 
-        <!-- Breadcrumb -->
         <div class="usr-detail-breadcrumb">
             <button class="usr-detail-back" id="closeDetailBtn">Users</button>
             <span class="usr-detail-breadcrumb-sep">›</span>
             <span class="usr-detail-breadcrumb-cur">User details</span>
         </div>
 
-        <!-- Account Overview card -->
         <div class="usr-overview-card" id="detailOverviewCard">
             <div class="usr-overview-header">
                 <span class="usr-overview-title">Account Overview</span>
@@ -106,7 +96,6 @@
             </div>
 
             <div class="usr-overview-grid">
-                <!-- Col 1: Personal Info -->
                 <div class="usr-info-col">
                     <div class="usr-info-col-title">Personal Information</div>
                     <div class="usr-info-row">
@@ -131,7 +120,6 @@
                     </div>
                 </div>
 
-                <!-- Col 2: Account Info -->
                 <div class="usr-info-col">
                     <div class="usr-info-col-title">Account Information</div>
                     <div class="usr-acct-row"><span class="usr-acct-label">User ID</span><span id="detailUserId">—</span></div>
@@ -141,7 +129,6 @@
                     <div class="usr-acct-row"><span class="usr-acct-label">Password Change</span><span id="detailPwChange">—</span></div>
                 </div>
 
-                <!-- Col 3: Activity Summary -->
                 <div class="usr-info-col">
                     <div class="usr-info-col-title">Activity Summary</div>
                     <div class="usr-activity-row"><span>Orders</span><span id="detailOrders">—</span></div>
@@ -153,24 +140,20 @@
             </div>
         </div>
 
-        <!-- Past Orders -->
         <div class="usr-orders-section">
             <div class="usr-orders-header">
                 <span class="usr-orders-title">Past Orders</span>
                 <button class="usr-btn-view-all">View All Orders</button>
             </div>
             <div class="usr-orders-list" id="detailOrdersList">
-                <!-- populated by JS -->
-            </div>
+                </div>
         </div>
 
-        <!-- Go Back -->
         <button class="usr-btn-go-back" id="goBackBtn">Go back to user</button>
 
     </div>
 </div>
 
-<!-- ═══ ORDER VIEW MODAL (Users page) ═══ -->
 <div class="ord-modal-overlay" id="usrOrderViewModal">
     <div class="ord-modal">
         <div class="ord-modal-header">
@@ -209,3 +192,84 @@
 </script>
 
 <script src="~/js/admin.js" asp-append-version="true"></script>
+<script>
+    function loadLiveUserStats(email) {
+        document.getElementById('detailOrders').innerText = '...';
+        document.getElementById('detailProducts').innerText = '...';
+        document.getElementById('detailSpent').innerText = '...';
+        document.getElementById('detailOrdersList').innerHTML = '<p style="color: #888; padding: 10px 0;">Loading orders...</p>';
+
+        fetch('/Admin/GetUserStats?email=' + encodeURIComponent(email))
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('detailOrders').innerText = data.totalOrders;
+                document.getElementById('detailProducts').innerText = data.productsPurchased;
+                document.getElementById('detailSpent').innerText = '₱' + data.totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                const ordersContainer = document.getElementById('detailOrdersList');
+                ordersContainer.innerHTML = '';
+                if (data.recentOrders && data.recentOrders.length > 0) {
+                    data.recentOrders.forEach(order => {
+                        const orderDate = new Date(order.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        
+                        const orderRow = `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+                                <div>
+                                    <strong style="color: #333;">#${order.id.substring(0, 8).toUpperCase()}</strong>
+                                    <div style="color: #888; font-size: 13px; margin-top: 4px;">${orderDate}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-weight: bold; color: #d63384;">₱${order.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                                    <div style="font-size: 12px; margin-top: 4px; padding: 2px 8px; border-radius: 12px; background: #eee; display: inline-block;">${order.status}</div>
+                                </div>
+                            </div>
+                        `;
+                        ordersContainer.innerHTML += orderRow;
+                    });
+                } else {
+                    ordersContainer.innerHTML = '<p style="color: #888; padding: 10px 0;">No orders found for this user.</p>';
+                }
+            })
+            .catch(err => {
+                console.error("Error loading stats:", err);
+                document.getElementById('detailOrders').innerText = '0';
+                document.getElementById('detailProducts').innerText = '0';
+                document.getElementById('detailSpent').innerText = '₱0.00';
+                document.getElementById('detailOrdersList').innerHTML = '<p style="color: #888; padding: 10px 0;">Failed to load orders.</p>';
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const emailField = document.getElementById('detailEmail');
+        const overlay = document.getElementById('userDetailOverlay');
+        
+        if (emailField) {
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    const currentEmail = emailField.innerText.trim();
+                    if (currentEmail && currentEmail !== '—') {
+                        loadLiveUserStats(currentEmail);
+                        
+                        if (overlay) {
+                            overlay.style.display = 'flex';
+                        }
+                    }
+                });
+            });
+
+            observer.observe(emailField, { childList: true, characterData: true, subtree: true });
+        }
+
+        function closeUserModal() {
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+        }
+
+        const topCloseBtn = document.getElementById('closeDetailBtn');
+        const bottomCloseBtn = document.getElementById('goBackBtn');
+        
+        if (topCloseBtn) topCloseBtn.addEventListener('click', closeUserModal);
+        if (bottomCloseBtn) bottomCloseBtn.addEventListener('click', closeUserModal);
+    });
+</script>

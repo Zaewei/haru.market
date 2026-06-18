@@ -33,26 +33,35 @@ namespace haru.market.Services
             QuerySnapshot snapshot = await collection.GetSnapshotAsync();
 
             foreach (DocumentSnapshot document in snapshot.Documents)
-            {
-                if (document.Exists)
                 {
-                    Dictionary<string, object> data = document.ToDictionary();
+                    if (document.Exists)
+                    {
+                        Dictionary<string, object> data = document.ToDictionary();
+
+                        string GetVal(string key1, string key2, string fallback) 
+                        {
+                            if (data.ContainsKey(key1)) return data[key1].ToString()!;
+                            if (data.ContainsKey(key2)) return data[key2].ToString()!;
+                            return fallback;
+                        }
 
                     usersList.Add(new AdminUserViewModel
                     {
                         Id = document.Id,
-                        Name = data.ContainsKey("username") ? data["username"].ToString()! : "Unknown User",
-                        Email = data.ContainsKey("email") ? data["email"].ToString()! : "No Email Provided",
-                        Role = data.ContainsKey("role") ? data["role"].ToString()! : "Customer",
-                        Status = data.ContainsKey("status") ? data["status"].ToString()! : "Active",
-                        JoinedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp joinTs 
-                            ? joinTs.ToDateTime().ToLocalTime() 
-                            : DateTime.Now,
-                        LastActive = data.ContainsKey("lastActive") && data["lastActive"] is Timestamp activeTs 
-                            ? activeTs.ToDateTime().ToLocalTime() 
-                            : DateTime.Now,
-                        Phone = data.ContainsKey("phone") ? data["phone"].ToString()! : "N/A",
-                        Address = data.ContainsKey("address") ? data["address"].ToString()! : "No address on file"
+                        // Check both conventions
+                        Name = GetVal("username", "FullName", "Unknown User"),
+                        Email = GetVal("email", "Email", "No Email Provided"),
+                        Role = GetVal("role", "Role", "Customer"),
+                        Status = GetVal("status", "Status", "Active"),
+                        
+                        // Dates are a bit stricter, we just check which one exists
+                        JoinedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts1 ? ts1.ToDateTime().ToLocalTime() :
+                                data.ContainsKey("JoinedAt") && data["JoinedAt"] is Timestamp ts2 ? ts2.ToDateTime().ToLocalTime() : DateTime.Now,
+                        
+                        LastActive = data.ContainsKey("lastActive") && data["lastActive"] is Timestamp laTs ? laTs.ToDateTime().ToLocalTime() : DateTime.Now,
+                        
+                        Phone = GetVal("phone", "ContactDetails", "N/A"),
+                        Address = GetVal("address", "DeliveryAddress", "No address on file")
                     });
                 }
             }

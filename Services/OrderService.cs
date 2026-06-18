@@ -12,6 +12,7 @@ using haru.market.Models;
 using Microsoft.Extensions.Configuration;
 using Xendit.net;
 
+
 namespace haru.market.Services
 {
     public class OrderService
@@ -37,11 +38,9 @@ namespace haru.market.Services
                 Credential = credential
             }.Build();
 
-            // Initialize Xendit SDK
             XenditConfiguration.ApiKey = _configuration["Xendit:SecretKey"];
         }
 
-        // US-09 & 011: Register complete order details to firestore
         public async Task<string> CreateOrderAsync(OrderPlacementViewModel orderData)
         {
             string generatedOrderId = await _firestoreDb.RunTransactionAsync(async transaction =>
@@ -77,8 +76,8 @@ namespace haru.market.Services
                     { "shippingAddress", orderData.ShippingAddress },
                     { "customerEmail", orderData.CustomerEmail },
                     { "totalAmount", totalAmount },
-                    { "status", "Pending" }, // Explicitly set initial status
-                    { "paymentMethod", "Pending" }, // Will update after Xendit checkout
+                    { "status", "Pending" },
+                    { "paymentMethod", "Pending" },
                     { "createdAt", Timestamp.FromDateTime(DateTime.UtcNow) },
                     { "items", orderData.Items.Select(i => new Dictionary<string, object>
                         {
@@ -304,6 +303,54 @@ namespace haru.market.Services
             }
 
             return ordersList.OrderByDescending(o => o.Date).ToList();
+        }
+
+        public async Task<UserActivityViewModel> GetUserActivityAsync(string email)
+        {
+            var activity = new UserActivityViewModel();
+            
+            Query orderQuery = _firestoreDb.Collection("orders").WhereEqualTo("customerEmail", email);
+            QuerySnapshot orderSnapshot = await orderQuery.GetSnapshotAsync();
+
+            int totalProductsPurchased = 0;
+            double totalSpent = 0;
+            var ordersList = new List<OrderViewModel>();
+
+            foreach (DocumentSnapshot doc in orderSnapshot.Documents)
+            {
+                activity.TotalOrders++;
+                
+                Dictionary<string, object> data = doc.ToDictionary();
+
+                if (data.ContainsKey("totalAmount"))
+                    totalSpent += Convert.ToDouble(data["totalAmount"]);
+
+                if (data.ContainsKey("items") && data["items"] is List<object> itemsList)
+                {
+                    foreach (var itemObj in itemsList)
+                    {
+                        if (itemObj is Dictionary<string, object> itemDict && itemDict.ContainsKey("quantity"))
+                        {
+                            totalProductsPurchased += Convert.ToInt32(itemDict["quantity"]);
+                        }
+                    }
+                }
+
+                ordersList.Add(new OrderViewModel
+                {
+                    Id = doc.Id,
+                    Status = data.ContainsKey("status") ? data["status"].ToString()! : "Pending",
+                    Total = data.ContainsKey("totalAmount") ? Convert.ToDecimal(data["totalAmount"]) : 0,
+                    Date = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts ? ts.ToDateTime().ToLocalTime() : DateTime.UtcNow
+                });
+            }
+
+            activity.TotalSpent = totalSpent;
+            activity.ProductsPurchased = totalProductsPurchased;
+            
+            activity.RecentOrders = ordersList.OrderByDescending(o => o.Date).ToList(); 
+
+            return activity;
         }
     }
 }

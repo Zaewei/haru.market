@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace haru.market.Controllers
 {
+    [AdminAuthorize]
     public class AdminController : Controller
     {
         private readonly ProductService _productService;
@@ -219,6 +220,15 @@ namespace haru.market.Controllers
             {
                 return Json(new { success = false, message = ex.Message });
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserStats(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return BadRequest("Email is required.");
+            
+            var stats = await _orderService.GetUserActivityAsync(email);
+            return Json(stats);
         }
     }
 }

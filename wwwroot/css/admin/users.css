@@ -1,7 +1,7 @@
 .admin-content * {
     font-weight: bold;
 }
-/* ── Stat cards ── */
+
 .usr-stat-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -34,7 +34,6 @@
 .usr-stat-label { font-family: 'Poppins', sans-serif; font-size: 0.78rem; color: #999; }
 .usr-stat-value { font-family: 'Poppins', sans-serif; font-size: 1.6rem; font-weight: 700; color: #2a2a2a; line-height: 1.1; }
 
-/* ── Toolbar ── */
 .usr-toolbar {
     display: flex;
     gap: 0.7rem;
@@ -71,7 +70,6 @@
 .usr-date-wrap svg { width: 14px; height: 14px; stroke: #b8929f; fill: none; flex-shrink: 0; }
 .usr-date-wrap .usr-filter { border: none; box-shadow: none; padding: 0; min-width: 150px; background: transparent; height: auto; }
 
-/* ── Table card ── */
 .usr-table-card {
     background: #fff;
     border: 1px solid #f0d6db;
@@ -104,7 +102,6 @@
 .usr-table tbody tr:last-child { border-bottom: none; }
 .usr-table tbody tr:hover { background: #fffafb; }
 
-/* ── User cell ── */
 .usr-cell { display: flex; align-items: center; gap: 0.6rem; }
 .usr-avatar {
     width: 34px; height: 34px;
@@ -124,14 +121,12 @@
 .usr-last-active { font-size: 0.85rem; color: #3a3a3a; }
 .usr-last-time   { font-size: 0.75rem; color: #b8929f; margin-top: 1px; }
 
-/* ── Badges ── */
 .usr-badge { display: inline-block; border-radius: 20px; padding: 3px 12px; font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
 .usr-badge--admin    { background: #fde8ed; color: #c96a7f; }
 .usr-badge--customer { background: #f5f5f5; color: #757575; }
 .usr-badge--active   { background: #e8f5e9; color: #388e3c; }
 .usr-badge--inactive { background: #fff3e0; color: #ef6c00; }
 
-/* ── View button ── */
 .btn-usr-view {
     font-family: 'Poppins', sans-serif;
     font-size: 0.78rem;
@@ -151,10 +146,8 @@
 }
 .btn-usr-view:hover { background: #fde8ed; border-color: #c96a7f; color: #c96a7f; }
 
-/* ── Empty state ── */
 .usr-empty { font-family: 'Poppins', sans-serif; color: #ccc; text-align: center; padding: 2.5rem 0; font-size: 0.9rem; }
 
-/* ── Pagination ── */
 .usr-pagination {
     display: flex; justify-content: center; align-items: center;
     gap: 0.4rem; padding: 0.5rem 0 1rem; flex-wrap: wrap;
@@ -169,44 +162,77 @@
 .usr-page-btn:disabled { opacity: 0.4; cursor: default; }
 .usr-page-num--active { background: #c96a7f !important; border-color: #c96a7f !important; color: #fff !important; }
 
-
-/* ════════════════════════════════════════════
-   USER DETAILS PANEL
-   ════════════════════════════════════════════ */
 .usr-detail-overlay {
-    display: none;
     position: fixed;
-    inset: 0;
-    background: rgba(42,42,42,0.35);
-    z-index: 200;
-    overflow-y: auto;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4); 
+    backdrop-filter: blur(8px); 
+    -webkit-backdrop-filter: blur(8px); 
+    z-index: 1000;
+    
+    display: none; 
+    
+    justify-content: center;
+    align-items: center;
 }
-.usr-detail-overlay--open { display: block; }
+
+.usr-detail-overlay[style*="display: block"],
+.usr-detail-overlay.active,
+.usr-detail-overlay.show {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
 
 .usr-detail-panel {
-    background: #fdf6f8;
-    min-height: 100vh;
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 1.4rem 1.6rem 2.5rem;
+    width: 900px;         
+    max-width: 95vw;      
+    max-height: 85vh;     
+    overflow-y: auto;     
+    
+    position: relative; 
+    margin: 0; 
+    
+    background: #fff;
+    border-radius: 16px; 
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); 
 }
 
-/* Breadcrumb */
 .usr-detail-breadcrumb {
-    display: flex; align-items: center; gap: 0.4rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #666;
+    display: flex;
+    align-items: center;
 }
-.usr-detail-back {
-    background: none; border: none; cursor: pointer;
-    font-family: 'Poppins', sans-serif; font-size: 0.85rem;
-    color: #c96a7f; padding: 0;
-    transition: opacity 0.15s;
-}
-.usr-detail-back:hover { opacity: 0.7; }
-.usr-detail-breadcrumb-sep { color: #b8929f; font-size: 0.9rem; }
-.usr-detail-breadcrumb-cur { font-family: 'Poppins', sans-serif; font-size: 0.85rem; color: #3a3a3a; }
 
-/* Overview card */
+.usr-detail-back {
+    background: none;
+    border: none;
+    color: #d63384;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.usr-detail-back:hover {
+    text-decoration: underline;
+}
+
+.usr-detail-breadcrumb-sep {
+    margin: 0 8px;
+    color: #bbb;
+}
+
+.usr-detail-breadcrumb-cur {
+    color: #333;
+    font-weight: 700;
+}
+
 .usr-overview-card {
     background: #fff;
     border: 1px solid #f0d6db;
@@ -236,7 +262,6 @@
     gap: 1.2rem;
 }
 
-/* Info columns */
 .usr-info-col-title {
     font-family: 'Poppins', sans-serif;
     font-size: 0.72rem; font-weight: 700;
@@ -273,7 +298,6 @@
 .usr-activity-row:last-child { border-bottom: none; }
 .usr-activity-highlight { font-weight: 700; color: #c96a7f; }
 
-/* Past Orders section */
 .usr-orders-section {
     background: #fff;
     border: 1px solid #f0d6db;
@@ -359,7 +383,6 @@
 }
 .usr-btn-view-order:hover { background: #b05570; }
 
-/* Go back button */
 .usr-btn-go-back {
     display: block; width: 100%;
     font-family: 'Poppins', sans-serif;
@@ -372,7 +395,6 @@
 }
 .usr-btn-go-back:hover { background: #fde8ed; border-color: #c96a7f; }
 
-/* ── Responsive ── */
 @media (max-width: 900px) {
     .usr-stat-grid { grid-template-columns: repeat(2, 1fr); }
     .usr-overview-grid { grid-template-columns: 1fr 1fr; }
@@ -381,7 +403,7 @@
     .usr-overview-grid { grid-template-columns: 1fr; }
     .usr-toolbar { flex-direction: column; align-items: stretch; }
 }
-/* ═══ Order View Modal (used on Users page) ═══ */
+
 .ord-modal-overlay {
     display: none;
     position: fixed; inset: 0;

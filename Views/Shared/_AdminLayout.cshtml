@@ -13,6 +13,51 @@
     <link rel="stylesheet" href="~/haru.market.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin/admin-base.css" asp-append-version="true" />
 
+    <style>
+    .admin-top-profile { 
+        position: relative; 
+        display: flex; 
+        align-items: center; 
+    }
+    .admin-top-btn {
+        background: none; border: none; cursor: pointer; padding: 0;
+        display: flex; align-items: center; justify-content: center;
+        width: 32px; height: 32px; border-radius: 50%;
+    }
+    .admin-top-btn img {
+        width: 24px; height: 24px; object-fit: contain;
+    }
+    header {
+        position: relative;
+        z-index: 2000 !important; 
+    }
+    #adminSidebar {
+        z-index: 1999 !important; 
+    }
+    #sidebarOverlay {
+        z-index: 1998 !important;
+    }
+
+    .admin-profile-menu {
+        display: none; position: absolute; right: 0; top: 100%; margin-top: 15px;
+        background: #fff; border: 1px solid #f0d6db; border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(201,106,127,0.15); min-width: 200px;
+        z-index: 2001; flex-direction: column;
+    }
+    .admin-profile-menu.show { display: flex; }
+    .admin-profile-header { padding: 16px; display: flex; flex-direction: column; text-align: left;}
+    .admin-profile-header strong { font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: #2a2a2a; }
+    .admin-profile-header span { font-family: 'Poppins', sans-serif; font-size: 0.75rem; color: #b8929f; }
+    .admin-profile-div { border: none; border-top: 1px solid #f0d6db; margin: 0; }
+    .admin-profile-link {
+        font-family: 'Poppins', sans-serif; font-size: 0.85rem; color: #3a3a3a;
+        padding: 12px 16px; text-decoration: none; text-align: left;
+        background: none; border: none; cursor: pointer; width: 100%;
+        transition: background 0.15s, color 0.15s;
+    }
+    .admin-profile-link:hover { background: #fde8ed; color: #c96a7f; }
+    .admin-profile-link:last-child { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+</style>
 </head>
 <body>
 
@@ -33,7 +78,23 @@
                 <div class="TopMenu navbox">
                     <ul>
                         <li class="TopMenu_search"><a href="#"><img src="~/images/Layout/Search-icon.png" alt="Search" /></a></li>
-                        <li class="TopMenu_user"><a href="#"><img src="~/images/Layout/User-icon.png" alt="User" /></a></li>
+                        
+                        <li class="TopMenu_user admin-top-profile">
+                            <button id="adminProfileBtn" class="admin-top-btn">
+                                <img src="~/images/Layout/User-icon.png" alt="User" />
+                            </button>
+                            <div id="adminProfileMenu" class="admin-profile-menu">
+                                <div class="admin-profile-header">
+                                    <strong>Admin Workspace</strong>
+                                    <span>Authorized Access</span>
+                                </div>
+                                <hr class="admin-profile-div" />
+                                <button type="button" class="admin-profile-link" onclick="document.getElementById('adminLogoutForm').submit();">
+                                    Logout Session
+                                </button>
+                            </div>
+                        </li>
+
                     </ul>
                 </div>
             </div>
@@ -73,12 +134,16 @@
                 Users
             </a>
             <hr class="sidebar-divider" />
+            
             <div class="sidebar-logout">
-                <a class="sidebar-link" asp-controller="Account" asp-action="Logout">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    Logout
-                </a>
+                <form asp-controller="Account" asp-action="Logout" method="post" id="adminLogoutForm" style="margin: 0; padding: 0;">
+                    <button type="submit" class="sidebar-link" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Logout
+                    </button>
+                </form>
             </div>
+
         </aside>
 
         <div class="admin-content">
@@ -87,7 +152,6 @@
             </main>
 
 
-            <!-- ═══ Footer ═══ -->
             <footer class="hft">
                 <div class="hft-container">
                     <div class="hft-links">
@@ -111,7 +175,6 @@
                 </div>
             </footer>
 
-
         </div>
 
     </div>
@@ -121,5 +184,25 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/admin.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const profileBtn = document.getElementById('adminProfileBtn');
+            const profileMenu = document.getElementById('adminProfileMenu');
+
+            if (profileBtn && profileMenu) {
+                profileBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    profileMenu.classList.toggle('show');
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
+                        profileMenu.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
