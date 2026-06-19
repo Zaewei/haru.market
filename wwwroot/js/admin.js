@@ -65,8 +65,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const finalLabels = rawLabels.length > 0 ? rawLabels : ['No Data'];
                 const finalValues = rawValues.length > 0 ? rawValues : [0];
 
-               const maxVal = Math.max(...finalValues, 100); 
-                const suggestedMax = Math.ceil(maxVal / 100) * 100;
+                const maxVal = Math.max(...finalValues, 100);
+                const suggestedMax = Math.ceil(maxVal / 1000) * 1000;
 
                 new Chart(viewsCanvas, {
                     type: 'line',
@@ -1276,6 +1276,14 @@ document.addEventListener('DOMContentLoaded', function () {
         function ordOpenViewModal(idx) {
             var o = allOrders[idx];
             document.getElementById('viewModalTitle').textContent = 'Order ' + o.id;
+            var trackingRow = '';
+            if (o.trackingNumber) {
+                trackingRow =
+                    '<div class="ord-view-row"><span class="ord-view-label">Courier</span><span class="ord-view-val">' + (o.courierCode || '—') + '</span></div>' +
+                    '<div class="ord-view-row"><span class="ord-view-label">Tracking #</span><span class="ord-view-val">' + o.trackingNumber + '</span></div>' +
+                    '<div class="ord-view-row"><span class="ord-view-label">Tracking Status</span><span class="ord-view-val" id="ordTrackingStatusVal">' + (o.trackingStatus || 'pending') + '</span></div>' +
+                    '<div class="ord-view-row"><span class="ord-view-label"></span><span class="ord-view-val"><button type="button" class="pm-btn-cancel" id="btnRefreshTracking" data-idx="' + idx + '">Refresh Tracking</button></span></div>';
+            }
             document.getElementById('viewModalBody').innerHTML =
                 '<div class="ord-view-row"><span class="ord-view-label">Order ID</span><span class="ord-view-val ord-id">' + o.id + '</span></div>' +
                 '<div class="ord-view-row"><span class="ord-view-label">Customer</span><span class="ord-view-val">' + o.name + '<br><small>' + o.email + '</small></span></div>' +
@@ -1283,9 +1291,76 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<div class="ord-view-row"><span class="ord-view-label">Status</span><span class="ord-view-val">' + ordBadgeFor(o.status) + '</span></div>' +
                 '<div class="ord-view-row"><span class="ord-view-label">Payment</span><span class="ord-view-val">' + o.payment + '</span></div>' +
                 '<div class="ord-view-row"><span class="ord-view-label">Total</span><span class="ord-view-val ord-total">' + o.total + '</span></div>' +
-                '<div class="ord-view-row"><span class="ord-view-label">Address</span><span class="ord-view-val">' + o.address + '</span></div>';
+                '<div class="ord-view-row"><span class="ord-view-label">Address</span><span class="ord-view-val">' + o.address + '</span></div>' +
+                trackingRow;
+
+            var refreshBtn = document.getElementById('btnRefreshTracking');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    var orderId = this.dataset.idx !== undefined ? allOrders[parseInt(this.dataset.idx)].id : o.id;
+                    refreshBtn.disabled = true;
+                    refreshBtn.textContent = 'Refreshing…';
+                    fetch('/Admin/RefreshOrderTracking', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({ 'orderId': orderId })
+                    })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.success) {
+                            o.trackingStatus = data.trackingStatus;
+                            var statusEl = document.getElementById('ordTrackingStatusVal');
+                            if (statusEl) statusEl.textContent = data.trackingStatus;
+                            ordShowToast('Tracking refreshed: ' + data.trackingStatus);
+                        } else {
+                            ordShowToast(data.message || 'Could not refresh tracking.');
+                        }
+                    })
+                    .catch(function() { ordShowToast('Could not reach the server to refresh tracking.'); })
+                    .finally(function() {
+                        refreshBtn.disabled = false;
+                        refreshBtn.textContent = 'Refresh Tracking';
+                    });
+                });
+            }
+
             ordOpenModal('viewOrderModal');
         }
+
+        var ordCouriersCache = null;
+        function ordPopulateCourierSelect(selectedCode) {
+            var sel = document.getElementById('editCourierSelect');
+            if (!sel) return;
+
+            function fill(couriers) {
+                sel.innerHTML = '<option value="">Select a courier…</option>' + couriers.map(function(c) {
+                    return '<option value="' + c.code + '"' + (c.code === selectedCode ? ' selected' : '') + '>' + c.name + '</option>';
+                }).join('');
+            }
+
+            if (ordCouriersCache) { fill(ordCouriersCache); return; }
+
+            sel.innerHTML = '<option value="">Loading couriers…</option>';
+            fetch('/Admin/GetCouriers')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        ordCouriersCache = data.couriers;
+                        fill(ordCouriersCache);
+                    } else {
+                        sel.innerHTML = '<option value="">Could not load couriers</option>';
+                    }
+                })
+                .catch(function() { sel.innerHTML = '<option value="">Could not load couriers</option>'; });
+        }
+
+        function ordToggleTrackingFields() {
+            var group = document.getElementById('trackingFieldsGroup');
+            var status = document.getElementById('editStatusSelect').value;
+            if (group) group.style.display = (status === 'shipped') ? 'block' : 'none';
+        }
+        var editStatusSelectEl = document.getElementById('editStatusSelect');
+        if (editStatusSelectEl) editStatusSelectEl.addEventListener('change', ordToggleTrackingFields);
 
         function ordOpenEditModal(idx) {
             ordActiveEditIdx = idx;
@@ -1293,31 +1368,20 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('editModalOrderId').textContent = o.id;
             document.getElementById('editModalCustomer').textContent = o.name;
             document.getElementById('editStatusSelect').value = o.status;
+            document.getElementById('editTrackingNumber').value = o.trackingNumber || '';
+            ordPopulateCourierSelect(o.courierCode || '');
+            ordToggleTrackingFields();
             ordOpenModal('editOrderModal');
         }
-        document.getElementById('saveEditModal').addEventListener('click', function() {
-            if (ordActiveEditIdx < 0) return;
-            allOrders[ordActiveEditIdx].status = document.getElementById('editStatusSelect').value;
-            ordCloseModal('editOrderModal');
-            ordRender();
-            ordUpdateStats();
-            ordShowToast('Order status updated.');
-        });
+        // NOTE: actual saving (POST to /Admin/UpdateOrderStatus, including courier/tracking
+        // number so a TrackingMore shipment gets created) is wired up in Orders.cshtml.
 
         function ordOpenDeleteModal(idx) {
             ordActiveDeleteIdx = idx;
             document.getElementById('deleteModalOrderId').textContent = allOrders[idx].id;
             ordOpenModal('deleteOrderModal');
         }
-        document.getElementById('confirmDeleteModal').addEventListener('click', function() {
-            if (ordActiveDeleteIdx < 0) return;
-            allOrders.splice(ordActiveDeleteIdx, 1);
-            ordActiveDeleteIdx = -1;
-            ordCloseModal('deleteOrderModal');
-            ordRender();
-            ordUpdateStats();
-            ordShowToast('Order deleted.');
-        });
+        // NOTE: actual deletion (POST to /Admin/DeleteOrder) is wired up in Orders.cshtml.
 
         document.getElementById('ordSearch').addEventListener('input',    function() { ordCurrentPage = 1; ordRender(); });
         document.getElementById('statusFilter').addEventListener('change', function() { ordCurrentPage = 1; ordRender(); });
