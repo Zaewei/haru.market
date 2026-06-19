@@ -2,9 +2,11 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using QuestPDF.Infrastructure;
 
 string credentialPath = Path.Combine(Directory.GetCurrentDirectory(), "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json");
 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialPath);
+QuestPDF.Settings.License = LicenseType.Community;
 var builder = WebApplication.CreateBuilder(args);
 
 if (FirebaseApp.DefaultInstance == null)
