@@ -278,5 +278,156 @@ namespace haru.market.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> CustomerInsights()
+        {
+            var users  = await _userService.GetAllUsersAsync();
+            var orders = await _orderService.GetAllOrdersAsync();
+
+            var customers = users
+                .Where(u => string.Equals(u.Role, "Customer", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            var statusDist = customers
+                .GroupBy(u => NormalizeStatus(u.Status))
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            int activeCount   = statusDist.GetValueOrDefault("Active", 0);
+            int inactiveCount = customers.Count - activeCount;
+
+            var orderZones = orders
+                .Select(o => ExtractDeliveryZone(o.ShippingAddress))
+                .Where(z => z != "Unknown")
+                .GroupBy(z => z)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var userZones = users
+                .Select(u => ExtractDeliveryZone(u.Address))
+                .Where(z => z != "Unknown")
+                .GroupBy(z => z)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var mergedZones = new Dictionary<string, int>(orderZones);
+            foreach (var kv in userZones)
+            {
+                if (!mergedZones.ContainsKey(kv.Key))
+                    mergedZones[kv.Key] = kv.Value;
+                else
+                    mergedZones[kv.Key] += kv.Value;
+            }
+
+            var topZonesRaw = mergedZones
+                .OrderByDescending(kv => kv.Value)
+                .Take(8)
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+            int totalZoneCount = topZonesRaw.Values.Sum();
+
+            var topZoneSummaries = topZonesRaw
+                .Select(kv => new DeliveryZoneSummary
+                {
+                    Zone          = kv.Key,
+                    OrderCount    = orderZones.GetValueOrDefault(kv.Key, 0),
+                    CustomerCount = userZones.GetValueOrDefault(kv.Key, 0),
+                    Percentage    = totalZoneCount > 0
+                                        ? Math.Round((double)kv.Value / totalZoneCount * 100, 1)
+                                        : 0
+                })
+                .ToList();
+
+            string topZoneLabel = topZoneSummaries.FirstOrDefault()?.Zone ?? "N/A";
+
+            var now = DateTime.Now;
+            var trendMonths = Enumerable.Range(0, 6)
+                .Select(i => now.AddMonths(-i))
+                .Reverse()
+                .ToList();
+
+            var registrationTrend = trendMonths.ToDictionary(
+                m => m.ToString("MMM yyyy"),
+                m => customers.Count(u =>
+                    u.JoinedAt.Year  == m.Year &&
+                    u.JoinedAt.Month == m.Month)
+            );
+
+            var recentCustomers = customers
+                .OrderByDescending(u => u.JoinedAt)
+                .Take(5)
+                .ToList();
+
+            var viewModel = new CustomerInsightViewModel
+            {
+                TotalCustomers       = users.Count(u => string.Equals(u.Role, "Customer", StringComparison.OrdinalIgnoreCase)),
+                ActiveCustomers      = activeCount,
+                InactiveCustomers    = inactiveCount,
+                UniqueDeliveryZones  = mergedZones.Count,
+                TopDeliveryZone      = topZoneLabel,
+                DeliveryZoneDistribution = topZonesRaw,
+                RegistrationTrend    = registrationTrend,
+                StatusDistribution   = statusDist,
+                TopDeliveryZones     = topZoneSummaries,
+                RecentCustomers      = recentCustomers
+            };
+
+            return View(viewModel);
+        }
+
+        private static string ExtractDeliveryZone(string rawAddress)
+        {
+            if (string.IsNullOrWhiteSpace(rawAddress) ||
+                rawAddress.Equals("No Address Provided", StringComparison.OrdinalIgnoreCase) ||
+                rawAddress.Equals("No address on file", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Unknown";
+            }
+
+            var knownLocations = new[]
+            {
+                "Quezon City", "Manila", "Makati", "Pasig", "Taguig", "Marikina",
+                "Mandaluyong", "Pasay", "Caloocan", "Valenzuela", "Parañaque",
+                "Las Piñas", "Muntinlupa", "Malabon", "Navotas", "San Juan",
+                "Pateros", "Antipolo", "Cainta", "Taytay",
+                "Cebu City", "Cebu", "Davao City", "Davao", "Iloilo City", "Iloilo",
+                "Bacolod", "Cagayan de Oro", "CDO", "Zamboanga", "General Santos",
+                "GenSan", "Baguio", "Tacloban", "Butuan", "Legazpi", "Naga",
+                "Lipa", "Batangas", "Lucena", "Cavite", "Laguna", "Rizal",
+                "Bulacan", "Pampanga", "Tarlac", "Pangasinan", "La Union",
+                "Ilocos", "Cagayan", "Isabela", "Nueva Ecija", "Benguet",
+                "Albay", "Camarines", "Masbate", "Samar", "Leyte",
+                "Negros", "Bohol", "Palawan", "Mindoro", "Romblon",
+                "Zamboanga", "Lanao", "Cotabato", "Maguindanao", "Sultan Kudarat",
+                "Agusan", "Surigao", "Misamis", "Bukidnon",
+                "United States", "USA", "Singapore", "Japan", "Australia",
+                "United Kingdom", "UAE", "Canada", "Hong Kong", "Saudi Arabia"
+            };
+
+            var upper = rawAddress.ToUpperInvariant();
+            foreach (var loc in knownLocations)
+            {
+                if (upper.Contains(loc.ToUpperInvariant()))
+                    return loc;
+            }
+
+            var parts = rawAddress
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => p.Trim())
+                .Where(p => !string.IsNullOrWhiteSpace(p) && !IsNumeric(p))
+                .ToList();
+
+            if (parts.Count >= 2)
+                return parts[^2];
+            if (parts.Count == 1)
+                return parts[0];
+
+            return "Unknown";
+        }
+
+        private static bool IsNumeric(string s) =>
+            s.All(c => char.IsDigit(c) || c == '-' || c == ' ');
+
+        private static string NormalizeStatus(string raw) =>
+            string.IsNullOrWhiteSpace(raw) ? "Unknown"
+            : char.ToUpper(raw[0]) + raw[1..].ToLower();
     }
 }
