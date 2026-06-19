@@ -203,7 +203,7 @@ namespace haru.market.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateOrderStatus(string orderId, string status, string? paymentChannel = null)
+        public async Task<IActionResult> UpdateOrderStatus(string orderId, string status, string? paymentChannel = null, string? courierCode = null, string? trackingNumber = null)
         {
             if (string.IsNullOrWhiteSpace(orderId) || string.IsNullOrWhiteSpace(status))
             {
@@ -212,8 +212,68 @@ namespace haru.market.Controllers
 
             try
             {
+                // Marking an order as "Shipped" with a tracking number creates a live
+                // TrackingMore tracking instead of just flipping the status field.
+                if (string.Equals(status, "Shipped", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(trackingNumber))
+                {
+                    var trackingResult = await _orderService.MarkOrderShippedAsync(orderId, courierCode ?? "", trackingNumber);
+                    return Json(new { success = true, message = "Order marked as shipped and tracking created.", trackingStatus = trackingResult.DeliveryStatus });
+                }
+
                 await _orderService.UpdateOrderStatusAsync(orderId, status, paymentChannel ?? "");
                 return Json(new { success = true, message = "Firestore updated cleanly!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RefreshOrderTracking(string orderId)
+        {
+            if (string.IsNullOrWhiteSpace(orderId))
+            {
+                return BadRequest(new { success = false, message = "Order ID is required." });
+            }
+
+            try
+            {
+                var (orderStatus, trackingStatus) = await _orderService.RefreshOrderTrackingAsync(orderId);
+                return Json(new { success = true, status = orderStatus, trackingStatus = trackingStatus });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCouriers()
+        {
+            try
+            {
+                var couriers = await _orderService.GetCouriersAsync();
+                return Json(new { success = true, couriers = couriers.Select(c => new { code = c.Code, name = c.Name }) });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DetectCourier(string trackingNumber)
+        {
+            if (string.IsNullOrWhiteSpace(trackingNumber))
+            {
+                return BadRequest(new { success = false, message = "Tracking number is required." });
+            }
+
+            try
+            {
+                var matches = await _orderService.DetectCourierAsync(trackingNumber);
+                return Json(new { success = true, couriers = matches.Select(c => new { code = c.Code, name = c.Name }) });
             }
             catch (Exception ex)
             {
