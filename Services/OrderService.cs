@@ -20,11 +20,13 @@ namespace haru.market.Services
         private readonly FirestoreDb _firestoreDb;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
+        private readonly TrackingMoreService _trackingMoreService;
 
-        public OrderService(IConfiguration configuration)
+        public OrderService(IConfiguration configuration, TrackingMoreService trackingMoreService)
         {
             _configuration = configuration;
             _httpClient = new HttpClient();
+            _trackingMoreService = trackingMoreService;
 
             // Initialize Firestore
             string keyPath = "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json";
@@ -337,7 +339,10 @@ namespace haru.market.Services
                         PaymentMethod = data.ContainsKey("paymentMethod") ? data["paymentMethod"].ToString()! : "Gcash",
                         Total = data.ContainsKey("totalAmount") ? Convert.ToDecimal(data["totalAmount"]) : 0,
                         Date = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts ? ts.ToDateTime().ToLocalTime() : DateTime.UtcNow,
-                        ShippingAddress = data.ContainsKey("shippingAddress") ? data["shippingAddress"].ToString()! : "No Address Provided"
+                        ShippingAddress = data.ContainsKey("shippingAddress") ? data["shippingAddress"].ToString()! : "No Address Provided",
+                        CourierCode = data.ContainsKey("courierCode") ? data["courierCode"].ToString()! : "",
+                        TrackingNumber = data.ContainsKey("trackingNumber") ? data["trackingNumber"].ToString()! : "",
+                        TrackingStatus = data.ContainsKey("trackingStatus") ? data["trackingStatus"].ToString()! : ""
                     });
                 }
             }
@@ -392,5 +397,129 @@ namespace haru.market.Services
 
             return activity;
         }
+
+        // Called by the admin panel when an order is marked "Shipped". Creates the tracking
+        // over at TrackingMore (using our Firestore order ID as their order_number, so the
+        // webhook can map updates straight back to this order) and stores the result.
+        public async Task<TrackingMoreResult> MarkOrderShippedAsync(string orderId, string courierCode, string trackingNumber)
+        {
+            if (string.IsNullOrWhiteSpace(orderId))
+            {
+                throw new Exception("An order ID is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(courierCode) || string.IsNullOrWhiteSpace(trackingNumber))
+            {
+                throw new Exception("A courier and tracking number are both required to mark an order as shipped.");
+            }
+
+            DocumentReference orderRef = _firestoreDb.Collection("orders").Document(orderId);
+            DocumentSnapshot snapshot = await orderRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                throw new Exception("Order not found.");
+            }
+
+            string? customerName = snapshot.ContainsField("customerName") ? snapshot.GetValue<string>("customerName") : null;
+
+            TrackingMoreResult trackingResult = await _trackingMoreService.CreateTrackingAsync(trackingNumber, courierCode, orderId, customerName);
+
+            var updates = new Dictionary<string, object>
+            {
+                { "status", "Shipped" },
+                { "courierCode", courierCode.Trim() },
+                { "trackingNumber", trackingNumber.Trim() },
+                { "trackingStatus", trackingResult.DeliveryStatus },
+                { "trackingUpdatedAt", Timestamp.FromDateTime(DateTime.UtcNow) }
+            };
+
+            await orderRef.UpdateAsync(updates);
+
+            return trackingResult;
+        }
+
+        // Lets the admin manually pull the latest delivery status for an order on demand,
+        // without waiting for a TrackingMore webhook to arrive.
+        public async Task<(string OrderStatus, string TrackingStatus)> RefreshOrderTrackingAsync(string orderId)
+        {
+            DocumentReference orderRef = _firestoreDb.Collection("orders").Document(orderId);
+            DocumentSnapshot snapshot = await orderRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                throw new Exception("Order not found.");
+            }
+
+            string trackingNumber = snapshot.ContainsField("trackingNumber") ? snapshot.GetValue<string>("trackingNumber") : "";
+            string courierCode = snapshot.ContainsField("courierCode") ? snapshot.GetValue<string>("courierCode") : "";
+
+            if (string.IsNullOrWhiteSpace(trackingNumber) || string.IsNullOrWhiteSpace(courierCode))
+            {
+                throw new Exception("This order does not have tracking information yet.");
+            }
+
+            TrackingMoreResult? result = await _trackingMoreService.GetTrackingAsync(trackingNumber, courierCode);
+
+            if (result == null)
+            {
+                throw new Exception("TrackingMore does not have any information for this tracking number yet.");
+            }
+
+            string currentStatus = snapshot.ContainsField("status") ? snapshot.GetValue<string>("status") : "Shipped";
+            string newOrderStatus = currentStatus;
+
+            var updates = new Dictionary<string, object>
+            {
+                { "trackingStatus", result.DeliveryStatus },
+                { "trackingUpdatedAt", Timestamp.FromDateTime(DateTime.UtcNow) }
+            };
+
+            if (result.DeliveryStatus.Equals("delivered", StringComparison.OrdinalIgnoreCase) &&
+                !currentStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase))
+            {
+                newOrderStatus = "Completed";
+                updates["status"] = newOrderStatus;
+            }
+
+            await orderRef.UpdateAsync(updates);
+
+            return (newOrderStatus, result.DeliveryStatus);
+        }
+
+        // Called by the /webhooks/trackingmore endpoint whenever TrackingMore pushes a status
+        // update. orderId here is the value we originally sent as "order_number", i.e. our own
+        // Firestore order document ID.
+        public async Task ApplyTrackingWebhookUpdateAsync(string orderId, string deliveryStatus)
+        {
+            DocumentReference orderRef = _firestoreDb.Collection("orders").Document(orderId);
+            DocumentSnapshot snapshot = await orderRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                Console.WriteLine($"[TRACKINGMORE WEBHOOK] No matching order for ID '{orderId}'. Ignored.");
+                return;
+            }
+
+            string currentStatus = snapshot.ContainsField("status") ? snapshot.GetValue<string>("status") : "Shipped";
+
+            var updates = new Dictionary<string, object>
+            {
+                { "trackingStatus", deliveryStatus },
+                { "trackingUpdatedAt", Timestamp.FromDateTime(DateTime.UtcNow) }
+            };
+
+            if (deliveryStatus.Equals("delivered", StringComparison.OrdinalIgnoreCase) &&
+                !currentStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase))
+            {
+                updates["status"] = "Completed";
+            }
+
+            await orderRef.UpdateAsync(updates);
+        }
+
+        public Task<List<TrackingMoreCourier>> GetCouriersAsync() => _trackingMoreService.GetAllCouriersAsync();
+
+        public Task<List<TrackingMoreCourier>> DetectCourierAsync(string trackingNumber) => _trackingMoreService.DetectCourierAsync(trackingNumber);
     }
 }
