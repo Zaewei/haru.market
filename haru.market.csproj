@@ -9,6 +9,8 @@
   <ItemGroup>
     <PackageReference Include="FirebaseAdmin" Version="3.5.0" />
     <PackageReference Include="Google.Cloud.Firestore" Version="4.2.0" />
+    <PackageReference Include="itext7" Version="9.6.0" />
+    <PackageReference Include="QuestPDF" Version="2026.6.0" />
     <PackageReference Include="MailKit" Version="4.17.0" />
     <PackageReference Include="Xendit.net" Version="1.1.0" />
     <None Update="haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json">
