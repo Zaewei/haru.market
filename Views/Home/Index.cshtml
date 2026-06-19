@@ -20,7 +20,7 @@
     </div>
 
     <div class="LookBookSection_text">
-        <a href="/Lookbook" class="lookbook-link">Explore Lookbook</a>
+        <<a href="/Lookbook" class="lookbook-link">Explore Lookbook</a>
     </div>
 </section>
 
@@ -33,7 +33,6 @@
                 {
                     var featuredProducts = ((IEnumerable<ProductViewModel>)ViewData.Model.Products).Take(5).ToList();
                     
-                    <!-- Loop 1 -->
                     @foreach (var product in featuredProducts)
                     {
                         <div class="FeaturedItem_card">
@@ -42,7 +41,7 @@
                             <p>₱@product.Price</p>
                         </div>
                     }
-                    <!-- Loop 2 -->
+
                     @foreach (var product in featuredProducts)
                     {
                         <div class="FeaturedItem_card">
