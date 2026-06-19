@@ -69,8 +69,8 @@ namespace haru.market.Services
                         Name = data.ContainsKey("name") ? data["name"].ToString()! : "Unknown Product",
                         Description = data.ContainsKey("description") ? data["description"].ToString()! : "",
                         Price = data.ContainsKey("price") ? Convert.ToDecimal(data["price"]) : 0.00m,
-                        StockQuantity = stockDict, 
-                        ImageUrl = data.ContainsKey("imageUrl") ? data["imageUrl"].ToString()! : "placeholder.png",
+                        StockQuantity = stockDict,
+                        ImageUrl = GetImageUrlFromData(data),
                         Imageurl2 = data.ContainsKey("imageurl2") ? data["imageurl2"].ToString()! : "",
                         CreatedAt = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts ? ts.ToDateTime() : DateTime.Now,
                         GroupKey = data.ContainsKey("groupKey") ? data["groupKey"].ToString()! : "",
@@ -79,6 +79,21 @@ namespace haru.market.Services
                 }
             }
             return productsList;
+        }
+
+        private string GetImageUrlFromData(Dictionary<string, object> data)
+        {
+            string[] possibleKeys = { "imageUrl", "Imageurl", "imageurl", "image", "image_url" };
+
+            foreach (var key in possibleKeys)
+            {
+                if (data.ContainsKey(key) && data[key] != null)
+                {
+                    var val = data[key].ToString();
+                    if (!string.IsNullOrEmpty(val)) return val;
+                }
+            }
+            return "placeholder.png";
         }
 
         public async Task<ProductViewModel?> GetProductAsync(string productId)
