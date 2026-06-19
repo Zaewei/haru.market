@@ -88,5 +88,12 @@ namespace haru.market.Controllers
 
             return View(wishlist);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> IncrementViewCount(string id, string type) 
+        {
+            await _lookbookService.IncrementViewsAsync(id, type); 
+            return Ok(new { success = true });
+        }
     }
 }

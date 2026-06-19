@@ -65,8 +65,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const finalLabels = rawLabels.length > 0 ? rawLabels : ['No Data'];
                 const finalValues = rawValues.length > 0 ? rawValues : [0];
 
-                const maxVal = Math.max(...finalValues, 100);
-                const suggestedMax = Math.ceil(maxVal / 1000) * 1000;
+               const maxVal = Math.max(...finalValues, 100); 
+                const suggestedMax = Math.ceil(maxVal / 100) * 100;
 
                 new Chart(viewsCanvas, {
                     type: 'line',

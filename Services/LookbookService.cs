@@ -253,5 +253,13 @@ namespace haru.market.Services
                 }
             }
         }
+
+       public async Task IncrementViewsAsync(string id, string type)
+        {
+            var collectionName = type == "Lookbook" ? "lookbooks" : "collections";
+            var docRef = _firestoreDb.Collection(collectionName).Document(id);
+            
+            await docRef.UpdateAsync("views", Google.Cloud.Firestore.FieldValue.Increment(1));
+        }
     }
 }

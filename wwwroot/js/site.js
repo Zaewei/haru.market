@@ -128,3 +128,11 @@ function showSuccessModal(message) {
 function closeSuccessModal() {
     document.getElementById("successModal").style.display = "none";
 }
+
+function trackView(id, type) {
+    fetch('/Lookbook/IncrementViewCount', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ 'id': id, 'type': type })
+    });
+}

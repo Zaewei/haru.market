@@ -51,7 +51,9 @@
                 <p id="mainLookbookDescription" class="haru-narrative-desc">@initialCampaign.Description?.Replace("\r\n", " ").Replace("\n", " ")</p>
                 
                 <div class="haru-narrative-actions">
-                <a href="/Home/Shop" class="haru-action-btn-primary">
+                <a href="/Home/Shop" 
+                class="haru-action-btn-primary" 
+                onclick="trackView(document.getElementById('wishlistLookbookId').value, 'Lookbook')">
                     View in shop
                 </a>
                 
@@ -81,7 +83,9 @@
     const wishlistIds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(wishlistIds));
 
     function switchStorefrontCampaign(thumbnailElement, mediaUrl, title, description, id)
-        {
+    {
+            trackView(id, 'Lookbook');
+
             document.getElementById('mainLookbookImage').src = mediaUrl;
             document.getElementById('mainLookbookTitle').innerText = title;
             document.getElementById('mainLookbookDescription').innerText = description.replace(/[\r\n]+/g, ' ');
