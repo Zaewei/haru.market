@@ -1,0 +1,140 @@
+body {
+    background-color: #fdfbfc;
+}
+
+.Success_Master_Container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 75vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.Success_Card {
+    background-color: #ffffff;
+    border: 1px solid #f2d6dc;
+    border-radius: 24px;
+    max-width: 540px;
+    width: 100%;
+    padding: 50px 40px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(201, 106, 127, 0.02);
+    box-sizing: border-box;
+    animation: successFadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.Success_Icon_Wrapper {
+    width: 76px;
+    height: 76px;
+    background-color: #fff5f7;
+    border: 2px solid #f2d6dc;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 25px auto;
+}
+
+.Success_Title {
+    font-family: 'Piazzolla', serif;
+    font-weight: 800;
+    font-size: 2.3rem;
+    color: #111111;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+}
+
+.Success_Subtitle {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #EB899D;
+    margin: 0 0 35px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.Success_Message_Box {
+    background-color: #fffbf9;
+    border: 1px solid #f5e6e8;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 35px;
+    text-align: left;
+}
+
+.Success_Message_Box p {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    text-align: justify;
+    font-size: 0.98rem;
+    color: #444444;
+    line-height: 1.6;
+    margin: 0 0 15px 0;
+}
+
+.Success_Message_Box p:last-child {
+    margin-bottom: 0;
+}
+
+.Success_Secondary_Text {
+    font-size: 0.92rem !important;
+    color: #666666 !important;
+}
+
+.Success_Action_Container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.Success_Shop_Button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 50px;
+    background-color: #EB899D;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    box-shadow: 0 6px 20px rgba(235, 137, 157, 0.15);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.Success_Shop_Button:hover {
+    background-color: #c96a7f;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(235, 137, 157, 0.25);
+}
+
+.Success_Home_Link {
+    font-family: 'Nunito', sans-serif;
+    color: #777777 !important;
+    text-decoration: none !important;
+    font-weight: 700;
+    font-size: 0.92rem;
+    transition: color 0.15s ease;
+}
+
+.Success_Home_Link:hover {
+    color: #111111 !important;
+}
+
+@keyframes successFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

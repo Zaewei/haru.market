@@ -522,3 +522,58 @@ td:has(.ord-actions-cell) { vertical-align: middle; }
     .ord-toolbar { flex-direction: column; align-items: stretch; }
     .ord-search-wrap { min-width: unset; }
 }
+
+.ord-modal {
+    background: #ffffff !important;
+    border: 1px solid #f2d6dc !important;
+    border-radius: 20px !important;
+    padding: 30px !important;
+    box-shadow: 0 20px 40px rgba(201, 106, 127, 0.1) !important;
+}
+
+.ord-form-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.75rem;
+    color: #EB899D;
+    text-transform: uppercase;
+    font-weight: 800;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #f2d6dc;
+    border-radius: 10px;
+    font-weight: 600;
+    color: #333333;
+    background: #fffbf9;
+}
+
+.ord-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 25px;
+    border-top: 1px solid #f5e6e8;
+    padding-top: 20px;
+}
+
+.pm-btn-cancel {
+    background-color: #ffffff !important;
+    border: 2px solid #f2d6dc !important;
+    color: #666666 !important;
+    padding: 10px 24px !important;
+    border-radius: 10px !important;
+    font-family: 'Nunito', sans-serif !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.pm-btn-cancel:hover {
+    background-color: #fff5f7 !important;
+    border-color: #EB899D !important;
+    color: #EB899D !important;
+}

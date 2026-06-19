@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "Order Confirmed";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/checkout/success.css" />
+}
+
+<div class="Success_Master_Container">
+    <div class="Success_Card">
+        
+        <div class="Success_Icon_Wrapper">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#EB899D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+
+        <h2 class="Success_Title">Order Confirmed</h2>
+        <p class="Success_Subtitle">Thank you for shopping with Haru</p>
+        
+        <div class="Success_Message_Box">
+            <p>Your transaction completed successfully and your order has been securely logged. A digital purchase receipt with full item breakdowns has been sent directly to your inbox.</p>
+            <p class="Success_Secondary_Text">Our fulfillment team is already preparing your variant apparel package with care. We will update you as soon as it leaves our facility.</p>
+        </div>
+
+        <div class="Success_Action_Container">
+            <a href="@Url.Action("Shop", "Home")" class="Success_Shop_Button">Continue Shopping</a>
+            <a href="@Url.Action("Index", "Home")" class="Success_Home_Link">Return to Homepage</a>
+        </div>
+        
+    </div>
+</div>

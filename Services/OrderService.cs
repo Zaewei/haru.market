@@ -47,28 +47,68 @@ namespace haru.market.Services
             {
                 double totalAmount = 0;
 
+                var productStockChanges = new Dictionary<string, Dictionary<string, object>>();
+                var productReferences = new Dictionary<string, DocumentReference>();
+
                 foreach (var item in orderData.Items)
                 {
-                    DocumentReference productRef = _firestoreDb.Collection("products").Document(item.ProductId);
-                    DocumentSnapshot productSnapshot = await transaction.GetSnapshotAsync(productRef);
+                    string actualDocId = item.ProductId.Contains("_") ? item.ProductId.Split('_')[0] : item.ProductId;
+                    string targetSize = item.ProductId.Contains("_") ? item.ProductId.Split('_')[1] : "Standard";
 
-                    if (!productSnapshot.Exists)
+                    DocumentReference productRef = _firestoreDb.Collection("products").Document(actualDocId);
+                    productReferences[actualDocId] = productRef;
+
+                    Dictionary<string, object> stockMap;
+
+                    if (productStockChanges.ContainsKey(actualDocId))
                     {
-                        throw new Exception($"Product '{item.ProductName}' no longer exists in our catalog.");
+                        stockMap = productStockChanges[actualDocId];
+                    }
+                    else
+                    {
+                        DocumentSnapshot productSnapshot = await transaction.GetSnapshotAsync(productRef);
+
+                        if (!productSnapshot.Exists)
+                        {
+                            throw new Exception($"Product '{item.ProductName}' no longer exists in our catalog.");
+                        }
+
+                        var rawStock = productSnapshot.GetValue<Dictionary<string, object>>("stockQuantity");
+                        stockMap = rawStock != null ? new Dictionary<string, object>(rawStock) : new Dictionary<string, object>();
+                        productStockChanges[actualDocId] = stockMap;
                     }
 
-                    long currentStock = productSnapshot.GetValue<long>("stockQuantity");
+                    long currentStock = 0;
+                    
+                    if (stockMap.ContainsKey(targetSize))
+                    {
+                        currentStock = Convert.ToInt64(stockMap[targetSize]);
+                    }
+                    else if (stockMap.ContainsKey("Standard"))
+                    {
+                        currentStock = Convert.ToInt64(stockMap["Standard"]);
+                        targetSize = "Standard";
+                    }
+                    else
+                    {
+                        throw new Exception($"Size variation '{targetSize}' could not be found for {item.ProductName}.");
+                    }
                     
                     if (currentStock < item.Quantity)
                     {
                         throw new Exception($"Insufficient stock for {item.ProductName}. Current: {currentStock}");
                     }
 
-                    long updatedStockCount = currentStock - item.Quantity;
-                    transaction.Update(productRef, "stockQuantity", updatedStockCount);
+                    stockMap[targetSize] = currentStock - item.Quantity;
                     totalAmount += (double)item.Price * item.Quantity;
                 }
 
+                foreach (var change in productStockChanges)
+                {
+                    transaction.Update(productReferences[change.Key], "stockQuantity", change.Value);
+                }
+
+                // Append and save final receipt records safely
                 CollectionReference ordersCollection = _firestoreDb.Collection("orders");
                 var firestoreOrderObject = new Dictionary<string, object>
                 {
@@ -111,8 +151,8 @@ namespace haru.market.Services
                     description = $"Haru Market Checkout - Order #{databaseOrderId.Substring(0, 8)}",
                     invoice_duration = 86400,
                     payment_methods = new[] { "GCASH", "PAYMAYA", "GRABPAY", "CREDIT_CARD" },
-                    success_redirect_url = "https://localhost:5167/Checkout/Success",
-                    failure_redirect_url = "https://localhost:5167/Checkout/Cancel"
+                    success_redirect_url = "http://localhost:5167/Checkout/Success",
+                    failure_redirect_url = "http://localhost:5167/Checkout/Cancel"
                 };
 
                 string xenditKey = _configuration["Xendit:SecretKey"] + ":";

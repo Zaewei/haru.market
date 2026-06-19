@@ -44,8 +44,9 @@ namespace haru.market.Controllers
             {
                 checkoutSetup.Items.Add(new OrderItemModel
                 {
-                    ProductId = item.ProductId,
-                    ProductName = item.ProductName,
+                    ProductId = string.IsNullOrEmpty(item.Size) ? item.ProductId : $"{item.ProductId}_{item.Size}",
+                    
+                    ProductName = $"{item.ProductName} (Size: {item.Size})",
                     Price = item.Price,
                     Quantity = item.Quantity
                 });
@@ -71,10 +72,14 @@ namespace haru.market.Controllers
             {
                 var activeCartItems = await _productService.GetCartItemsAsync(userUid);
                 model.Items = activeCartItems.Select(i => new OrderItemModel {
-                    ProductId = i.ProductId, ProductName = i.ProductName, Price = i.Price, Quantity = i.Quantity
+
+                    ProductId = string.IsNullOrEmpty(i.Size) ? i.ProductId : $"{i.ProductId}_{i.Size}", 
+                    
+                    ProductName = $"{i.ProductName} (Size: {i.Size})", 
+                    Price = i.Price, 
+                    Quantity = i.Quantity
                 }).ToList();
             }
-
             try
             {
                 string orderToken = await _orderService.CreateOrderAsync(model);
@@ -108,12 +113,14 @@ namespace haru.market.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Success()
         {
-            return Content("Success! Your order has been placed. We are preparing it for shipment.");
+            return View();
         }
 
+         [AllowAnonymous]
         [HttpGet]
         public IActionResult Cancel()
         {
@@ -136,6 +143,7 @@ namespace haru.market.Controllers
 
                 string? orderToken = null;
                 string? status = null;
+                string? paymentChannel = null;
 
                 string? FindValue(System.Text.Json.JsonElement element, string key) {
                     if (element.TryGetProperty(key, out var val)) return val.GetString();
@@ -145,13 +153,15 @@ namespace haru.market.Controllers
 
                 orderToken = FindValue(root, "external_id");
                 status = FindValue(root, "status");
+                paymentChannel = FindValue(root, "payment_channel");
 
-                Console.WriteLine($"Extracted -> Token: {orderToken ?? "NOT FOUND"} | Status: {status ?? "NOT FOUND"}");
+                Console.WriteLine($"Extracted -> Token: {orderToken ?? "NOT FOUND"} | Status: {status ?? "NOT FOUND"} | Channel: {paymentChannel ?? "NOT FOUND"}");
 
                 if (!string.IsNullOrEmpty(orderToken) && status == "PAID")
                 {
-                    await _orderService.UpdateOrderStatusAsync(orderToken, "Paid", "Online");
-                    Console.WriteLine("Order verified as PAID.");
+                    // 🔥 FIX: Pass the dynamic paymentChannel instead of the hardcoded "Online" string!
+                    await _orderService.UpdateOrderStatusAsync(orderToken, "Paid", paymentChannel ?? "Online");
+                    Console.WriteLine("Order verified as PAID with mapped channel.");
                     return Ok();
                 }
 

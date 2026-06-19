@@ -1,382 +1,301 @@
-
+body {
+    background-color: #fdfbfc;
+}
 
 .back_button {
-    height: 7vh;
-    padding-left:7%;
-
-    
-    display: flex;
-    align-items: center;
+    max-width: 1200px;
+    margin: 30px auto 0 auto;
+    padding: 0 20px;
 }
 
 .back_button a {
+    font-family: 'Nunito', sans-serif;
+    color: #c96a7f;
     text-decoration: none;
-    font-family: "nunito", sans-serif;
     font-weight: 700;
-    font-size: 2.5vh;
-    color: black;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
 }
 
+.back_button a:hover {
+    color: #111111;
+}
 
 .Checkout_Main_Container {
-    display: flex;
-    gap: 5vh;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between;
+    align-items: flex-start !important;
+    max-width: 1200px;
+    margin: 40px auto 60px auto;
+    gap: 45px;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
 
-    min-height: 100vh;
-    width: 100%;
-
-    padding: 0 20vh 10vh 20vh;
-
+.Checkout_Cart_Summary_Container {
+    width: 36%;
+    background-color: #fffbf9;
+    border: 2px solid #f2d6dc;
+    border-radius: 24px;
+    padding: 30px;
+    box-sizing: border-box;
+    box-shadow: 0 10px 30px rgba(201, 106, 127, 0.01);
+    align-self: flex-start !important;
 }
 
 .Checkout_Details_Container {
-    height: 100vh;
     width: 60%;
-
-    display: flex;
-    flex-direction: column;
-
-    border: .4vh solid black;
-    border-radius: 4vh;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-
-    overflow:hidden ;
-}
-
-.Checkout_Details_Title {
-    width: 100%;
-    height: 10%;
-    border: 1px solid black;
-    background-color: #F8CBD5;
-
-    display: flex;
-    justify-content: center;
-    align-items:center ;
-    
+    background-color: #ffffff;
+    border: 1px solid #f2d6dc;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 12px 40px rgba(201, 106, 127, 0.02);
+    box-sizing: border-box;
 }
 
 .Checkout_Details_Title h4 {
-    font-family: "Piazzolla", serif;
+    font-family: 'Piazzolla', serif;
     font-weight: 800;
-
+    font-size: 2.2rem;
+    color: #111111;
+    margin: 0 0 35px 0;
+    letter-spacing: -0.02em;
 }
 
-.Checkout_Details_Form {
-    width: 100%;
-    height: 70%;
-    border: 1px solid black;
-
-    display: flex;
-    flex-direction: column;
-    padding: 1vh 5vh 1vh 5vh;
-
-}
-
-.Contact_Information_Form {
-    width: 100%;
-    height: 35%;
-
-}
-
-.Title_Contact_Information_Form {
-    width: 100%;
-    height: 40%;
-   
-
-    display: flex;
-    align-items: center;
-
-}
-
-.Title_Contact_Information_Form h5 {
-
-    font-family: "piazzolla", sans-serif ;
+.Title_Contact_Information_Form h5,
+.Title_Delivery_Details_Form h5,
+.Title_Payment_Method_Buttons h6 {
+    font-family: 'Piazzolla', serif;
+    font-size: 1.25rem;
     font-weight: 700;
-    font-size: 4vh;
-}
-
-.Name_Contact_Information_Form {
-    width: 100%;
-    height: 30%;
-
-}
-
-.Name_Contact_Information_Form input {
-    border: 1px solid #F8CBD5;
-    border-radius: 1vh;
-    padding:.5% 3%;
-
-}
-
-.Fname_input{
-    margin-right: 5%;
-    width: 47%;
-
-}
-
-.Lname_input {
-    width: 47%;
-}
-
-.Email_Contact_Information_Form input {
-    border: 1px solid #F8CBD5;
-    border-radius: 1vh;
-    padding:.5% 3%;
-    width: 80%;
-
-}
-
-.Email_Contact_Information_Form {
-    width: 100%;
-    height: 30%;
-
-
-}
-
-.Delivery_Details_Form {
-    width: 100%;
-    height: 40%;
-    
+    color: #111111;
+    margin: 0 0 18px 0;
 }
 
 .Title_Delivery_Details_Form {
-    width: 100%;
-    height: 20%;
-
-    display: flex;
-    align-items: center;
-
-}
-
-.Title_Delivery_Details_Form h5 {
-    font-family: "piazzolla", sans-serif ;
-    font-weight: 700;
-    font-size: 4vh;
-
-}
-
-.Input_Delivery_Details_Form {
-    width: 100%;
-    height: 80%;
-}
-
-.Input_Delivery_Details_Form input {
-    border: 1px solid #F8CBD5;
-    border-radius: 1vh;
-    padding:.5% 3%;
-
-}
-
-
-.Address_input {
-    width: 100%;
-    margin: 1vh 0vh 2vh 0vh;
-}
-
-.City_input {
-    width: 60%;
-    margin: 0vh 4% 2vh 0vh;
-}
-
-.Postal_input {
-    width: 35%;
-
-}
-
-.Phonenum_input {
-    width: 60%;
-}
-
-
-
-.Payment_Method_Buttons {
-    width: 100%;
-    height: 25%;
-    
+    margin-top: 35px;
 }
 
 .Title_Payment_Method_Buttons {
-    width: 100%;
-    height: 20%;
-
+    margin-top: 35px;
 }
 
-.Title_Payment_Method_Buttons h6 {
-    font-family: "piazzolla", sans-serif ;
-    font-weight: 700;
-    font-size: 3vh;
+.Checkout_Details_Form input[type="text"],
+.Checkout_Details_Form input[type="email"] {
+    width: 100%;
+    height: 48px;
+    background-color: #ffffff;
+    border: 2px solid #f2d6dc;
+    border-radius: 12px;
+    padding: 0 16px;
+    margin-bottom: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #111111;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.Checkout_Details_Form input::placeholder {
+    color: #aaa;
+    font-weight: 500;
+}
+
+.Checkout_Details_Form input:focus {
+    border-color: #EB899D;
+    box-shadow: 0 0 0 4px rgba(235, 137, 157, 0.1);
+    background-color: #fffbf9;
+}
+
+.Input_Delivery_Details_Form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+}
+
+.Address_input {
+    grid-column: span 2;
+}
+
+.Phonenum_input {
+    grid-column: span 2;
+    margin-bottom: 0 !important;
 }
 
 .Buttons_Payment_Method {
-    width: 100%;
-    height: 80%;
-    padding-top: 2%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .radio-option {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-family: "Nunito", sans-serif;
-    font-size: 2vh;
+    gap: 14px;
+    padding: 18px 20px;
+    border: 2px solid #f2d6dc;
+    border-radius: 14px;
+    background-color: #ffffff;
     cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: #333333;
+    transition: all 0.2s ease;
+    margin: 0;
+}
+
+.radio-option:hover {
+    border-color: #EB899D;
+    background-color: #fff5f7;
 }
 
 .radio-option input[type="radio"] {
+    accent-color: #EB899D;
     width: 18px;
     height: 18px;
     cursor: pointer;
-    accent-color: #ee5677;
 }
 
-
-
 .Checkout_Details_Button {
+    margin-top: 40px;
     width: 100%;
-    height: 20%;
-    border: 1px solid black;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
 }
 
 .Checkout_Details_Button button {
-    width: 50%;
-    height: 35%;
-
-    border-radius: 1vh;
-    border: 1px solid black;
-    background-color: #FFBCCB;
-    font-weight: 600;
-    font-size: 2.5vh;
-    font-family: "Nunito", sans-serif;
-}
-
-
-.Checkout_Cart_Summary_Container {
-    height: 80vh;
-    width: 40%;
-    border: .4vh solid black;
-    border-radius: 4vh;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    overflow: hidden;
-
-}
-
-.Title_Checkout_Cart_Summary_Container {
-    width: 100%;
-    height: 20%;
-    border: 1px solid black;
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding: 5%;
+    width: 100%;
+    height: 52px;
+    background-color: #EB899D;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(235, 137, 157, 0.2);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.Checkout_Details_Button button:hover {
+    background-color: #c96a7f;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(235, 137, 157, 0.3);
 }
 
 .Title_Checkout_Cart_Summary_Container h5 {
-    font-family: "Piazzolla", sans-serif;
-    font-style: italic;
+    font-family: 'Piazzolla', serif;
     font-weight: 800;
-    font-size: 3.5vh;
-
+    font-size: 1.4rem;
+    color: #111111;
+    margin: 0 0 25px 0;
+    letter-spacing: -0.01em;
 }
 
 .Content_Checkout_Cart_Summary_Container {
-    width: 100%;
-    height: 75%;
-    border: 1px solid black;
-    padding:7%;
-
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 55vh;
     overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: none;
+    padding-right: 8px;
 }
-
-.Content_Checkout_Cart_Summary_Container:hover {
-    scrollbar-width: thin; /* Firefox */
-}
-
-
-.Content_Checkout_Cart_Summary_Container:hover::-webkit-scrollbar-thumb {
-    background: #ee5677;
-    border-radius: 10px;
-}
-
-
-
-
 
 .Checkout_Product_Card {
-    width: 100%;
-    height: 40%;
-    padding: 5%;
-    border-bottom: 1px solid black;
-
     display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f5e6e8;
+}
+
+.Checkout_Product_Card:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
 .Picture_Checkout_Product_Card {
     position: relative;
-    height: 100%;
-    width:30%;
+    width: 80px;
+    height: 80px;
+    background-color: #fff5f7;
+    border: 1px solid #f2d6dc;
+    border-radius: 12px;
+    padding: 6px;
+    box-sizing: border-box;
     flex-shrink: 0;
-
 }
 
 .Picture_Checkout_Product_Card img {
-    margin: 0;
-    height: 100%;
     width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .Badge_Picture_Checkout_Product_Card {
     position: absolute;
-    top: 3%;
-    left: -10%;
-
-    width: 25px;
-    height: 25px;
-
+    top: -8px;
+    right: -8px;
+    background-color: #c96a7f;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    border: 1px solid black;
-
-    background-color: #ee5677;
-    color: white;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
-    font-size: 14px;
-    font-weight: 700;
-    font-family: "Nunito", sans-serif;
-
-    z-index: 10;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    z-index: 5;
 }
 
 .Badge_Picture_Checkout_Product_Card p {
     margin: 0;
+    font-family: 'Nunito', sans-serif;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.72rem;
+    line-height: 1;
 }
 
 .Description_Checkout_Product_Card {
-    height: 100%;
-    width:70%;
-
-    padding-left: 3%;
-
-    overflow-wrap: break-word;
-    align-content: center;
-
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.Description_Checkout_Product_Card h5 h6 p {
-    margin: 0;
+.Description_Checkout_Product_Card h5 {
+    font-family: "Piazzolla", serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111111;
+}
+
+.Description_Checkout_Product_Card h6 {
     font-family: "Nunito", sans-serif;
+    font-size: 0.95rem !important;
+}
+
+.Description_Checkout_Product_Card p {
+    font-family: "Nunito", sans-serif;
+    font-weight: 600;
 }
 
 .Bottom_Space_Checkout_Cart_Summary_Container {
-    width: 100%;
-    height: 5%;
-    border: 1px solid black;
+    display: none;
+}
+
+.Content_Checkout_Cart_Summary_Container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.Content_Checkout_Cart_Summary_Container::-webkit-scrollbar-thumb {
+    background: #f2d6dc;
+    border-radius: 10px;
 }
