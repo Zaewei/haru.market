@@ -53,6 +53,7 @@ builder.Services.AddSession(options =>
 
 // Register the services into the dependency container
 builder.Services.AddSingleton<haru.market.Services.ProductService>();
+builder.Services.AddSingleton<haru.market.Services.TrackingMoreService>();
 builder.Services.AddSingleton<haru.market.Services.OrderService>();
 builder.Services.AddSingleton<haru.market.Services.LookbookService>();
 builder.Services.AddSingleton<haru.market.Services.UserService>();
