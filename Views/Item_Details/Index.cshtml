@@ -3,148 +3,6 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/Item_Details/Item_Details.css" asp-append-version="true" />
-    <style>
-        .haru-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(26, 21, 22, 0.35);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-        }
-
-        .haru-modal-overlay.show-popup {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .haru-modal-card {
-            background-color: #ffffff;
-            border: 2px solid #f2d6dc;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 440px;
-            box-shadow: 0 20px 50px rgba(201, 106, 127, 0.12);
-            position: relative;
-            transform: translateY(-25px);
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            padding: 40px 30px 35px 30px;
-            box-sizing: border-box;
-        }
-
-        .haru-modal-overlay.show-popup .haru-modal-card {
-            transform: translateY(0);
-        }
-
-        .haru-modal-close-btn {
-            position: absolute;
-            top: 18px;
-            right: 22px;
-            background: none;
-            border: none;
-            font-size: 26px;
-            color: #bbb;
-            cursor: pointer;
-            transition: color 0.15s ease, transform 0.15s ease;
-            line-height: 1;
-        }
-
-        .haru-modal-close-btn:hover {
-            color: #EB899D;
-            transform: scale(1.1);
-        }
-
-        .haru-modal-body {
-            text-align: center;
-        }
-
-        .haru-modal-icon-wrap {
-            width: 64px;
-            height: 64px;
-            background-color: #fff5f7;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px auto;
-            border: 1px solid #f2d6dc;
-        }
-
-        .haru-modal-body h2 {
-            font-family: "Piazzolla", serif;
-            font-weight: 800;
-            font-size: 1.7rem;
-            color: #111111;
-            margin: 0 0 12px 0;
-            letter-spacing: -0.01em;
-        }
-
-        .haru-modal-body p {
-            font-family: "Nunito", sans-serif;
-            font-size: 0.98rem;
-            font-weight: 600;
-            color: #666666;
-            line-height: 1.55;
-            margin: 0 0 30px 0;
-        }
-
-        .haru-modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .haru-modal-btn-primary {
-            height: 48px;
-            flex: 1;
-            border: none;
-            border-radius: 10px;
-            background-color: #EB899D;
-            color: #ffffff;
-            font-family: "Nunito", sans-serif;
-            font-weight: 800;
-            font-size: 0.95rem;
-            cursor: pointer;
-            box-shadow: 0 4px 14px rgba(235, 137, 157, 0.25);
-            transition: all 0.2s ease;
-        }
-
-        .haru-modal-btn-primary:hover {
-            background-color: #c96a7f;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(235, 137, 157, 0.35);
-        }
-
-        .haru-modal-btn-secondary {
-            height: 48px;
-            padding: 0 22px;
-            border: 2px solid #f2d6dc;
-            background-color: #ffffff;
-            border-radius: 10px;
-            font-family: "Nunito", sans-serif;
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: #888888;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .haru-modal-btn-secondary:hover {
-            background-color: #fff5f7;
-            color: #c96a7f;
-            border-color: #EB899D;
-        }
-    </style>
 }
 
 <div class="back_button_container">
@@ -212,13 +70,45 @@
         <div class="Variant_Selector_Group">
             <span class="Selector_Label">Select Size</span>
             <div class="Size_Buttons_Grid">
-                <button type="button" class="Size_Button">S</button>
-                <button type="button" class="Size_Button active">M</button>
-                <button type="button" class="Size_Button">L</button>
-                <button type="button" class="Size_Button">XL</button>
-                <button type="button" class="Size_Button">XXL</button>
+                @{
+                    var standardSizes = new List<string> { "S", "M", "L", "XL", "XXL" };
+                    bool initialSizeSelected = false;
+
+                    foreach (var size in standardSizes)
+                    {
+                        int currentStock = 0;
+                        bool hasStockRecord = false;
+
+                        if (Model.StockQuantity != null)
+                        {
+                            var matchingKey = Model.StockQuantity.Keys.FirstOrDefault(k => k.ToString().Trim().ToUpper() == size);
+                            if (matchingKey != null && int.TryParse(Model.StockQuantity[matchingKey].ToString(), out int parsedAmount))
+                            {
+                                currentStock = parsedAmount;
+                                hasStockRecord = true;
+                            }
+                        }
+
+                        bool isSoldOut = hasStockRecord && currentStock <= 0;
+
+                        string activeStateClass = "";
+                        if (!isSoldOut && !initialSizeSelected)
+                        {
+                            activeStateClass = "active";
+                            initialSizeSelected = true;
+                        }
+
+                        <button type="button" 
+                                class="Size_Button @activeStateClass @(isSoldOut ? "out-of-stock" : "")" 
+                                data-size-stock="@currentStock"
+                                @(isSoldOut ? "disabled" : "")>
+                            @size
+                        </button>
+                    }
+                }
             </div>
-            <a href="#" class="Size_Guide_Link">View Measurement Size Guide</a>
+            <span id="sizeStockFeedback" class="Stock_Notice_Inline"></span>
+            <a href="#" class="Size_Guide_Link" style="margin-top: 10px; display: inline-block;">View Measurement Size Guide</a>
         </div>
 
         <div class="Purchase_Execution_Row">
@@ -229,7 +119,7 @@
             </div>
 
             <div class="Action_Buttons_Wrapper">
-               <button type="button" class="Haru_Primary_Bag_Btn" onclick="handleAddToCartClick()">Add to Bag</button>
+               <button type="button" id="addToBagSubmitBtn" class="Haru_Primary_Bag_Btn" onclick="handleAddToCartClick()">Add to Bag</button>
                 
                 <input type="checkbox" id="fav1" hidden>
                 <label for="fav1" class="Haru_Heart_Wish_Label">
@@ -239,6 +129,14 @@
                 </label>
             </div>
         </div>
+
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <div class="Product_Editorial_Description">
+                <h3>The Story</h3>
+                <p>@Model.Description.Replace("\r\n", " ").Replace("\n", " ")</p>
+            </div>
+        }
 
     </div>
 
@@ -267,23 +165,78 @@
     <script src="~/js/Item_Details/Item_Details.js" asp-append-version="true"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const sizeButtons = document.querySelectorAll(".Size_Button");
+            const sizeButtons = document.querySelectorAll(".Size_Button:not(.out-of-stock)");
+            const feedbackLabel = document.getElementById("sizeStockFeedback");
+            const qtyInput = document.getElementById("quantity");
+            const plusBtn = document.getElementById("plusBtn");
+            const minusBtn = document.getElementById("minusBtn");
+            const mainSubmitBtn = document.getElementById("addToBagSubmitBtn");
+
+            function updateStockDisplay(activeButton) {
+                if (!activeButton) {
+                    feedbackLabel.innerText = "Item completely out of stock";
+                    mainSubmitBtn.disabled = true;
+                    mainSubmitBtn.innerText = "Sold Out";
+                    qtyInput.value = 0;
+                    return;
+                }
+
+                const allocation = parseInt(activeButton.getAttribute("data-size-stock")) || 0;
+                
+                if(allocation <= 5 && allocation > 0) {
+                    feedbackLabel.innerText = `Only ${allocation} Items left in stock — LOW STOCK`;
+                } else if (allocation > 5) {
+                    feedbackLabel.innerText = `${allocation} Items currently available in store`;
+                } else {
+                    feedbackLabel.innerText = "Selected T-Shirt Size is sold out";
+                }
+
+                let currentVal = parseInt(qtyInput.value) || 1;
+                if(currentVal > allocation) qtyInput.value = allocation;
+                if(allocation === 0) qtyInput.value = 0;
+            }
+
             sizeButtons.forEach(btn => {
                 btn.addEventListener("click", function () {
-                    sizeButtons.forEach(b => b.classList.remove("active"));
+                    document.querySelectorAll(".Size_Button").forEach(b => b.classList.remove("active"));
                     this.classList.add("active");
+                    updateStockDisplay(this);
                 });
             });
+
+            const currentActiveSize = document.querySelector(".Size_Button.active");
+            updateStockDisplay(currentActiveSize);
+
+            if(plusBtn && minusBtn && qtyInput) {
+                plusBtn.addEventListener("click", function(e) {
+                    e.stopImmediatePropagation();
+                    const activeBtn = document.querySelector(".Size_Button.active");
+                    const maxAllowed = activeBtn ? parseInt(activeBtn.getAttribute("data-size-stock")) || 0 : 99;
+                    
+                    let val = parseInt(qtyInput.value) || 1;
+                    if(val < maxAllowed) {
+                        qtyInput.value = val + 1;
+                    }
+                });
+
+                minusBtn.addEventListener("click", function(e) {
+                    e.stopImmediatePropagation();
+                    let val = parseInt(qtyInput.value) || 1;
+                    if(val > 1) {
+                        qtyInput.value = val - 1;
+                    }
+                });
+            }
         });
 
         function openAuthModal() {
             document.getElementById("authRequiredModal").classList.add("show-popup");
-            document.body.style.overflow = "hidden"; // Prevents background body scrolling
+            document.body.style.overflow = "hidden";
         }
 
         function closeAuthModal() {
             document.getElementById("authRequiredModal").classList.remove("show-popup");
-            document.body.style.overflow = ""; // Restores normal scrolling
+            document.body.style.overflow = "";
         }
 
         function redirectToLogin() {
@@ -295,10 +248,20 @@
         function handleAddToCartClick() {
             const isUserLoggedIn = @(User.Identity?.IsAuthenticated.ToString().ToLower() ?? "false");
             const activeSizeElement = document.querySelector(".Size_Button.active");
-            const selectedSize = activeSizeElement ? activeSizeElement.innerText.trim() : "M";
-
+            
+            if (!activeSizeElement || activeSizeElement.classList.contains("out-of-stock")) {
+                alert("Please select an available size configuration option.");
+                return;
+            }
+            
+            const selectedSize = activeSizeElement.innerText.trim();
             const quantityInput = document.getElementById("quantity");
             const selectedQty = quantityInput ? parseInt(quantityInput.value) : 1;
+
+            if (selectedQty <= 0) {
+                alert("Selected quantity option must contain a valid stock count unit allocation request.");
+                return;
+            }
 
             if (!isUserLoggedIn) {
                 openAuthModal();
@@ -333,5 +296,5 @@
             })
             .catch(error => console.error("Network communication connection dropped:", error));
         }
-</script>
+    </script>
 }

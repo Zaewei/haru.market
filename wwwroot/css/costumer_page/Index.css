@@ -95,6 +95,8 @@
     overflow: hidden;
     width: 100%;
     margin: 0 auto;
+    padding-top: 20px;
+    padding-bottom: 30px;
     mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
@@ -137,42 +139,54 @@
 }
 
 .FeaturedItem_card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-6px);
+    border-color: #EB899D;
+    box-shadow: 0 12px 30px rgba(235, 137, 157, 0.25);
+    z-index: 50;
 }
 
 .FeaturedItem_card {
     min-width: 280px;
-    height: 400px;
+    height: 350px;
     background: #ffffff;
-    border: 1px solid #f0f0f0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    border-radius: 12px;
+    border: 2px solid #f2d6dc;
+    box-shadow: 0 8px 24px rgba(201, 106, 127, 0.04);
+    border-radius: 16px;
     flex: 0 0 auto;
     scroll-snap-align: start;
-    transition: transform 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: hidden;
 }
 
 .FeaturedItem_card img {
     width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 8px 8px 0 0;
-    display: block;
+    height: 260px;
+    object-fit: contain;
+    padding: 15px; 
+    background-color: #fff5f7;
+    border-bottom: 1px solid #f5e6e8;
+    box-sizing: border-box;
 }
 
 .FeaturedItem_card h6 {
-    margin: 15px 10px 5px 10px;
-    font-size: 1rem;
-    font-weight: 600;
+    margin: 20px 15px 5px 15px;
+    font-family: "Piazzolla", serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111111;
+    text-align: center;
+    letter-spacing: 0.02em;
 }
 
 .FeaturedItem_card p {
-    margin: 0 10px 15px 10px;
-    color: #666;
+    margin: 0 15px 20px 15px;
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #c96a7f;
 }
 
 .Shop_Button {

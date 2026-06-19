@@ -20,7 +20,7 @@
     </div>
 
     <div class="LookBookSection_text">
-        <<a href="/Lookbook" class="lookbook-link">Explore Lookbook</a>
+        <a href="/Lookbook" class="lookbook-link">Explore Lookbook</a>
     </div>
 </section>
 
@@ -31,23 +31,30 @@
             <div class="infinite-scroll-wrapper">
                 @if (ViewData.Model.Products != null)
                 {
-                    var featuredProducts = ((IEnumerable<ProductViewModel>)ViewData.Model.Products).Take(5).ToList();
+                    var groupedProducts = ((IEnumerable<ProductViewModel>)ViewData.Model.Products)
+                        .GroupBy(p => !string.IsNullOrEmpty(p.GroupKey) ? p.GroupKey.Trim().ToLower() : p.Id)
+                        .Take(5)
+                        .ToList();
                     
-                    @foreach (var product in featuredProducts)
+                    @foreach (var group in groupedProducts)
                     {
-                        <div class="FeaturedItem_card">
-                            <img src="@product.ImageUrl" onerror="this.src='https://placehold.co/150?text=Product';" />
-                            <h6>@product.Name</h6>
-                            <p>₱@product.Price</p>
+                        var primary = group.First();
+
+                        <div class="FeaturedItem_card" style="cursor: pointer;" onclick="window.location.href='@Url.Action("Index", "Item_Details", new { id = primary.Id })'">
+                            <img src="@primary.ImageUrl" onerror="this.src='https://placehold.co/150?text=Product';" />
+                            <h6>@primary.Name</h6>
+                            <p style="margin-bottom: 15px;">₱@primary.Price</p>
                         </div>
                     }
 
-                    @foreach (var product in featuredProducts)
+                    @foreach (var group in groupedProducts)
                     {
-                        <div class="FeaturedItem_card">
-                            <img src="@product.ImageUrl" onerror="this.src='https://placehold.co/150?text=Product';" />
-                            <h6>@product.Name</h6>
-                            <p>₱@product.Price</p>
+                        var primary = group.First();
+
+                        <div class="FeaturedItem_card" style="cursor: pointer;" onclick="window.location.href='@Url.Action("Index", "Item_Details", new { id = primary.Id })'">
+                            <img src="@primary.ImageUrl" onerror="this.src='https://placehold.co/150?text=Product';" />
+                            <h6>@primary.Name</h6>
+                            <p style="margin-bottom: 15px;">₱@primary.Price</p>
                         </div>
                     }
                 }
@@ -58,9 +65,7 @@
         </a>
     </div>
 </section>
-        <div class="FeaturedImage_Container">
-             <img src="/images/Home/FeaturedImage.jpg"/>
-        </div>
-        
-    </div>
-</section>
+
+<div class="FeaturedImage_Container">
+     <img src="/images/Home/FeaturedImage.jpg"/>
+</div>
