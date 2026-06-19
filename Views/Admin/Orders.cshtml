@@ -113,12 +113,21 @@
                 </div>
                 <div class="ord-form-group">
                     <div class="ord-form-label">Status</div>
-                    <select class="form-input" id="editStatusSelect">
+                    <select class="form-input ord-form-select" id="editStatusSelect">
                         <option value="shipped">Shipped</option>
                         <option value="delivered">Completed</option>
                         <option value="cancelled">Cancelled</option>
-                    <select>
-                 </div>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+                <div class="ord-form-group" id="trackingFieldsGroup" style="display:none;">
+                    <div class="ord-form-label">Courier</div>
+                    <select class="form-input ord-form-select" id="editCourierSelect">
+                        <option value="">Loading couriers…</option>
+                    </select>
+                    <div class="ord-form-label" style="margin-top:0.7rem;">Tracking Number</div>
+                    <input type="text" class="form-input ord-form-select" id="editTrackingNumber" placeholder="e.g. JT1234567890" />
+                </div>
         </div>
         <div class="ord-modal-footer">
             <button class="pm-btn-cancel" id="cancelEditModal">Cancel</button>
@@ -157,11 +166,12 @@
         status = o.Status.ToString().ToLower(),
         payment = o.PaymentMethod,
         total = "₱" + o.Total.ToString("N0"),
-        address = o.ShippingAddress
+        address = o.ShippingAddress,
+        courierCode = o.CourierCode,
+        trackingNumber = o.TrackingNumber,
+        trackingStatus = o.TrackingStatus
     }) : new object[] {});
 </script>
-
-<script src="~/js/admin/orders.js" asp-append-version="true"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -182,19 +192,33 @@
                     formattedStatus = "Completed";
                 }
 
+                const courierCode = (document.getElementById("editCourierSelect").value || "").trim();
+                const trackingNumber = (document.getElementById("editTrackingNumber").value || "").trim();
+
+                if (rawStatusValue === "shipped" && (!courierCode || !trackingNumber)) {
+                    alert("Please choose a courier and enter a tracking number before marking this order as Shipped.");
+                    return;
+                }
+
                 const originalText = saveButton.innerText;
                 saveButton.disabled = true;
                 saveButton.innerText = "Syncing...";
+
+                const formBody = {
+                    'orderId': orderId,
+                    'status': formattedStatus
+                };
+                if (rawStatusValue === "shipped") {
+                    formBody.courierCode = courierCode;
+                    formBody.trackingNumber = trackingNumber;
+                }
 
                 fetch('/Admin/UpdateOrderStatus', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: new URLSearchParams({
-                        'orderId': orderId,
-                        'status': formattedStatus
-                    })
+                    body: new URLSearchParams(formBody)
                 })
                 .then(response => response.json())
                 .then(data => {
