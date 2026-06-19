@@ -5,6 +5,9 @@ using haru.market.Services;
 using haru.market.Models;
 using System.Collections.Generic;
 using System.Linq;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace haru.market.Controllers
 {
@@ -429,5 +432,113 @@ namespace haru.market.Controllers
         private static string NormalizeStatus(string raw) =>
             string.IsNullOrWhiteSpace(raw) ? "Unknown"
             : char.ToUpper(raw[0]) + raw[1..].ToLower();
+
+        [HttpPost]
+        public async Task<IActionResult> ExportSalesCsv(DateTime startDate, DateTime endDate)
+        {
+            var orders = await _orderService.GetAllOrdersAsync();
+
+            // Filter orders based on the provided date range
+            var filtered = orders.Where(o => o.Date >= startDate && o.Date <= endDate).ToList();
+
+            var csv = new System.Text.StringBuilder();
+
+            csv.AppendLine("OrderId,Customer,TotalAmount,Status");
+
+            foreach (var order in filtered)
+            {
+                csv.AppendLine($"{order.Id}," + $"{order.Name}," + $"{order.Total:F2}," + $"{order.Status}");
+            }
+
+            return File(System.Text.Encoding.UTF8.GetBytes(csv.ToString()), "text/csv", $"SalesReport_{DateTime.Now:yyyyMMdd}.csv");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportInventoryCsv()
+        {
+            var products = await _productService.GetAllProductsAsync();
+
+            var csv = new System.Text.StringBuilder();
+
+            csv.AppendLine("Product,Price,Stock");
+
+            foreach (var product in products)
+            {
+                csv.AppendLine($"{product.Name}," + $"{product.Price:F2}," + $"{product.TotalStock}");
+            }
+
+            return File(System.Text.Encoding.UTF8.GetBytes(csv.ToString()), "text/csv", $"InventoryReport_{DateTime.Now:yyyyMMdd}.csv");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportSalesPdf(DateTime startDate, DateTime endDate)
+        {
+            var orders = await _orderService.GetAllOrdersAsync();
+
+            var filtered = orders.Where(o => o.Date >= startDate && o.Date <= endDate).ToList();
+
+            byte[] pdfBytes = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(30);
+
+                    page.Header()
+                        .Text("Sales Report")
+                        .FontSize(20)
+                        .Bold();
+
+                    page.Content().Column(col =>
+                    {
+                        col.Item().Text($"Date Range: {startDate:MM/dd/yyyy} - {endDate:MM/dd/yyyy}");
+                        col.Item().PaddingBottom(10);
+
+                        foreach (var order in filtered)
+                        {
+                            col.Item().Text($"{order.Id} | {order.Name} | ₱{order.Total:F2}");
+                        }
+
+                        col.Item().PaddingTop(10);
+                        col.Item().Text($"Total Sales: ₱{filtered.Sum(x => x.Total):F2}").Bold();
+                    });
+                });
+            }).GeneratePdf();
+
+            Response.Headers.Append("Content-Disposition", $"attachment; filename=SalesReport_{DateTime.Now:yyyyMMdd}.pdf");
+            return File(pdfBytes, "application/pdf");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportInventoryPdf()
+        {
+            var products = await _productService.GetAllProductsAsync();
+
+            byte[] pdfBytes = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(30);
+
+                    page.Header()
+                        .Text("Inventory Report")
+                        .FontSize(20)
+                        .Bold();
+
+                    page.Content().Column(col =>
+                    {
+                        foreach (var product in products)
+                        {
+                            col.Item().Text($"{product.Name} | ₱{product.Price:F2} | Stock: {product.TotalStock}");
+                        }
+
+                        col.Item().PaddingTop(10);
+                        col.Item().Text($"Total Products: {products.Count}").Bold();
+                    });
+                });
+            }).GeneratePdf();
+
+            Response.Headers.Append("Content-Disposition", $"attachment; filename=InventoryReport_{DateTime.Now:yyyyMMdd}.pdf");
+            return File(pdfBytes, "application/pdf");
+        }
     }
 }
