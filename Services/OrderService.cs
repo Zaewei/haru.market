@@ -1,396 +1,280 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
-using Google.Cloud.Firestore;
-using haru.market.Models;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Xendit.net;
-
 
 namespace haru.market.Services
 {
-    public class OrderService
+    // A single courier supported by TrackingMore (e.g. "jtexpress-ph" / "J&T Express Philippines")
+    public class TrackingMoreCourier
     {
-        private readonly FirestoreDb _firestoreDb;
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+    }
+
+    // The bits of a TrackingMore "tracking" object.
+    public class TrackingMoreResult
+    {
+        public string? Id { get; set; }
+        public string TrackingNumber { get; set; } = string.Empty;
+        public string CourierCode { get; set; } = string.Empty;
+        public string? OrderNumber { get; set; }
+
+        // One of: pending, notfound, transit, pickup, undelivered, delivered, exception, expired
+        public string DeliveryStatus { get; set; } = "pending";
+        public string? Substatus { get; set; }
+    }
+
+    public class TrackingMoreService
+    {
+        private const string BaseUrl = "https://api.trackingmore.com/v4";
+
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
 
-        public OrderService(IConfiguration configuration)
+        // Courier list rarely changes, so we cache it in memory for a while instead of
+        // hitting the API every time the admin opens the "Edit Order" modal.
+        private List<TrackingMoreCourier>? _courierCache;
+        private DateTime _courierCacheExpiry = DateTime.MinValue;
+
+        public TrackingMoreService(IConfiguration configuration)
         {
             _configuration = configuration;
             _httpClient = new HttpClient();
-
-            // Initialize Firestore
-            string keyPath = "haru-market-firebase-adminsdk-fbsvc-6e0cac4990.json";
-            var credential = Google.Apis.Auth.OAuth2.ServiceAccountCredential.FromServiceAccountData(
-                new MemoryStream(Encoding.UTF8.GetBytes(File.ReadAllText(keyPath)))
-            ).ToGoogleCredential();
-
-            _firestoreDb = new FirestoreDbBuilder
-            {
-                ProjectId = "haru-market",
-                Credential = credential
-            }.Build();
-
-            XenditConfiguration.ApiKey = _configuration["Xendit:SecretKey"];
         }
 
-        public async Task<string> CreateOrderAsync(OrderPlacementViewModel orderData)
+        private string ApiKey => _configuration["TrackingMore:ApiKey"] ?? string.Empty;
+
+        private HttpRequestMessage BuildRequest(HttpMethod method, string pathAndQuery, object? jsonBody = null)
         {
-            string generatedOrderId = await _firestoreDb.RunTransactionAsync(async transaction =>
+            var request = new HttpRequestMessage(method, $"{BaseUrl}/{pathAndQuery}");
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            request.Headers.TryAddWithoutValidation("Tracking-Api-Key", ApiKey);
+
+            if (jsonBody != null)
             {
-                double totalAmount = 0;
-
-                var productStockChanges = new Dictionary<string, Dictionary<string, object>>();
-                var productReferences = new Dictionary<string, DocumentReference>();
-
-                foreach (var item in orderData.Items)
-                {
-                    string actualDocId = item.ProductId.Contains("_") ? item.ProductId.Split('_')[0] : item.ProductId;
-                    string targetSize = item.ProductId.Contains("_") ? item.ProductId.Split('_')[1] : "Standard";
-
-                    DocumentReference productRef = _firestoreDb.Collection("products").Document(actualDocId);
-                    productReferences[actualDocId] = productRef;
-
-                    Dictionary<string, object> stockMap;
-
-                    if (productStockChanges.ContainsKey(actualDocId))
-                    {
-                        stockMap = productStockChanges[actualDocId];
-                    }
-                    else
-                    {
-                        DocumentSnapshot productSnapshot = await transaction.GetSnapshotAsync(productRef);
-
-                        if (!productSnapshot.Exists)
-                        {
-                            throw new Exception($"Product '{item.ProductName}' no longer exists in our catalog.");
-                        }
-
-                        var rawStock = productSnapshot.GetValue<Dictionary<string, object>>("stockQuantity");
-                        stockMap = rawStock != null ? new Dictionary<string, object>(rawStock) : new Dictionary<string, object>();
-                        productStockChanges[actualDocId] = stockMap;
-                    }
-
-                    long currentStock = 0;
-                    
-                    if (stockMap.ContainsKey(targetSize))
-                    {
-                        currentStock = Convert.ToInt64(stockMap[targetSize]);
-                    }
-                    else if (stockMap.ContainsKey("Standard"))
-                    {
-                        currentStock = Convert.ToInt64(stockMap["Standard"]);
-                        targetSize = "Standard";
-                    }
-                    else
-                    {
-                        throw new Exception($"Size variation '{targetSize}' could not be found for {item.ProductName}.");
-                    }
-                    
-                    if (currentStock < item.Quantity)
-                    {
-                        throw new Exception($"Insufficient stock for {item.ProductName}. Current: {currentStock}");
-                    }
-
-                    stockMap[targetSize] = currentStock - item.Quantity;
-                    totalAmount += (double)item.Price * item.Quantity;
-                }
-
-                foreach (var change in productStockChanges)
-                {
-                    transaction.Update(productReferences[change.Key], "stockQuantity", change.Value);
-                }
-
-                // Append and save final receipt records safely
-                CollectionReference ordersCollection = _firestoreDb.Collection("orders");
-                var firestoreOrderObject = new Dictionary<string, object>
-                {
-                    { "customerName", orderData.CustomerName },
-                    { "shippingAddress", orderData.ShippingAddress },
-                    { "customerEmail", orderData.CustomerEmail },
-                    { "totalAmount", totalAmount },
-                    { "status", "Pending" },
-                    { "paymentMethod", "Pending" },
-                    { "createdAt", Timestamp.FromDateTime(DateTime.UtcNow) },
-                    { "items", orderData.Items.Select(i => new Dictionary<string, object>
-                        {
-                            { "productId", i.ProductId },
-                            { "productName", i.ProductName },
-                            { "price", Convert.ToDouble(i.Price) },
-                            { "quantity", i.Quantity }
-                        }).ToList() 
-                    }
-                };
-
-                DocumentReference newOrderRef = await ordersCollection.AddAsync(firestoreOrderObject);
-                return newOrderRef.Id; 
-            });
-
-            return generatedOrderId;
-        }
-
-        public async Task<string> CreateXenditInvoiceAsync(string databaseOrderId, OrderPlacementViewModel orderData)
-        {
-            try
-            {
-                double totalSum = orderData.Items.Sum(item => (double)item.Price * item.Quantity);
-
-                var invoiceParams = new
-                {
-                    external_id = databaseOrderId,
-                    amount = totalSum,
-                    currency = "PHP",
-                    payer_email = orderData.CustomerEmail,
-                    description = $"Haru Market Checkout - Order #{databaseOrderId.Substring(0, 8)}",
-                    invoice_duration = 86400,
-                    payment_methods = new[] { "GCASH", "PAYMAYA", "GRABPAY", "CREDIT_CARD" },
-                    success_redirect_url = "http://localhost:5167/Checkout/Success",
-                    failure_redirect_url = "http://localhost:5167/Checkout/Cancel"
-                };
-
-                string xenditKey = _configuration["Xendit:SecretKey"] + ":";
-                string base64Auth = Convert.ToBase64String(Encoding.UTF8.GetBytes(xenditKey));
-
-                var request = new HttpRequestMessage(HttpMethod.Post, "https://api.xendit.co/v2/invoices");
-                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", base64Auth);
-                request.Content = new StringContent(JsonSerializer.Serialize(invoiceParams), Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.SendAsync(request);
-                string responseBody = await response.Content.ReadAsStringAsync();
-
-                if (response.IsSuccessStatusCode)
-                {
-                    using JsonDocument doc = JsonDocument.Parse(responseBody);
-                    return doc.RootElement.GetProperty("invoice_url").GetString()!;
-                }
-                else
-                {
-                    Console.WriteLine($"[XENDIT ERROR] API Response: {responseBody}");
-                    throw new Exception("Payment gateway rejected the invoice request.");
-                }
+                request.Content = new StringContent(JsonSerializer.Serialize(jsonBody), Encoding.UTF8, "application/json");
             }
-            catch (Exception ex)
+
+            return request;
+        }
+
+        private static int GetMetaCode(JsonElement root)
+        {
+            if (root.ValueKind == JsonValueKind.Object)
             {
-                Console.WriteLine($"[XENDIT ERROR] Execution failure: {ex.Message}");
-                throw new Exception("Payment gateway initialization failed.");
+                if (root.TryGetProperty("meta", out var meta) && meta.TryGetProperty("code", out var metaCode) && metaCode.ValueKind == JsonValueKind.Number)
+                    return metaCode.GetInt32();
+
+                if (root.TryGetProperty("code", out var rootCode) && rootCode.ValueKind == JsonValueKind.Number)
+                    return rootCode.GetInt32();
             }
+
+            return 0;
         }
 
-       public async Task UpdateOrderStatusAsync(string orderId, string newStatus, string paymentChannel)
-{
-        var orderRef = _firestoreDb.Collection("orders").Document(orderId);
-        var updates = new Dictionary<string, object>();
-
-        if (!string.IsNullOrWhiteSpace(newStatus))
-            updates.Add("status", newStatus);
-
-        if (!string.IsNullOrWhiteSpace(paymentChannel))
+        private static string GetMetaMessage(JsonElement root)
         {
-            string polishedChannel = paymentChannel;
-            switch (paymentChannel.ToUpper())
+            if (root.ValueKind == JsonValueKind.Object)
             {
-                case "CREDIT_CARD": polishedChannel = "Credit Card"; break;
-                case "GCASH": polishedChannel = "GCash"; break;
-                case "PAYMAYA": polishedChannel = "Maya"; break;
-                case "GRABPAY": polishedChannel = "GrabPay"; break;
+                if (root.TryGetProperty("meta", out var meta) && meta.TryGetProperty("message", out var msg) && msg.ValueKind == JsonValueKind.String)
+                    return msg.GetString() ?? "Unknown TrackingMore error.";
+
+                if (root.TryGetProperty("message", out var rootMsg) && rootMsg.ValueKind == JsonValueKind.String)
+                    return rootMsg.GetString() ?? "Unknown TrackingMore error.";
             }
-            updates.Add("paymentMethod", polishedChannel);
+
+            return "Unknown TrackingMore error.";
         }
-        
-        if (updates.Any())
-            await orderRef.UpdateAsync(updates);
-    }
 
-        public void DispatchInvoiceBackground(string orderId, OrderPlacementViewModel orderData)
+        private static string GetStringField(JsonElement element, string key)
         {
-            Task.Run(async () =>
+            if (element.ValueKind == JsonValueKind.Object && element.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.String)
             {
-                try
-                {
-                    double totalSum = orderData.Items.Sum(item => (double)item.Price * item.Quantity);
-                    
-                    StringBuilder itemRowsBuilder = new StringBuilder();
-                    itemRowsBuilder.Append("<table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>");
-                    foreach (var item in orderData.Items)
-                    {
-                        itemRowsBuilder.Append($@"
-                            <tr>
-                                <td style='padding: 12px 0; border-bottom: 1px dashed #cccccc; font-size: 14px; font-weight: 500; color: #333333; text-align: left;'>
-                                    {item.ProductName} <span style='color: #888888; font-size: 12px;'>x{item.Quantity}</span>
-                                </td>
-                                <td style='padding: 12px 0; border-bottom: 1px dashed #cccccc; font-size: 14px; font-weight: bold; color: #000000; text-align: right; width: 100px;'>
-                                    ₱{item.Price * item.Quantity:N0}
-                                </td>
-                            </tr>");
-                    }
-                    itemRowsBuilder.Append("</table>");
-
-                    string htmlEmailBody = $@"
-                    <div style='font-family: ""Helvetica Neue"", Arial, sans-serif; background-color: #fbf9f6; padding: 30px 15px; text-align: left;'>
-                        <div style='max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);'>
-                            
-                            <div style='text-align: center; margin-bottom: 35px;'>
-                                <img src='https://raw.githubusercontent.com/Zaewei/haru.market/refs/heads/main/wwwroot/images/header.png' alt='HARU Header' style='width: 100%; max-width: 550px; display: block; margin: 0 auto; border-radius: 12px;' />
-                            </div>
-
-                            <h2 style='color: #d63384; font-size: 28px; font-weight: bold; margin: 0 0 10px 0;'>Hi!</h2>
-                            <p style='font-size: 20px; font-weight: bold; color: #000000; margin: 0 0 25px 0;'>Thanks for your purchase.</p>
-                            
-                            <hr style='border: none; border-top: 1px dashed #888888; margin: 20px 0;' />
-
-                            <table style='width: 100%; border-collapse: collapse; font-size: 13px; color: #555555; margin-bottom: 15px;'>
-                                <tr>
-                                    <td style='vertical-align: top; padding: 0; text-align: left;'>
-                                        <span style='display: block; margin-bottom: 4px; color: #777777;'>Order #</span>
-                                        <strong style='color: #000000; font-size: 14px;'>{orderId.Substring(0, 8).ToUpper()}</strong>
-                                    </td>
-                                    <td style='text-align: right; vertical-align: top; padding: 0;'>
-                                        <span style='display: block; margin-bottom: 4px; color: #777777;'>Placed on</span>
-                                        <strong style='color: #000000; font-size: 14px;'>{DateTime.UtcNow:MMMM dd, yyyy}</strong>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style='margin: 20px 0;'>
-                                {itemRowsBuilder.ToString()}
-                            </div>
-
-                            <hr style='border: none; border-top: 1px dashed #888888; margin: 25px 0;' />
-
-                            <div style='padding-top: 5px;'>
-                                <table style='width: 100%; border-collapse: collapse; margin-bottom: 25px;'>
-                                    <tr>
-                                        <td style='font-size: 16px; font-weight: bold; color: #000000; text-align: left;'>
-                                            Total Amount
-                                        </td>
-                                        <td style='font-size: 22px; font-weight: bold; color: #d63384; text-align: right;'>
-                                            ₱{totalSum:N0}
-                                        </td>
-                                    </tr>
-                                </table>
-                                
-                                <div style='text-align: center; margin-top: 15px;'>
-                                    <img src='https://raw.githubusercontent.com/Zaewei/haru.market/refs/heads/main/wwwroot/images/footer.png' alt='HARU Footer' style='width: 100%; max-width: 550px; display: block; margin: 0 auto;' />
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>";
-
-                    var emailPayload = new
-                    {
-                        from = "onboarding@resend.dev",
-                        to = new[] { orderData.CustomerEmail },
-                        subject = $"Your HARU.market Purchase Receipt - #{orderId.Substring(0, 8).ToUpper()}",
-                        html = htmlEmailBody
-                    };
-
-                    string resendApiKey = _configuration["Resend:ApiKey"] ?? "";
-                    
-                    var request = new HttpRequestMessage(HttpMethod.Post, "https://api.resend.com/emails");
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", resendApiKey);
-                    request.Content = new StringContent(JsonSerializer.Serialize(emailPayload), Encoding.UTF8, "application/json");
-
-                    var response = await _httpClient.SendAsync(request);
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        string errorResponse = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"[RESEND ERROR] Failed to dispatch email: {errorResponse}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[RESEND SUCCESS] Live template email sent to {orderData.CustomerEmail}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Background dispatch error telemetry alert: {ex.Message}");
-                }
-            });
+                return value.GetString() ?? string.Empty;
+            }
+            return string.Empty;
         }
-        public async Task<List<OrderViewModel>> GetAllOrdersAsync()
+
+        private static TrackingMoreResult ParseTrackingData(JsonElement data)
         {
-            var ordersList = new List<OrderViewModel>();
-            CollectionReference collection = _firestoreDb.Collection("orders");
-            QuerySnapshot snapshot = await collection.GetSnapshotAsync();
+            string deliveryStatus = GetStringField(data, "delivery_status");
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
+            return new TrackingMoreResult
             {
-                if (document.Exists)
-                {
-                    Dictionary<string, object> data = document.ToDictionary();
+                Id = GetStringField(data, "id"),
+                TrackingNumber = GetStringField(data, "tracking_number"),
+                CourierCode = GetStringField(data, "courier_code"),
+                OrderNumber = GetStringField(data, "order_number"),
+                DeliveryStatus = string.IsNullOrWhiteSpace(deliveryStatus) ? "pending" : deliveryStatus,
+                Substatus = GetStringField(data, "substatus")
+            };
+        }
 
-                    ordersList.Add(new OrderViewModel
-                    {
-                        Id = document.Id,
-                        Name = data.ContainsKey("customerName") ? data["customerName"].ToString()! : "Unknown Customer",
-                        Email = data.ContainsKey("customerEmail") ? data["customerEmail"].ToString()! : "",
-                        Status = data.ContainsKey("status") ? data["status"].ToString()! : "Pending",
-                        PaymentMethod = data.ContainsKey("paymentMethod") ? data["paymentMethod"].ToString()! : "Gcash",
-                        Total = data.ContainsKey("totalAmount") ? Convert.ToDecimal(data["totalAmount"]) : 0,
-                        Date = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts ? ts.ToDateTime().ToLocalTime() : DateTime.UtcNow,
-                        ShippingAddress = data.ContainsKey("shippingAddress") ? data["shippingAddress"].ToString()! : "No Address Provided"
-                    });
+        // Creates (or, in TrackingMore's V4 wording, "creates & gets") a tracking.
+        // order_number is set to our Firestore order ID so webhooks can map straight back to it.
+        public async Task<TrackingMoreResult> CreateTrackingAsync(string trackingNumber, string courierCode, string? orderNumber = null, string? customerName = null)
+        {
+            if (string.IsNullOrWhiteSpace(ApiKey))
+            {
+                throw new Exception("TrackingMore API key is not configured. Add a 'TrackingMore:ApiKey' entry to appsettings.json.");
+            }
+
+            if (string.IsNullOrWhiteSpace(trackingNumber) || string.IsNullOrWhiteSpace(courierCode))
+            {
+                throw new Exception("A tracking number and courier are both required to create a TrackingMore tracking.");
+            }
+
+            var payload = new Dictionary<string, object?>
+            {
+                { "tracking_number", trackingNumber.Trim() },
+                { "courier_code", courierCode.Trim() }
+            };
+
+            if (!string.IsNullOrWhiteSpace(orderNumber)) payload["order_number"] = orderNumber;
+            if (!string.IsNullOrWhiteSpace(customerName)) payload["customer_name"] = customerName;
+
+            using var request = BuildRequest(HttpMethod.Post, "trackings/create", payload);
+            using var response = await _httpClient.SendAsync(request);
+            string body = await response.Content.ReadAsStringAsync();
+
+            using JsonDocument doc = JsonDocument.Parse(body);
+            JsonElement root = doc.RootElement;
+            int code = GetMetaCode(root);
+
+            // 4101 = "Tracking No. already exists" -- this happens if the order is re-saved as
+            // Shipped, or the same tracking number was used before. Treat it as a success and
+            // just fetch the existing tracking instead of failing the request.
+            if (code == 4101)
+            {
+                var existing = await GetTrackingAsync(trackingNumber, courierCode);
+                if (existing != null) return existing;
+            }
+
+            if (code != 200 || !root.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Object)
+            {
+                throw new Exception($"TrackingMore could not create the tracking: {GetMetaMessage(root)}");
+            }
+
+            return ParseTrackingData(data);
+        }
+
+        // Pulls the latest known status for a tracking number directly (used by the
+        // admin "Refresh tracking" button, independently of webhooks).
+        public async Task<TrackingMoreResult?> GetTrackingAsync(string trackingNumber, string courierCode)
+        {
+            if (string.IsNullOrWhiteSpace(ApiKey))
+            {
+                throw new Exception("TrackingMore API key is not configured. Add a 'TrackingMore:ApiKey' entry to appsettings.json.");
+            }
+
+            string query = $"trackings/get?tracking_numbers={Uri.EscapeDataString(trackingNumber.Trim())}&courier_code={Uri.EscapeDataString(courierCode.Trim())}";
+
+            using var request = BuildRequest(HttpMethod.Get, query);
+            using var response = await _httpClient.SendAsync(request);
+            string body = await response.Content.ReadAsStringAsync();
+
+            using JsonDocument doc = JsonDocument.Parse(body);
+            JsonElement root = doc.RootElement;
+
+            if (GetMetaCode(root) != 200 || !root.TryGetProperty("data", out var data))
+            {
+                return null;
+            }
+
+            if (data.ValueKind == JsonValueKind.Array)
+            {
+                if (data.GetArrayLength() == 0) return null;
+                return ParseTrackingData(data[0]);
+            }
+
+            if (data.ValueKind == JsonValueKind.Object)
+            {
+                return ParseTrackingData(data);
+            }
+
+            return null;
+        }
+
+        // Returns the full list of couriers TrackingMore supports, so the admin can pick one
+        // from a dropdown instead of guessing courier codes.
+        public async Task<List<TrackingMoreCourier>> GetAllCouriersAsync()
+        {
+            if (_courierCache != null && DateTime.UtcNow < _courierCacheExpiry)
+            {
+                return _courierCache;
+            }
+
+            if (string.IsNullOrWhiteSpace(ApiKey))
+            {
+                throw new Exception("TrackingMore API key is not configured. Add a 'TrackingMore:ApiKey' entry to appsettings.json.");
+            }
+
+            using var request = BuildRequest(HttpMethod.Get, "couriers/all");
+            using var response = await _httpClient.SendAsync(request);
+            string body = await response.Content.ReadAsStringAsync();
+
+            using JsonDocument doc = JsonDocument.Parse(body);
+            JsonElement root = doc.RootElement;
+
+            var couriers = new List<TrackingMoreCourier>();
+
+            if (GetMetaCode(root) == 200 && root.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in data.EnumerateArray())
+                {
+                    string code = GetStringField(item, "courier_code");
+                    if (string.IsNullOrWhiteSpace(code)) continue;
+
+                    string name = GetStringField(item, "courier_name");
+                    couriers.Add(new TrackingMoreCourier { Code = code, Name = string.IsNullOrWhiteSpace(name) ? code : name });
                 }
             }
 
-            return ordersList.OrderByDescending(o => o.Date).ToList();
+            couriers = couriers.OrderBy(c => c.Name).ToList();
+            _courierCache = couriers;
+            _courierCacheExpiry = DateTime.UtcNow.AddHours(6);
+            return couriers;
         }
 
-        public async Task<UserActivityViewModel> GetUserActivityAsync(string email)
+        // Suggests likely couriers based on the tracking number's format. Handy because most
+        // admins don't memorize courier codes -- they just paste the tracking number.
+        public async Task<List<TrackingMoreCourier>> DetectCourierAsync(string trackingNumber)
         {
-            var activity = new UserActivityViewModel();
-            
-            Query orderQuery = _firestoreDb.Collection("orders").WhereEqualTo("customerEmail", email);
-            QuerySnapshot orderSnapshot = await orderQuery.GetSnapshotAsync();
-
-            int totalProductsPurchased = 0;
-            double totalSpent = 0;
-            var ordersList = new List<OrderViewModel>();
-
-            foreach (DocumentSnapshot doc in orderSnapshot.Documents)
+            if (string.IsNullOrWhiteSpace(trackingNumber))
             {
-                activity.TotalOrders++;
-                
-                Dictionary<string, object> data = doc.ToDictionary();
-
-                if (data.ContainsKey("totalAmount"))
-                    totalSpent += Convert.ToDouble(data["totalAmount"]);
-
-                if (data.ContainsKey("items") && data["items"] is List<object> itemsList)
-                {
-                    foreach (var itemObj in itemsList)
-                    {
-                        if (itemObj is Dictionary<string, object> itemDict && itemDict.ContainsKey("quantity"))
-                        {
-                            totalProductsPurchased += Convert.ToInt32(itemDict["quantity"]);
-                        }
-                    }
-                }
-
-                ordersList.Add(new OrderViewModel
-                {
-                    Id = doc.Id,
-                    Status = data.ContainsKey("status") ? data["status"].ToString()! : "Pending",
-                    Total = data.ContainsKey("totalAmount") ? Convert.ToDecimal(data["totalAmount"]) : 0,
-                    Date = data.ContainsKey("createdAt") && data["createdAt"] is Timestamp ts ? ts.ToDateTime().ToLocalTime() : DateTime.UtcNow
-                });
+                return new List<TrackingMoreCourier>();
             }
 
-            activity.TotalSpent = totalSpent;
-            activity.ProductsPurchased = totalProductsPurchased;
-            
-            activity.RecentOrders = ordersList.OrderByDescending(o => o.Date).ToList(); 
+            var payload = new Dictionary<string, object?> { { "tracking_number", trackingNumber.Trim() } };
 
-            return activity;
+            using var request = BuildRequest(HttpMethod.Post, "couriers/detect", payload);
+            using var response = await _httpClient.SendAsync(request);
+            string body = await response.Content.ReadAsStringAsync();
+
+            using JsonDocument doc = JsonDocument.Parse(body);
+            JsonElement root = doc.RootElement;
+
+            var matches = new List<TrackingMoreCourier>();
+
+            if (GetMetaCode(root) == 200 && root.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in data.EnumerateArray())
+                {
+                    string code = GetStringField(item, "courier_code");
+                    if (string.IsNullOrWhiteSpace(code)) continue;
+
+                    string name = GetStringField(item, "courier_name");
+                    matches.Add(new TrackingMoreCourier { Code = code, Name = string.IsNullOrWhiteSpace(name) ? code : name });
+                }
+            }
+
+            return matches;
         }
     }
 }
