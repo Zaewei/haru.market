@@ -48,6 +48,40 @@
     </div>
 </div>
 
+<div class="export-grid" style="margin-bottom:1rem;">
+    <!-- Sales Card -->
+    <div class="export-card">
+        <h3>Sales Reports</h3>
+        <form asp-controller="Admin" asp-action="ExportSalesCsv" method="post">
+            <div class="date-row">
+                <input type="date" name="startDate" required />
+                <input type="date" name="endDate" required />
+            </div>
+            <button type="submit" class="export-btn">Export CSV</button>
+        </form>
+
+        <form asp-controller="Admin" asp-action="ExportSalesPdf" method="post">
+            <div class="date-row">
+                <input type="date" name="startDate" required />
+                <input type="date" name="endDate" required />
+            </div>
+            <button type="submit" class="export-btn">Export PDF</button>
+        </form>
+    </div>
+
+    <!-- Inventory Card -->
+    <div class="export-card">
+        <h3>Inventory Reports</h3>
+        <form asp-controller="Admin" asp-action="ExportInventoryCsv" method="post">
+            <button type="submit" class="export-btn">Export CSV</button>
+        </form>
+
+        <form asp-controller="Admin" asp-action="ExportInventoryPdf" method="post">
+            <button type="submit" class="export-btn">Export PDF</button>
+        </form>
+    </div>
+</div>
+
 <div class="dash-row" style="margin-bottom:1rem;">
 
     <div class="dash-card">
@@ -272,5 +306,4 @@
             </div>
         </div>
     </div>
-
 </div>
