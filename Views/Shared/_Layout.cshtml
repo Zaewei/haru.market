@@ -28,6 +28,7 @@
 </head>
 <body>
     <header>
+        <input type="hidden" id="userIsLoggedIn" value="@(Context.Session.GetString("UserUid") != null ? "true" : "false")" />
         <nav class="">
             <div class="TopNav">
                 <div class="Logo ">
@@ -81,6 +82,31 @@
         </div>
     </div>
 
+    <div id="accountRequiredModal" class="haru-modal-overlay" onclick="closeGlobalAuthModal()">
+        <div class="haru-modal-card" onclick="event.stopPropagation()">
+            <button type="button" class="haru-modal-close-btn" onclick="closeGlobalAuthModal()">&times;</button>
+            <div class="haru-modal-body">
+                <div class="haru-modal-icon-wrap">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EB899D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <h2>Account Required</h2>
+                <p>Please log in or sign up to add items directly to your personal Haru shopping bag!</p>
+                <div class="haru-modal-actions">
+                    <button type="button" class="haru-modal-btn-secondary" onclick="closeGlobalAuthModal()">Cancel</button>
+                    <button type="button" class="haru-modal-btn-primary" onclick="redirectGlobalToLogin()">Log In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModalOverlay" class="login-modal-overlay" style="display: none;">
+        <div class="login-modal-content">
+            <partial name="Popups/_User_Popup_Page" />
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -88,13 +114,60 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
+        function openGlobalAuthModal() {
+            const targetModal = document.getElementById("accountRequiredModal");
+            if (targetModal) {
+                targetModal.classList.add("show-popup");
+                document.body.style.overflow = "hidden"; 
+            }
+        }
+
+        function closeGlobalAuthModal() {
+            const targetModal = document.getElementById("accountRequiredModal");
+            if (targetModal) {
+                targetModal.classList.remove("show-popup");
+                document.body.style.overflow = ""; 
+            }
+        }
+
+        function redirectGlobalToLogin() {
+            closeGlobalAuthModal();
+            const currentPath = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/Account/Login?returnUrl=${currentPath}`;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const bagButton = document.getElementById("bagBtn");
+            
+            if (bagButton) {
+                bagButton.setAttribute("href", "javascript:void(0)");
+                bagButton.addEventListener("click", function (e) {
+                    e.preventDefault();
+
+                    const authInput = document.getElementById('userIsLoggedIn');
+                    const isLoggedIn = authInput ? authInput.value === 'true' : false;
+
+                    if (!isLoggedIn) {
+                        openGlobalAuthModal();
+                    } else {
+                        openCartModal();
+                    }
+                });
+            }
+        });
+
         function openCartModal() {
             fetch('/Cart/GetCartPartial')
                 .then(response => {
+                    if (response.redirected) throw new Error("AUTH_REDIRECT");
                     if (!response.ok) throw new Error("Network exception: " + response.status);
                     return response.text();
                 })
                 .then(htmlContent => {
+                    if (htmlContent.trim().toLowerCase().startsWith('<!doctype html>') || htmlContent.includes('<html')) {
+                        throw new Error("AUTH_REDIRECT");
+                    }
+
                     const dataContainer = document.getElementById("haruLiveCartInnerContent");
                     const overlayWrapper = document.getElementById("globalCartModalOverlay");
                     
@@ -105,7 +178,13 @@
                         }, 10);
                     }
                 })
-                .catch(error => console.error("Cart retrieval paused:", error));
+                .catch(error => {
+                    if (error.message === "AUTH_REDIRECT") {
+                        openGlobalAuthModal();
+                    } else {
+                        console.error("Fetch error processing system pipeline:", error);
+                    }
+                });
         }
 
         function closeCartModal(e) {
@@ -120,17 +199,6 @@
                 overlayWrapper.classList.remove("show-popup-drawer");
             }
         }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            const bagButton = document.getElementById("bagBtn");
-            if (bagButton) {
-                bagButton.setAttribute("href", "javascript:void(0)");
-                bagButton.addEventListener("click", function (e) {
-                    e.preventDefault();
-                    openCartModal();
-                });
-            }
-        });
     </script>
 </body>
 </html>

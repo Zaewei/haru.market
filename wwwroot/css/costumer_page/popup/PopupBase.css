@@ -73,3 +73,144 @@
   height: 5%;
   box-shadow: 0 -8px 10px -5px rgba(0, 0, 0, 0.2);
 }
+
+.haru-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(26, 21, 22, 0.35);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.haru-modal-overlay.show-popup {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.haru-modal-card {
+    background-color: #ffffff;
+    border: 2px solid #f2d6dc;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 440px;
+    box-shadow: 0 20px 50px rgba(201, 106, 127, 0.12);
+    position: relative;
+    transform: translateY(-25px);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 40px 30px 35px 30px;
+    box-sizing: border-box;
+}
+
+.haru-modal-overlay.show-popup .haru-modal-card {
+    transform: translateY(0);
+}
+
+.haru-modal-close-btn {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: #bbb;
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.15s ease;
+    line-height: 1;
+}
+
+.haru-modal-close-btn:hover {
+    color: #EB899D;
+    transform: scale(1.1);
+}
+
+.haru-modal-body {
+    text-align: center;
+}
+
+.haru-modal-icon-wrap {
+    width: 64px;
+    height: 64px;
+    background-color: #fff5f7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+    border: 1px solid #f2d6dc;
+}
+
+.haru-modal-body h2 {
+    font-family: "Piazzolla", serif;
+    font-weight: 800;
+    font-size: 1.7rem;
+    color: #111111;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.01em;
+}
+
+.haru-modal-body p {
+    font-family: "Nunito", sans-serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: #666666;
+    line-height: 1.55;
+    margin: 0 0 30px 0;
+}
+
+.haru-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+}
+
+.haru-modal-btn-primary {
+    height: 48px;
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    background-color: #EB899D;
+    color: #ffffff;
+    font-family: "Nunito", sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(235, 137, 157, 0.25);
+    transition: all 0.2s ease;
+}
+
+.haru-modal-btn-primary:hover {
+    background-color: #c96a7f;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(235, 137, 157, 0.35);
+}
+
+.haru-modal-btn-secondary {
+    height: 48px;
+    padding: 0 22px;
+    border: 2px solid #f2d6dc;
+    background-color: #ffffff;
+    border-radius: 10px;
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #888888;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.haru-modal-btn-secondary:hover {
+    background-color: #fff5f7;
+    color: #c96a7f;
+    border-color: #EB899D;
+}
