@@ -13,5 +13,10 @@ namespace haru.market.Models
         public decimal Total { get; set; }
         public string Address { get; set; } = string.Empty;
         public string ShippingAddress { get; set; } = string.Empty;
+
+        // TrackingMore shipment tracking
+        public string CourierCode { get; set; } = string.Empty;
+        public string TrackingNumber { get; set; } = string.Empty;
+        public string TrackingStatus { get; set; } = string.Empty;
     }
 }
