@@ -121,8 +121,8 @@
             <div class="Action_Buttons_Wrapper">
                <button type="button" id="addToBagSubmitBtn" class="Haru_Primary_Bag_Btn" onclick="handleAddToCartClick()">Add to Bag</button>
                 
-                <input type="checkbox" id="fav1" hidden>
-                <label for="fav1" class="Haru_Heart_Wish_Label">
+                <input type="checkbox" id="fav1" hidden data-product-id="@Model.Id">
+                <label for="fav1" class="Haru_Heart_Wish_Label" id="favHeartLabel" title="Add to Favorites">
                     <svg class="heart-icon" viewBox="0 0 24 24" width="26" height="26">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
@@ -317,5 +317,57 @@
             document.getElementById("sizeGuideModal").classList.remove("show-popup");
             document.body.style.overflow = "";
         }
+
+        // ── Favorites / Heart Button ─────────────────────────────────────────
+        (function initFavorites() {
+            const isUserLoggedIn = @(User.Identity?.IsAuthenticated.ToString().ToLower() ?? "false");
+            const productId = "@Model.Id";
+            const favCheckbox = document.getElementById("fav1");
+            const favLabel   = document.getElementById("favHeartLabel");
+
+            if (!favCheckbox || !favLabel) return;
+
+            // On page load: check current state from server (only when logged in)
+            if (isUserLoggedIn) {
+                fetch(`/Favorites/IsFavorited?productId=${encodeURIComponent(productId)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.isFavorited) {
+                            favCheckbox.checked = true;
+                            favLabel.classList.add("is-favorited");
+                        }
+                    })
+                    .catch(() => {});
+            }
+
+            // Intercept the checkbox change so we can call the API instead of just toggling
+            favCheckbox.addEventListener("change", function (e) {
+                // Revert the visual change immediately — we'll confirm after the API call
+                favCheckbox.checked = !favCheckbox.checked;
+
+                if (!isUserLoggedIn) {
+                    openAuthModal();
+                    return;
+                }
+
+                fetch('/Favorites/Toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId: productId })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        favCheckbox.checked = data.isFavorited;
+                        if (data.isFavorited) {
+                            favLabel.classList.add("is-favorited");
+                        } else {
+                            favLabel.classList.remove("is-favorited");
+                        }
+                    }
+                })
+                .catch(err => console.error("Favorites toggle error:", err));
+            });
+        })();
     </script>
 }
