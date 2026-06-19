@@ -28,7 +28,7 @@
 </head>
 <body>
     <header>
-        <input type="hidden" id="userIsLoggedIn" value="@(Context.Session.GetString("UserUid") != null ? "true" : "false")" />
+        <input type="hidden" id="userIsLoggedIn" value="@(User?.Identity?.IsAuthenticated == true ? "true" : "false")" />
         <nav class="">
             <div class="TopNav">
                 <div class="Logo ">
@@ -197,6 +197,19 @@
             const overlayWrapper = document.getElementById("globalCartModalOverlay");
             if (overlayWrapper) {
                 overlayWrapper.classList.remove("show-popup-drawer");
+            }
+        }
+
+        function handleBagClick(e) {
+            if (e) e.preventDefault();
+
+            const btn = document.querySelector(".nav-bag-btn");
+            const isAuthenticated = btn.getAttribute("data-authenticated") === "true";
+
+            if (isAuthenticated) {
+                openCartDrawer(); 
+            } else {
+                showLoginModal(); 
             }
         }
     </script>

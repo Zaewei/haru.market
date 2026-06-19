@@ -72,173 +72,56 @@
 
 .Bag_Layout_Window {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: stretch; 
-    width: 95%;
-    height: 90%;
-    gap: 3%;
-    padding-top: 15px; 
-}
-
-.Bag_Summary_Window {
-    background-color: #F8F6EE;
-    width: 32%;
-    display: flex;
-    flex-direction: column;
-    border-radius: 15px;
-    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    gap: 40px;
 }
 
 .Bag_Window {
-    width: 65%;
+    width: 62%;
     display: flex;
     flex-direction: column;
 }
 
 .Bag_Window h2 {
     font-family: 'Piazzolla', serif;
-    font-style: italic;
+    font-style: normal;
     font-weight: 800;
     font-size: 2.2rem;
-    margin: 0 0 20px 15px;
-    color: #111;
-    padding-top: 12px; 
-}
-
-.Bag_Summary_Title_Card {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    background-color: #F8CBD5;
-    height: 18%;
-    border-bottom: 1.5px solid black;
-}
-
-.Bag_Summary_Title_Card h4 {
-    font-family: "Piazzolla", serif;
-    font-weight: 700;
-    margin: 0;
-}
-
-.Bag_Summary_Content {
-    padding: 25px 0;
-    width: 100%;
-    height: 65%;
-    box-sizing: border-box;
-    display: block;
-}
-
-.haru-boutique-summary-grid {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.haru-boutique-summary-grid td {
-    padding: 8px 25px;
-    font-family: "Nunito", sans-serif;
-    font-weight: 700;
-    font-size: 0.98rem;
-    color: #333333;
-}
-
-.haru-boutique-summary-grid .summary-value {
-    text-align: right;
-}
-
-.haru-boutique-summary-grid .text-bold {
-    font-weight: 800;
-    color: #000000;
-}
-
-.haru-boutique-summary-grid .haru-summary-total-highlight-row {
-    background-color: #F8CBD5;
-}
-
-.haru-boutique-summary-grid .haru-summary-total-highlight-row td {
-    padding: 12px 25px !important;
-    border-top: 1.5px solid #000;
-    border-bottom: 1.5px solid #000;
-}
-
-.Bag_Summary_Checkout_Card {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    height: 20%;
-    align-items: center;
-    margin-top: auto;
-}
-
-.Bag_Summary_Checkout_Card a {
-    text-decoration: none;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.Bag_Checkout_Button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 80%;
-    height: 48px;
-    background-color: #F8CBD5;
-    border: .3vh solid black;
-    border-radius: 1vh;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.Bag_Checkout_Button:hover {
-    background-color: #EB899D;
-}
-
-.Bag_Checkout_Button p {
-    font-family: 'Nunito', sans-serif;
-    color: #0f0f0f;
-    font-weight: 700;
-    margin: 0;
+    margin: 0 0 30px 0;
+    color: #111111;
+    letter-spacing: -0.02em;
 }
 
 .Bag_Product_Container {
     width: 100%;
     display: flex;
     flex-direction: column;
-    max-height: 52vh !important;
+    max-height: 60vh !important;
     overflow-y: auto !important;
-    padding-right: 12px;
-}
-
-.Bag_Product_Container::-webkit-scrollbar {
-    width: 6px;
-}
-.Bag_Product_Container::-webkit-scrollbar-track {
-    background: #ffffff;
-}
-.Bag_Product_Container::-webkit-scrollbar-thumb {
-    background: #f2d6dc;
-    border-radius: 10px;
-}
-.Bag_Product_Container::-webkit-scrollbar-thumb:hover {
-    background: #EB899D;
+    padding-right: 15px;
 }
 
 .Bag_Product_Card {
     max-width: 100%;
-    height: 20vh;
     display: flex;
-    padding: 2vh 0;
-    margin: 0 1vh;
-    border-bottom: 1.5px solid #111111;
+    padding: 20px 0;
+    border-bottom: 1px solid #f5e6e8;
     justify-content: space-between;
     align-items: center;
-    gap: 2vh;
+    gap: 20px;
 }
 
 .Bag_Product_Image {
-    height: 100%;
-    width: 18%;
+    height: 90px;
+    width: 90px;
+    background-color: #fff5f7;
+    border-radius: 12px;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #f2d6dc;
 }
 
 .Bag_Product_Image img {
@@ -248,34 +131,40 @@
 }
 
 .Bag_Product_Description {
-    height: 100%;
-    width: 50%;
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
 .Bag_Product_Description h3 {
-    font-size: 1.15rem;
+    font-family: "Piazzolla", serif;
+    font-size: 1.2rem;
     font-weight: 700;
+    color: #111111;
     margin: 0 0 4px 0;
 }
 
 .Bag_Product_Description h5 {
-    font-size: 0.95rem;
+    font-family: "Nunito", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
     margin: 0 0 6px 0;
-    color: #c96a7f;
+    color: #EB899D;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .Bag_Product_Description p {
-    font-size: 0.85rem;
-    color: #666;
-    margin: 0 0 2px 0;
+    font-family: "Nunito", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666666;
+    margin: 0 0 3px 0;
 }
 
 .Bag_Product_Amount_Button {
-    height: 100%;
-    width: 18%;
+    width: 110px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -285,45 +174,56 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border: 1px solid #131212;
+    border: 2px solid #f2d6dc;
     width: 100%;
+    height: 38px;
     border-radius: 8px;
     overflow: hidden;
+    background-color: #ffffff;
 }
 
 .quantity button {
-    background-color: #F8F6EE;
-    width: 28px;
-    height: 28px;
+    background-color: #fff5f7;
+    width: 32px;
+    height: 100%;
     border: none;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 1.1rem;
+    color: #c96a7f;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
 }
 
 .quantity button:hover {
-    background-color: #F8CBD5;
+    background-color: #f8cbd5;
 }
 
 .quantity span {
-    min-width: 20px;
-    text-align: center;
     font-family: "Nunito", sans-serif;
-    font-weight: 700;
+    font-weight: 800;
+    font-size: 1rem;
+    color: #111111;
 }
 
 .Bag_Product_Delete_Button {
-    height: 100%;
-    width: 10%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .Bag_Product_Delete_Button_container {
-    width: 28px !important;
-    height: 28px !important;
-    display: block !important;
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 9px !important;
+    box-sizing: border-box !important;
+    border-radius: 8px !important;
+    background-color: #ffffff !important;
+    border: 2px solid #f2d6dc !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
 }
 
 .Bag_Product_Delete_Button_container img,
@@ -331,4 +231,140 @@
     width: 100% !important;
     height: 100% !important;
     object-fit: contain !important;
+    display: block !important;
+}
+
+.Bag_Summary_Window {
+    background-color: #fffbf9;
+    border: 2px solid #f2d6dc;
+    width: 34%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(201, 106, 127, 0.01);
+    box-sizing: border-box;
+}
+
+.Bag_Summary_Title_Card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-color: #fff5f7;
+    height: 80px;
+    border-bottom: 1px solid #f2d6dc;
+    flex-shrink: 0;
+}
+
+.Bag_Summary_Title_Card h4 {
+    font-family: "Piazzolla", serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #111111;
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
+.Bag_Summary_Content {
+    padding: 20px 0 0 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.haru-boutique-summary-grid {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.haru-boutique-summary-grid td {
+    padding: 12px 25px;
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #666666;
+}
+
+.haru-boutique-summary-grid .summary-value {
+    text-align: right;
+    color: #111111;
+}
+
+.haru-boutique-summary-grid .text-bold {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: #000000;
+}
+
+.haru-boutique-summary-grid .haru-summary-total-highlight-row {
+    background-color: #fff5f7;
+}
+
+.haru-boutique-summary-grid .haru-summary-total-highlight-row td {
+    padding: 16px 25px !important;
+    border-top: 1px solid #f2d6dc;
+    border-bottom: 1px solid #f2d6dc;
+}
+
+.Bag_Summary_Checkout_Card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 20px 25px 25px 25px;
+    box-sizing: border-box;
+    margin-top: auto; 
+    background-color: #fffbf9;
+}
+
+.Bag_Summary_Checkout_Card a {
+    text-decoration: none !important; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.Bag_Checkout_Button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 48px;
+    background-color: #EB899D;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(235, 137, 157, 0.2);
+    transition: all 0.2s ease;
+}
+
+.Bag_Checkout_Button:hover {
+    background-color: #c96a7f;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(235, 137, 157, 0.3);
+}
+
+.Bag_Checkout_Button p {
+    font-family: 'Nunito', sans-serif;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0;
+    letter-spacing: 0.03em;
+}
+
+.Bag_Product_Container::-webkit-scrollbar {
+    width: 5px;
+}
+.Bag_Product_Container::-webkit-scrollbar-track {
+    background: transparent;
+}
+.Bag_Product_Container::-webkit-scrollbar-thumb {
+    background: #f2d6dc;
+    border-radius: 10px;
+}
+.Bag_Product_Container::-webkit-scrollbar-thumb:hover {
+    background: #EB899D;
 }

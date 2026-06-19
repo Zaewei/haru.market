@@ -51,9 +51,7 @@ namespace haru.market.Controllers
                     return Json(new { success = false, message = "Product document not found inside collection catalogs." });
                 }
 
-                targetProduct.Description = $"Size: {payload.Size}";
-
-                await _productService.AddToCartAsync(userUid, targetProduct);
+                await _productService.AddToCartAsync(userUid, targetProduct, payload.Size, payload.Quantity);
 
                 return Json(new { success = true });
             }

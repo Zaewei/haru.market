@@ -73,7 +73,7 @@ namespace haru.market.Controllers
                 return NotFound();
             }
 
-            await _productService.AddToCartAsync(uid, product);
+            await _productService.AddToCartAsync(uid, product, "M", 1);
 
             return RedirectToAction(nameof(Index));
         }

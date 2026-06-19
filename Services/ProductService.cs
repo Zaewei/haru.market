@@ -206,14 +206,16 @@ namespace haru.market.Services
             catch (Exception ex) { Console.WriteLine($"Error: {ex.Message}"); return 0; }
         }
 
-        public async Task AddToCartAsync(string uid, ProductViewModel product)
+        public async Task AddToCartAsync(string uid, ProductViewModel product, string selectedSize, int requestedQuantity)
         {
-            DocumentReference doc = _firestoreDb.Collection("users").Document(uid).Collection("cart").Document(product.Id);
+            string cartDocId = $"{product.Id}_{selectedSize}";
+            DocumentReference doc = _firestoreDb.Collection("users").Document(uid).Collection("cart").Document(cartDocId);
+            
             DocumentSnapshot existing = await doc.GetSnapshotAsync();
             if (existing.Exists)
             {
                 int currentQty = existing.GetValue<int>("quantity");
-                await doc.UpdateAsync("quantity", currentQty + 1);
+                await doc.UpdateAsync("quantity", currentQty + requestedQuantity);
                 return;
             }
 
@@ -223,7 +225,8 @@ namespace haru.market.Services
                 { "productName", product.Name },
                 { "price", (double)product.Price },
                 { "imageUrl", product.ImageUrl },
-                { "quantity", 1 },
+                { "quantity", requestedQuantity },
+                { "size", selectedSize },
                 { "addedAt", Timestamp.FromDateTime(DateTime.UtcNow) }
             };
             await doc.SetAsync(cartData);
@@ -244,12 +247,12 @@ namespace haru.market.Services
                         var data = doc.ToDictionary();
                         cartList.Add(new CartItemViewModel
                         {
-                            ProductId = doc.Id,
+                            ProductId = doc.Id, 
                             ProductName = data.ContainsKey("productName") ? data["productName"]?.ToString() ?? "" : "Unknown Item",
                             Price = data.ContainsKey("price") ? Convert.ToDecimal(data["price"]) : 0.00m,
                             ImageUrl = data.ContainsKey("imageUrl") ? data["imageUrl"]?.ToString() ?? "placeholder.png" : "placeholder.png",
                             Quantity = data.ContainsKey("quantity") ? Convert.ToInt32(data["quantity"]) : 1,
-                            Size = data.ContainsKey("description") && data["description"]?.ToString() is string desc && desc.Contains("Size:") ? desc.Replace("Size:", "").Trim() : "M"
+                            Size = data.ContainsKey("size") ? data["size"]?.ToString() ?? "M" : "M" 
                         });
                     }
                 }

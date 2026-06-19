@@ -108,7 +108,7 @@
                 }
             </div>
             <span id="sizeStockFeedback" class="Stock_Notice_Inline"></span>
-            <a href="#" class="Size_Guide_Link" style="margin-top: 10px; display: inline-block;">View Measurement Size Guide</a>
+            <a href="#" class="Size_Guide_Link" style="margin-top: 10px; display: inline-block;" onclick="openSizeModal(event)">View Measurement Size Guide</a>
         </div>
 
         <div class="Purchase_Execution_Row">
@@ -141,6 +141,16 @@
     </div>
 
 </section>
+
+<div id="sizeGuideModal" class="haru-modal-overlay" onclick="closeSizeModal()">
+    <div class="haru-modal-card" style="max-width: 650px; padding: 25px;" onclick="event.stopPropagation()">
+        <button type="button" class="haru-modal-close-btn" onclick="closeSizeModal()">&times;</button>
+        <div class="haru-modal-body">
+            <h2 style="margin-bottom: 20px;">Measurement Guide</h2>
+            <img src="/images/sizechart.jpg" alt="Haru Size Chart" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid #f2d6dc;" />
+        </div>
+    </div>
+</div>
 
 <div id="authRequiredModal" class="haru-modal-overlay" onclick="closeAuthModal()">
     <div class="haru-modal-card" onclick="event.stopPropagation()">
@@ -295,6 +305,17 @@
                 }
             })
             .catch(error => console.error("Network communication connection dropped:", error));
+        }
+
+        function openSizeModal(e) {
+            if(e) e.preventDefault();
+            document.getElementById("sizeGuideModal").classList.add("show-popup");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeSizeModal() {
+            document.getElementById("sizeGuideModal").classList.remove("show-popup");
+            document.body.style.overflow = "";
         }
     </script>
 }

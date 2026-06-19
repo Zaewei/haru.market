@@ -2,11 +2,9 @@ const colorbuttons = document.querySelectorAll(".Color_Button");
 
 colorbuttons.forEach(button => {
     button.addEventListener("click", () => {
-
         colorbuttons.forEach(btn => {
             btn.classList.remove("active");
         });
-
         button.classList.add("active");
     });
 });
