@@ -133,3 +133,58 @@
     font-family: 'Nunito', sans-serif;
     font-weight: bold;
 }
+/* ── Favorites popup: show/hide ─────────────────────────────────── */
+.Popup_Overlay {
+    display: none;
+}
+
+.Popup_Overlay.show-popup {
+    display: flex;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────── */
+.Fav_Empty_State {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 48px 24px;
+    text-align: center;
+    color: #b0b0b0;
+}
+
+.Fav_Empty_State p {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #888;
+    margin: 0;
+}
+
+.Fav_Empty_State span {
+    font-size: 0.85rem;
+    color: #bbb;
+}
+
+/* ── Remove heart button inside popup card ───────────────────────── */
+.fav-remove-btn {
+    background: rgba(255,255,255,0.85);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    color: #EB899D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.fav-remove-btn:hover {
+    background: #fff5f7;
+    transform: scale(1.12);
+}
