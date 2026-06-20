@@ -313,6 +313,18 @@
     transform: scale(1.08);
 }
 
+/* Programmatic state: added/removed via JS after API confirmation */
+.Haru_Heart_Wish_Label.is-favorited {
+    background-color: #fff5f7;
+    border-color: #EB899D;
+}
+
+.Haru_Heart_Wish_Label.is-favorited .heart-icon {
+    fill: #EB899D;
+    stroke: #EB899D;
+    transform: scale(1.08);
+}
+
 .haru-modal-overlay {
     position: fixed;
     top: 0;
