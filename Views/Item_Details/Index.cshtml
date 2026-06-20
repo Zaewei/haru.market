@@ -217,9 +217,21 @@
             const currentActiveSize = document.querySelector(".Size_Button.active");
             updateStockDisplay(currentActiveSize);
 
-            if(plusBtn && minusBtn && qtyInput) {
+           if(plusBtn && minusBtn && qtyInput) {
+                
+                // Add tiny trackers to prevent the double-fire bug
+                let lastPlusClick = 0;
+                let lastMinusClick = 0;
+
                 plusBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
                     e.stopImmediatePropagation();
+                    
+                    // Presentation Hack: If the ghost script fires within 50ms, ignore it!
+                    let now = Date.now();
+                    if (now - lastPlusClick < 50) return; 
+                    lastPlusClick = now;
+
                     const activeBtn = document.querySelector(".Size_Button.active");
                     const maxAllowed = activeBtn ? parseInt(activeBtn.getAttribute("data-size-stock")) || 0 : 99;
                     
@@ -227,17 +239,22 @@
                     if(val < maxAllowed) {
                         qtyInput.value = val + 1;
                     }
-                });
+                }, true);
 
                 minusBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
                     e.stopImmediatePropagation();
+                    
+                    let now = Date.now();
+                    if (now - lastMinusClick < 50) return; 
+                    lastMinusClick = now;
+
                     let val = parseInt(qtyInput.value) || 1;
                     if(val > 1) {
                         qtyInput.value = val - 1;
                     }
-                });
+                }, true);
             }
-        });
 
         function openAuthModal() {
             document.getElementById("authRequiredModal").classList.add("show-popup");
