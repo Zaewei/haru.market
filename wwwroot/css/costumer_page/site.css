@@ -200,3 +200,39 @@ nav {
   height: 50vh;
   width: 100%;
 }
+/* Social links overlaid on the footer, matching Footer.png layout */
+.footer_links {
+  position: absolute;
+  left: 65%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.footer_links a {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.footer_links a svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.footer_links a:hover { color: #7a1030; }
+
+@media (max-width: 768px) {
+  .footer_container { height: 30vh; }
+  .footer_links { right: 5%; font-size: 0.7rem; }
+}
