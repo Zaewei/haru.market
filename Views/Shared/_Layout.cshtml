@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -70,7 +70,9 @@
     </footer>
 
     <partial name="Popups/_Search_Popup_Page" />
-    <partial name="Popups/_Favorites_Popup_Page" />
+    <div id="haruFavoritesContainer">
+        <partial name="Popups/_Favorites_Popup_Page" model="new List<haru.market.Models.FavoriteItemViewModel>()" />
+    </div>
     <partial name="Popups/_User_Popup_Page" />
     
     <div id="globalCartModalOverlay" class="haru-cart-modal-backdrop" onclick="closeCartModal(event)">
@@ -137,6 +139,25 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
+            // ── Heart / Favorites button ─────────────────────────────────────
+            const heartBtn = document.getElementById("heartBtn");
+            if (heartBtn) {
+                heartBtn.setAttribute("href", "javascript:void(0)");
+                heartBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    openFavoritesModal();
+                });
+            }
+
+            const closeHeartEl = document.getElementById("closeHeart");
+            if (closeHeartEl) {
+                closeHeartEl.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    closeFavoritesModal();
+                });
+            }
+
+            // ── Bag button ───────────────────────────────────────────────────
             const bagButton = document.getElementById("bagBtn");
             
             if (bagButton) {
@@ -197,6 +218,56 @@
             const overlayWrapper = document.getElementById("globalCartModalOverlay");
             if (overlayWrapper) {
                 overlayWrapper.classList.remove("show-popup-drawer");
+            }
+        }
+
+        function openFavoritesModal() {
+            const isLoggedIn = @(User?.Identity?.IsAuthenticated.ToString().ToLower() ?? "false");
+
+            if (!isLoggedIn) {
+                openGlobalAuthModal();
+                return;
+            }
+
+            fetch('/Favorites/GetFavoritesPartial')
+                .then(response => {
+                    if (response.redirected || !response.ok) throw new Error("AUTH_REDIRECT");
+                    return response.text();
+                })
+                .then(htmlContent => {
+                    if (htmlContent.trim().toLowerCase().startsWith('<!doctype html>') || htmlContent.includes('<html')) {
+                        throw new Error("AUTH_REDIRECT");
+                    }
+                    const container = document.getElementById("haruFavoritesContainer");
+                    if (container) {
+                        container.innerHTML = htmlContent;
+                        // Re-bind close button after re-render
+                        const closeBtn = document.getElementById("closeHeart");
+                        if (closeBtn) closeBtn.addEventListener("click", function(e) {
+                            e.preventDefault();
+                            closeFavoritesModal();
+                        });
+                    }
+                    const popup = document.getElementById("heartPopup");
+                    if (popup) {
+                        popup.classList.add("show-popup");
+                        document.body.style.overflow = "hidden";
+                    }
+                })
+                .catch(error => {
+                    if (error.message === "AUTH_REDIRECT") {
+                        openGlobalAuthModal();
+                    } else {
+                        console.error("Favorites modal error:", error);
+                    }
+                });
+        }
+
+        function closeFavoritesModal() {
+            const popup = document.getElementById("heartPopup");
+            if (popup) {
+                popup.classList.remove("show-popup");
+                document.body.style.overflow = "";
             }
         }
 
