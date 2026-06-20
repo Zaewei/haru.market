@@ -1,3 +1,5 @@
+@model List<haru.market.Models.FavoriteItemViewModel>
+
 <div id="heartPopup" class="Popup_Overlay">
     <div class="Favorites_Layout_Window">
         <div class="Popup_Window">
@@ -11,139 +13,91 @@
             </div>
             <div class="Popup_Content">
 
-                <div class="Fav_Product_Container">
-        
-        
-                    <div class="Fav_Product_Card">
-                        <div class="Fav_Product_Image">
-                            <img src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
-                            <button class="heart-btn">
-                                ❤
-                            </button>
-                        </div>
+                <div class="Fav_Product_Container" id="favProductContainer">
 
-                        <div class="Fav_Product_ColorSeletor">
-                            <div class="Fav_color-dot active">
-                                <img src="/images/Shop/MyDarling/Icon/Black.png" />
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <div class="Fav_Product_Card" data-product-id="@item.ProductId">
+                                <div class="Fav_Product_Image">
+                                    <a href="@Url.Action("Index", "Item_Details", new { id = item.ProductId })">
+                                        <img src="@item.ImageUrl" alt="@item.ProductName" />
+                                    </a>
+                                    <button class="heart-btn fav-remove-btn"
+                                            data-product-id="@item.ProductId"
+                                            title="Remove from favorites"
+                                            onclick="removeFavorite('@item.ProductId', this)">
+                                        ❤
+                                    </button>
+                                </div>
+                                <h3>
+                                    <a href="@Url.Action("Index", "Item_Details", new { id = item.ProductId })"
+                                       style="text-decoration:none; color:inherit;">
+                                        @item.ProductName
+                                    </a>
+                                </h3>
+                                <p>₱@item.Price.ToString("N0")</p>
                             </div>
-                            <div class="Fav_color-dot active">
-                            <img src="/images/Shop/MyDarling/Icon/White.png" />
-                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="Fav_Empty_State" id="favEmptyState">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                 stroke="#e8b4bc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                            <p>No favorites yet.</p>
+                            <span>Tap the ♡ on any product to save it here.</span>
                         </div>
-                        <h3>My Darling</h3>
-                        <p>₱999</p>
+                    }
 
-                    </div>
-
-                    <div class="Fav_Product_Card">
-                        <div class="Fav_Product_Image">
-                            <img src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
-                            <button class="heart-btn">
-                                ❤
-                            </button>
-                        </div>
-
-                        <div class="Fav_Product_ColorSeletor">
-                            <div class="Fav_color-dot active">
-                                <img src="/images/Shop/MyDarling/Icon/Black.png" />
-                            </div>
-                            <div class="Fav_color-dot active">
-                            <img src="/images/Shop/MyDarling/Icon/White.png" />
-                            </div>
-                        </div>
-                        <h3>My Darling</h3>
-                        <p>₱999</p>
-
-                    </div>
-
-                    <div class="Fav_Product_Card">
-                        <div class="Fav_Product_Image">
-                            <img src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
-                            <button class="heart-btn">
-                                ❤
-                            </button>
-                        </div>
-
-                        <div class="Fav_Product_ColorSeletor">
-                            <div class="Fav_color-dot active">
-                                <img src="/images/Shop/MyDarling/Icon/Black.png" />
-                            </div>
-                            <div class="Fav_color-dot active">
-                            <img src="/images/Shop/MyDarling/Icon/White.png" />
-                            </div>
-                        </div>
-                        <h3>My Darling</h3>
-                        <p>₱999</p>
-
-                    </div>
-
-                    <div class="Fav_Product_Card">
-                        <div class="Fav_Product_Image">
-                            <img src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
-                            <button class="heart-btn">
-                                ❤
-                            </button>
-                        </div>
-
-                        <div class="Fav_Product_ColorSeletor">
-                            <div class="Fav_color-dot active">
-                                <img src="/images/Shop/MyDarling/Icon/Black.png" />
-                            </div>
-                            <div class="Fav_color-dot active">
-                            <img src="/images/Shop/MyDarling/Icon/White.png" />
-                            </div>
-                        </div>
-                        <h3>My Darling</h3>
-                        <p>₱999</p>
-
-                    </div>
-
-                    <div class="Fav_Product_Card">
-                        <div class="Fav_Product_Image">
-                            <img src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
-                            <button class="heart-btn">
-                                ❤
-                            </button>
-                        </div>
-
-                        <div class="Fav_Product_ColorSeletor">
-                            <div class="Fav_color-dot active">
-                                <img src="/images/Shop/MyDarling/Icon/Black.png" />
-                            </div>
-                            <div class="Fav_color-dot active">
-                            <img src="/images/Shop/MyDarling/Icon/White.png" />
-                            </div>
-                        </div>
-                        <h3>My Darling</h3>
-                        <p>₱999</p>
-
-                    </div>
-
-                    <div class="Fav_Product_Card">
-                        <div class="Fav_Product_Image">
-                            <img src="~/images/Shop/MyDarling/Transparent/Black_Front.png" />
-                            <button class="heart-btn">
-                                ❤
-                            </button>
-                        </div>
-
-                        <div class="Fav_Product_ColorSeletor">
-                            <div class="Fav_color-dot active">
-                                <img src="/images/Shop/MyDarling/Icon/Black.png" />
-                            </div>
-                            <div class="Fav_color-dot active">
-                            <img src="/images/Shop/MyDarling/Icon/White.png" />
-                            </div>
-                        </div>
-                        <h3>My Darling</h3>
-                        <p>₱999</p>
-
-                    </div>
-        
-                 </div>
+                </div>
 
             </div>
-                <div class="Bottom_Space"></div>
+            <div class="Bottom_Space"></div>
         </div>
     </div>
 </div>
+
+<script>
+    function removeFavorite(productId, btn) {
+        fetch('/Favorites/Toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: productId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && !data.isFavorited) {
+                // Remove the card from the UI
+                const card = document.querySelector(`.Fav_Product_Card[data-product-id="${productId}"]`);
+                if (card) card.remove();
+
+                // Sync the heart button on the item details page if it's open
+                const favLabel = document.querySelector('.Haru_Heart_Wish_Label');
+                const favCheckbox = document.getElementById('fav1');
+                if (favCheckbox && favCheckbox.dataset.productId === productId) {
+                    favCheckbox.checked = false;
+                    if (favLabel) favLabel.classList.remove('is-favorited');
+                }
+
+                // Show empty state if nothing left
+                const container = document.getElementById('favProductContainer');
+                if (container && container.querySelectorAll('.Fav_Product_Card').length === 0) {
+                    container.innerHTML = `
+                        <div class="Fav_Empty_State" id="favEmptyState">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                 stroke="#e8b4bc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                            <p>No favorites yet.</p>
+                            <span>Tap the ♡ on any product to save it here.</span>
+                        </div>`;
+                }
+            }
+        })
+        .catch(err => console.error('Remove favorite error:', err));
+    }
+</script>
