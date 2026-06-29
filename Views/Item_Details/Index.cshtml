@@ -225,7 +225,7 @@
                 plusBtn.addEventListener("click", function(e) {
                     e.preventDefault();
                     e.stopImmediatePropagation();
-
+                    
                     let now = Date.now();
                     if (now - lastPlusClick < 50) return; 
                     lastPlusClick = now;
@@ -253,6 +253,8 @@
                     }
                 }, true);
             }
+
+        });
 
         function openAuthModal() {
             document.getElementById("authRequiredModal").classList.add("show-popup");
