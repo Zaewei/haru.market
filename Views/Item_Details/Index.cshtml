@@ -219,13 +219,15 @@
 
            if(plusBtn && minusBtn && qtyInput) {
                 
+                // Add tiny trackers to prevent the double-fire bug
                 let lastPlusClick = 0;
                 let lastMinusClick = 0;
 
                 plusBtn.addEventListener("click", function(e) {
                     e.preventDefault();
                     e.stopImmediatePropagation();
-
+                    
+                    // Presentation Hack: If the ghost script fires within 50ms, ignore it!
                     let now = Date.now();
                     if (now - lastPlusClick < 50) return; 
                     lastPlusClick = now;
@@ -253,6 +255,8 @@
                     }
                 }, true);
             }
+
+        });
 
         function openAuthModal() {
             document.getElementById("authRequiredModal").classList.add("show-popup");
